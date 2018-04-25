@@ -9,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.app.chart.model.Chart;
-import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
