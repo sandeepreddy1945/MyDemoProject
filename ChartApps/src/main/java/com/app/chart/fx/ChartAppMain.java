@@ -76,6 +76,6 @@ public class ChartAppMain extends Application {
 	 */
 	private void checkAndCreateDir(String... files) {
 
-		Arrays.asList(files).stream().filter(s -> !new File(s).exists()).forEach(s -> new File(s).mkdir());
+		Arrays.asList(files).stream().filter(f -> !new File(f).exists()).forEach(f -> new File(f).mkdir());
 	}
 }
