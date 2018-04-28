@@ -3,8 +3,13 @@
  */
 package com.app.chart.model.test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Random;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +48,7 @@ public class ChartModelTest {
 		setSetters();
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-	    mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+		mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 		ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
 		System.out.println(objectWriter.writeValueAsString(chart));
 
@@ -77,6 +82,37 @@ public class ChartModelTest {
 		chart.setConnectors(connectors);
 		chart.setNode(node);
 		chart.setNodeAlign(randomString());
+	}
+
+	@Test
+	public void testMemberJson() throws IOException {
+		File file = File.createTempFile("member", "json");
+		FileUtils.copyInputStreamToFile(chart.getClass().getClassLoader().getResourceAsStream("member.json"), file);
+		String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
+		System.out.println(String.format(fileStr, randomString(), randomString(), randomString(), randomString(),
+				randomString(), randomString()));
+		file.delete();
+		Assert.assertNotNull(fileStr);
+	}
+
+	@Test
+	public void testChartConfigJson() throws IOException {
+		File file = File.createTempFile("chartConfig", "json");
+		FileUtils.copyInputStreamToFile(chart.getClass().getClassLoader().getResourceAsStream("chartConfig.json"),
+				file);
+		String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
+		Assert.assertNotNull(fileStr);
+	}
+
+	@Test
+	public void testHeadMemberJson() throws IOException {
+		File file = File.createTempFile("headMember", "json");
+		FileUtils.copyInputStreamToFile(chart.getClass().getClassLoader().getResourceAsStream("headMember.json"), file);
+		String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
+		System.out.println(String.format(fileStr, randomString(), randomString(), randomString(), randomString(),
+				randomString(), randomString()));
+		file.delete();
+		Assert.assertNotNull(fileStr);
 	}
 
 }

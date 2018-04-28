@@ -1,0 +1,11 @@
+{
+	"HTMLclass": "%s",
+	"text": {
+		"name": "%s",
+		"title": "%s"
+	},
+	"link": {
+		"href": "%s"
+	},
+	"image": "../images/%s"
+}

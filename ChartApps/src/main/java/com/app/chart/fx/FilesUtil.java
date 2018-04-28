@@ -28,6 +28,10 @@ public class FilesUtil {
 			+ SLASH + "properties";
 	public static final String JSON_MSGS_PATH = FileUtils.getUserDirectory().getAbsolutePath() + SLASH + MPS_CHARTS_PATH
 			+ SLASH + "jsons";
+	public static final String JS_DIR_PATH = FileUtils.getUserDirectory().getAbsolutePath() + SLASH + MPS_CHARTS_PATH
+			+ SLASH + "js";
+	public static final String CSS_DIR_PATH = FileUtils.getUserDirectory().getAbsolutePath() + SLASH + MPS_CHARTS_PATH
+			+ SLASH + "css";
 	public static final String RUN_PROPS_PATH = PROPS_DIR_PATH + SLASH + "run.properties";
 	public static final String MANAGER_PROPS_PATH = PROPS_DIR_PATH + SLASH + "manager.properties";
 
@@ -48,11 +52,22 @@ public class FilesUtil {
 
 	/**
 	 * Initialize the Dirs ..In the User Directory for App to Fucntion
+	 * 
+	 * @throws IOException
 	 */
-	public static void initializeFileSettings() {
-		checkAndCreateDir(MAIN_APP_PATH, IMAGES_DIR_PATH, HTML_DIR_PATH, PROPS_DIR_PATH, JSON_MSGS_PATH);
+	public static void initializeFileSettings() throws IOException {
+		checkAndCreateDir(MAIN_APP_PATH, IMAGES_DIR_PATH, HTML_DIR_PATH, PROPS_DIR_PATH, JSON_MSGS_PATH, JS_DIR_PATH,
+				CSS_DIR_PATH);
+
+		copyJsAndCssFilesToFolders();
 
 		checkAndCreateFile(RUN_PROPS_PATH, MANAGER_PROPS_PATH);
+
+		copyRequiredJsAndCssFiles();
+	}
+
+	public static void copyJsAndCssFilesToFolders() {
+
 	}
 
 	/**
@@ -85,8 +100,48 @@ public class FilesUtil {
 		});
 	}
 
+	public static Properties readMainPropertiesFile() throws IOException {
+		return readFromPropertiesFile(MANAGER_PROPS_PATH);
+	}
+
+	public static Properties readFromPropertiesFile(String url) throws IOException {
+		Properties props = new Properties();
+		props.load(FileUtils.openInputStream(new File(url)));
+
+		return props;
+	}
+
 	public enum FileExtensionTypes {
 		json, properties, txt
+	}
+
+	public static void copyRequiredJsAndCssFiles() throws IOException {
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "bootstrap.min.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery-ui.min.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery.easing.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery.min.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery.mousewheel.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery.transition.min.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "raphael.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "Treant.js");
+
+		// create dir for perfect scroll bar scripts
+		checkAndCreateDir(JS_DIR_PATH + SLASH + "perfect-scrollbar");
+		
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "perfect-scrollbar/perfect-scrollbar.js");
+		fileCopierForJSAndCss(JS_DIR_PATH, "js", "perfect-scrollbar/perfect-scrollbar.css");
+		// css files
+		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "bootstrap-grid.min.css");
+		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "bootstrap.min.css");
+		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "custom-colored.css");
+		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "Treant.css");
+	}
+
+	private static void fileCopierForJSAndCss(String dir, String fileType, String fileName) throws IOException {
+		checkAndCreateFile(dir + SLASH + fileName);
+		FileUtils.copyToFile(
+				FilesUtil.class.getClassLoader().getResourceAsStream("com/app/chart/" + fileType + SLASH + fileName),
+				new File(dir + SLASH + fileName));
 	}
 
 }

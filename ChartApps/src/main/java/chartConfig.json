@@ -1,0 +1,19 @@
+{
+	"container": "#custom-colored",
+	"nodeAlign": "BOTTOM",
+	"animateOnInit": true,
+	"animateOnInitDelay": 6500,
+	"connectors": {
+		"type": "step"
+	},
+	"animation": {
+		"nodeSpeed": 1500,
+		"connectorsAnimation": "linear",
+		"nodeAnimation": "linear",
+		"connectorsSpeed": 1500
+	},
+	"node": {
+		"HTMLclass": "nodeExample1",
+		"collapsable": true
+	}
+}

@@ -3,12 +3,6 @@
  */
 package com.app.chart.fx;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-import org.apache.commons.io.FileUtils;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
