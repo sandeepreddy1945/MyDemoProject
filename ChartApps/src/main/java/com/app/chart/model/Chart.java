@@ -22,7 +22,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-@JsonPropertyOrder({ "container", "nodeAlign", "animateOnInit", "animateOnInitDelay", "connectors", "animation",
+@JsonPropertyOrder({ "container","rootOrientation", "nodeAlign", "animateOnInit", "animateOnInitDelay", "connectors", "animation",
 		"node" })
 @JsonInclude(value = Include.NON_NULL)
 @JsonRootName(value = "chart")
@@ -30,6 +30,8 @@ public class Chart {
 
 	@JsonProperty("container")
 	private String container;
+	@JsonProperty("rootOrientation")
+	private String rootOrientation;
 	@JsonProperty("nodeAlign")
 	private String nodeAlign;
 	@JsonProperty("animateOnInit")

@@ -207,7 +207,7 @@ public class GaugeDemo extends Application {
                         .markersVisible(false)                                                           // Should markers be visible
                         .markers(marker1, marker2)                                                       // Markers that will be drawn
                         // Related to Value
-                        .animated(false)                                                                 // Should needle be animated
+                        .animated(true)                                                                 // Should needle be animated
                         .animationDuration(500)                                                          // Speed of needle in milliseconds (10 - 10000 ms)
                         .onValueChanged(o -> System.out.println(((DoubleProperty) o).get()))             // InvalidationListener (triggered each time the value changed)
                         .build();

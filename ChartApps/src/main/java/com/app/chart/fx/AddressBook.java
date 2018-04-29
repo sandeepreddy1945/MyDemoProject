@@ -367,6 +367,7 @@ public class AddressBook extends Application {
 								+ teamCombo.getSelectionModel().getSelectedItem() + FilesUtil.SLASH + "app.json"),
 						objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(empList),
 						Charset.defaultCharset(), false);
+				// prepare the js file required for the app to function
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
