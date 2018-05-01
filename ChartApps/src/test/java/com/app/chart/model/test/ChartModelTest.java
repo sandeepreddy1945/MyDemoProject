@@ -14,11 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.app.chart.model.Chart;
+import com.app.chart.model.EmployeeDetails;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  * @author Sandeep
@@ -31,6 +35,7 @@ public class ChartModelTest {
 	Chart.Animation animation;
 	Chart.Connectors connectors;
 	Chart.Node node;
+	ObservableList<EmployeeDetails> emplList;
 
 	@Before
 	public void setUp() {
@@ -38,6 +43,7 @@ public class ChartModelTest {
 		animation = chart.new Animation();
 		connectors = chart.new Connectors();
 		node = chart.new Node();
+		emplList = FXCollections.observableArrayList();
 	}
 
 	@Test
@@ -84,6 +90,19 @@ public class ChartModelTest {
 		chart.setNodeAlign(randomString());
 	}
 
+	private EmployeeDetails generateEmployeesValues() {
+		EmployeeDetails details = new EmployeeDetails();
+		details.setDescription(randomString());
+		details.setLink(randomString());
+		details.setName(randomString());
+		details.setParent(randomString());
+		details.setPortalId(randomString());
+		details.setTeam(randomString());
+		details.setPseudo(false);
+		return details;
+
+	}
+
 	@Test
 	public void testMemberJson() throws IOException {
 		File file = File.createTempFile("member", "json");
@@ -114,5 +133,6 @@ public class ChartModelTest {
 		file.delete();
 		Assert.assertNotNull(fileStr);
 	}
+	
 
 }

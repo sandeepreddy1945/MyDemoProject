@@ -18,9 +18,8 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
-@JsonPropertyOrder({ "portalId", "name", "description", "team", "parent", "link" })
+@JsonPropertyOrder({ "portalId", "name", "description", "team", "parent", "link","pseudo" })
 @JsonInclude(value = Include.NON_NULL)
 @JsonRootName(value = "children")
 public class EmployeeDetails {
@@ -37,6 +36,8 @@ public class EmployeeDetails {
 	String parent;
 	@JsonProperty("link")
 	String link;
+	@JsonProperty("pseudo")
+	boolean pseudo;
 
 	@Getter
 	@Setter
@@ -52,5 +53,13 @@ public class EmployeeDetails {
 		String protocol;
 		@JsonProperty("port")
 		String port;
+	}
+
+	/**
+	 * Override to string for display in combo boxes.
+	 */
+	@Override
+	public String toString() {
+		return name + " - " + portalId;
 	}
 }

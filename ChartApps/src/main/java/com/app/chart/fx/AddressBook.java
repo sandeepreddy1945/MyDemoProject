@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 
+import com.app.chart.fx.tree.OrgTreeView;
 import com.app.chart.model.EmployeeDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
@@ -28,12 +29,16 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -47,6 +52,12 @@ import lombok.Setter;
 
 public class AddressBook extends Application {
 
+	public static final String TEMP_JS = "temp.js";
+	public static final String PREVIEW_JSON = "preview.json";
+	public static final String TEMP_HTML = "temp.html";
+	public static final String INDEX_HTML = "index.html";
+	public static final String APP_JSON = "app.json";
+	public static final String APP_JS = "app.js";
 	private TableView<Person> table = new TableView<Person>();
 	private final ObservableList<Person> data = FXCollections
 			.observableArrayList(/*
@@ -61,6 +72,7 @@ public class AddressBook extends Application {
 	JFXComboBox<String> teamCombo;
 	Properties props = new Properties();
 	ObjectMapper objectMapper = new ObjectMapper();
+	private JFXTextField addManagerField;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -91,14 +103,16 @@ public class AddressBook extends Application {
 		teamCombo.getItems()
 				.addAll(FXCollections.observableArrayList(props.keySet().toArray(new String[props.size()])));
 
-		final JFXTextField addManagerField = new JFXTextField();
+		addManagerField = new JFXTextField();
 		addManagerField.setPromptText("Create/Add New Chart here");
+
+		final JFXButton previewBtn = new JFXButton("Create Preview Order");
 		addManagerField.setMinSize(450, 20);
 
 		JFXButton addChart = new JFXButton("Add Chart To List");
 		headerHb.setMinWidth(1000);
 		headerHb.setSpacing(10);
-		headerHb.getChildren().addAll(teamCombo, addManagerField, addChart);
+		headerHb.getChildren().addAll(teamCombo, addManagerField, addChart, previewBtn);
 
 		table.setEditable(true);
 		Callback<TableColumn, TableCell> cellFactory = new Callback<TableColumn, TableCell>() {
@@ -193,39 +207,8 @@ public class AddressBook extends Application {
 		parentTF.setPromptText("Parent");
 
 		final JFXButton addButton = new JFXButton("Add");
-		addButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent e) {
-				if (nameTF.getText().length() > 0 && designationTF.getText().length() > 0
-						&& teamTF.getText().length() > 0 && parentTF.getText().length() > 0
-						&& portalTF.getText().length() > 0) {
-					data.add(new Person(portalTF.getText(), nameTF.getText(), designationTF.getText(), teamTF.getText(),
-							parentTF.getText()));
-					nameTF.clear();
-					designationTF.clear();
-					teamTF.clear();
-					portalTF.clear();
-					parentTF.clear();
-				} else {
-					JFXAlert<String> alert = new JFXAlert<>();
-					alert.initModality(Modality.APPLICATION_MODAL);
-					alert.setOverlayClose(false);
-					JFXDialogLayout layout = new JFXDialogLayout();
-					layout.setHeading(new Label("Missing Fields"));
-					layout.setBody(new Label("Looks Like There are Some Missing Field \n"
-							+ "Please Enter Values In all The Fields To Continue ..."));
-					JFXButton closeButton = new JFXButton("OK");
-					closeButton.getStyleClass().add("dialog-accept");
-					closeButton.setOnAction(event -> alert.hideWithAnimation());
-					layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
-							+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
-							+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
-							+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
-					layout.setActions(closeButton);
-					alert.setContent(layout);
-					alert.show();
-				}
-			}
+		addButton.setOnAction(e -> {
+			addBtnAction(portalTF, nameTF, designationTF, teamTF, parentTF);
 		});
 
 		final JFXButton delButton = new JFXButton("Delete");
@@ -236,11 +219,15 @@ public class AddressBook extends Application {
 
 		final JFXButton saveBtn = new JFXButton("Save");
 		saveBtn.setOnAction(e -> {
-			onSaveActionPerfomed(addManagerField);
+			onSaveActionPerfomed();
 		});
 
 		addChart.setOnAction(e -> {
 			onAddChartAction(addManagerField);
+		});
+
+		previewBtn.setOnAction(e -> {
+			onPreviewBtnAction(e);
 		});
 
 		teamCombo.setOnAction(e -> {
@@ -270,12 +257,44 @@ public class AddressBook extends Application {
 		stage.show();
 	}
 
+	private void addBtnAction(final JFXTextField portalTF, final JFXTextField nameTF, final JFXTextField designationTF,
+			final JFXTextField teamTF, final JFXTextField parentTF) {
+		if (nameTF.getText().length() > 0 && designationTF.getText().length() > 0 && teamTF.getText().length() > 0
+				&& parentTF.getText().length() > 0 && portalTF.getText().length() > 0) {
+			data.add(new Person(portalTF.getText(), nameTF.getText(), designationTF.getText(), teamTF.getText(),
+					parentTF.getText()));
+			nameTF.clear();
+			designationTF.clear();
+			teamTF.clear();
+			portalTF.clear();
+			parentTF.clear();
+		} else {
+			JFXAlert<String> alert = new JFXAlert<>();
+			alert.initModality(Modality.APPLICATION_MODAL);
+			alert.setOverlayClose(false);
+			JFXDialogLayout layout = new JFXDialogLayout();
+			layout.setHeading(new Label("Missing Fields"));
+			layout.setBody(new Label("Looks Like There are Some Missing Field \n"
+					+ "Please Enter Values In all The Fields To Continue ..."));
+			JFXButton closeButton = new JFXButton("OK");
+			closeButton.getStyleClass().add("dialog-accept");
+			closeButton.setOnAction(event -> alert.hideWithAnimation());
+			layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+					+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+					+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+					+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+			layout.setActions(closeButton);
+			alert.setContent(layout);
+			alert.show();
+		}
+	}
+
 	private void onTeamComboChanged(ActionEvent e) {
 		try {
 			String jsonStr = FileUtils
 					.readFileToString(
 							new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH
-									+ teamCombo.getSelectionModel().getSelectedItem() + FilesUtil.SLASH + "app.json"),
+									+ teamCombo.getSelectionModel().getSelectedItem() + FilesUtil.SLASH + APP_JSON),
 							Charset.defaultCharset());
 			data.clear();
 			if (jsonStr != null && jsonStr.length() > 0) {
@@ -328,15 +347,25 @@ public class AddressBook extends Application {
 				FilesUtil.checkAndCreateDir(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText());
 				FilesUtil.checkAndCreateFile(
 						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ "app.js",
+								+ APP_JS,
 						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ "app.json",
+								+ APP_JSON,
 						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ "index.html");
+								+ INDEX_HTML,
+						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+								+ TEMP_HTML,
+						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+								+ PREVIEW_JSON,
+						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+								+ TEMP_JS);
 
 				FileUtils.copyToFile(getClass().getClassLoader().getResourceAsStream("com/app/chart/html/index.html"),
 						new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ "index.html"));
+								+ INDEX_HTML));
+
+				FileUtils.copyToFile(getClass().getClassLoader().getResourceAsStream("com/app/chart/html/temp.html"),
+						new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+								+ TEMP_HTML));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -346,9 +375,12 @@ public class AddressBook extends Application {
 		}
 	}
 
-	private void onSaveActionPerfomed(final JFXTextField addManagerField) {
+	private void onSaveActionPerfomed() {
 		// save action
 		if (teamCombo.getSelectionModel().getSelectedIndex() != -1) {
+			// do an auto save action
+			this.onSaveActionPerfomed();
+
 			List<EmployeeDetails> empList = new ArrayList<>();
 			data.stream().forEach(p -> {
 				EmployeeDetails emp = new EmployeeDetails();
@@ -364,7 +396,7 @@ public class AddressBook extends Application {
 			try {
 				FileUtils.write(
 						new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH
-								+ teamCombo.getSelectionModel().getSelectedItem() + FilesUtil.SLASH + "app.json"),
+								+ teamCombo.getSelectionModel().getSelectedItem() + FilesUtil.SLASH + APP_JSON),
 						objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(empList),
 						Charset.defaultCharset(), false);
 				// prepare the js file required for the app to function
@@ -372,6 +404,39 @@ public class AddressBook extends Application {
 				e1.printStackTrace();
 			}
 		}
+	}
+
+	private void onPreviewBtnAction(ActionEvent e) {
+
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Address Book");
+		alert.setContentText("This would auto save the current table data . \n "
+				+ "Please press OK to proceed or Cancel to stay on this page.");
+		alert.showAndWait();
+
+		if (alert.getResult() == ButtonType.OK) {
+
+			Dialog orgPreviewDialog = new Dialog<>();
+			List<EmployeeDetails> empList = new ArrayList<>();
+			data.stream().forEach(p -> {
+				EmployeeDetails emp = new EmployeeDetails();
+				emp.setName(p.getName());
+				emp.setParent(p.getParent());
+				emp.setPortalId(p.getPortal());
+				emp.setTeam(p.getTeam());
+				emp.setDescription(p.getDesignation());
+				emp.setLink("http://localhost:8020/" + emp.getPortalId());
+				empList.add(emp);
+			});
+			// current app dir depending on the check box..
+			File appDir = new File(
+					FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + teamCombo.getSelectionModel().getSelectedItem());
+			OrgTreeView<EmployeeDetails> orgTreeView = new OrgTreeView<>(empList, orgPreviewDialog, appDir);
+			orgTreeView.show();
+		} else {
+			// do nothing.
+		}
+
 	}
 
 	@Getter

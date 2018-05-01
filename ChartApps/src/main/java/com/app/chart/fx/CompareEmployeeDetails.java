@@ -3,9 +3,12 @@
  */
 package com.app.chart.fx;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.app.chart.model.EmployeeDetails;
@@ -72,6 +75,17 @@ public class CompareEmployeeDetails<EmployeeSortModel> implements Comparator<Emp
 
 	private void buildEmpSortModel(EmployeeDetails empD, boolean isHeaderEmp, boolean hasChildren,
 			boolean childOfSomeNode, boolean isHeaderNodeChild, List<EmployeeDetails> childrenList) {
+
+	}
+
+	private void sortEmployeeList() {
+		Map<String, EmployeeDetails> map = new LinkedHashMap<>();
+		map.put(fetchHeaderEmployeePortalId(), fetchHeaderEmployee());
+		List<EmployeeDetails> headerChildrenList = fetchHeaderEmployeeChildren();
+		headerChildrenList.stream().forEach(e -> {
+			map.put(e.getPortalId(), e);
+			
+		});
 
 	}
 
