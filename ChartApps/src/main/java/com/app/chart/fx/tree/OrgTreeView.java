@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.AddressBook;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.EmployeeDetails;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -69,6 +69,8 @@ public class OrgTreeView<T> extends Application {
 	private final File appDir;
 
 	private final Stage stage;
+
+	private Random random = new Random();
 
 	public OrgTreeView(List<EmployeeDetails> employeeList, Stage stage, File appDir) {
 		this.employeeList = employeeList;
@@ -334,7 +336,19 @@ public class OrgTreeView<T> extends Application {
 		} else {
 			// add a Pseudo Node here
 			EmployeeDetails details = new EmployeeDetails();
+			details.setPortalId(String.valueOf(random.nextInt(999999)));
+			details.setName("Pseudo *");
 			details.setPseudo(true);
+			// check if the parent is present and set him a list if not
+			if (jsMap.containsKey(parent.getValue().getPortalId())) {
+				if (jsMap.get(parent.getValue().getPortalId()) != null) {
+					jsMap.get(parent.getValue().getPortalId()).add(details);
+				} else {
+					jsMap.put(parent.getValue().getPortalId(), new ArrayList<>());
+				}
+			} else {
+				jsMap.put(parent.getValue().getPortalId(), new ArrayList<>());
+			}
 			parent.getChildren().add(new TreeItem<EmployeeDetails>(details));
 		}
 
