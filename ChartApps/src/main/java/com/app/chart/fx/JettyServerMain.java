@@ -4,8 +4,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import com.rest.test.CORSFilter;
-import com.rest.test.EntryPoint;
+import com.app.chart.rest.CORSFilter;
+import com.app.chart.rest.EntryPoint;
 
 public class JettyServerMain {
 

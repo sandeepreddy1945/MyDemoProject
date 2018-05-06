@@ -1,4 +1,4 @@
-package com.rest.test;
+package com.app.chart.rest;
 
 import java.io.IOException;
 import javax.ws.rs.container.ContainerRequestContext;

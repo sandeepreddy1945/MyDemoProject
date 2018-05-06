@@ -279,6 +279,7 @@ public class OrgTreeView<T> extends Application {
 	}
 
 	private void addItem(ActionEvent e) {
+		isItemPresent = false;
 		EmployeeDetails selectedItem = comboBox.getSelectionModel().getSelectedItem();
 		if (comboBox.getSelectionModel().getSelectedIndex() != -1 && selectedItem != null) {
 			TreeItem<EmployeeDetails> parent = treeView.getSelectionModel().getSelectedItem();
@@ -317,6 +318,7 @@ public class OrgTreeView<T> extends Application {
 	}
 
 	private void addPseudoItem(ActionEvent e) {
+		isItemPresent = false;
 		TreeItem<EmployeeDetails> parent = treeView.getSelectionModel().getSelectedItem();
 		if (parent == null) {
 			Alert alert = new Alert(AlertType.WARNING);
@@ -340,6 +342,7 @@ public class OrgTreeView<T> extends Application {
 	}
 
 	private void removeItem(ActionEvent e) {
+		isItemPresent = false;
 		TreeItem<EmployeeDetails> item = treeView.getSelectionModel().getSelectedItem();
 		if (item == null) {
 			Alert alert = new Alert(AlertType.WARNING);
@@ -360,8 +363,16 @@ public class OrgTreeView<T> extends Application {
 
 	}
 
+	/**
+	 * There seems to be a JDK-8193044 bug from oracle .<br>
+	 * So this doesnot allow the page refresh to work appropriately .<br>
+	 * No work around for now always relaod the page manually by adding elements
+	 * manually.<br>
+	 * 
+	 * @param e
+	 */
 	private void refreshWebView(ActionEvent e) {
-
+		isItemPresent = false;
 		// empty string to skip possible null pointers.
 		String fileContent = "";
 		try {
@@ -384,6 +395,7 @@ public class OrgTreeView<T> extends Application {
 				doSaveAction(e);
 				if (isTemphtmlLoaded) {
 					// reload the browser .
+					webEngine.loadContent(fileContent);
 					webEngine.reload();
 				} else {
 					try {
@@ -405,6 +417,8 @@ public class OrgTreeView<T> extends Application {
 	}
 
 	private void doSaveAction(ActionEvent e) {
+		// set the class variable to false for refresh.
+		isItemPresent = false;
 		// write the map to preview.json file
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -494,12 +508,12 @@ public class OrgTreeView<T> extends Application {
 				if (tid.getValue().isPseudo()) {
 					sb.append(bjs.buildPseudoJsString(tid.getValue(), stepCount++));
 					sb.append(COMMA);
-					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(fetchParentStr(tid));
 					configOrderBuilder.append(COMMA);
 				} else {
 					sb.append(bjs.buildMemberJsString(tid.getValue(), stepCount++));
 					sb.append(COMMA);
-					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(fetchParentStr(tid));
 					configOrderBuilder.append(COMMA);
 				}
 				previewList.add(tid.getValue());
@@ -507,12 +521,12 @@ public class OrgTreeView<T> extends Application {
 				if (tid.getValue().isPseudo()) {
 					sb.append(bjs.buildPseudoJsString(tid.getValue()));
 					sb.append(COMMA);
-					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(fetchParentStr(tid));
 					configOrderBuilder.append(COMMA);
 				} else {
 					sb.append(bjs.buildMemberJsString(tid.getValue()));
 					sb.append(COMMA);
-					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(fetchParentStr(tid));
 					configOrderBuilder.append(COMMA);
 				}
 				previewList.add(tid.getValue());
@@ -527,6 +541,10 @@ public class OrgTreeView<T> extends Application {
 			iterationCount++;
 		}
 
+	}
+
+	private String fetchParentStr(TreeItem<EmployeeDetails> tid) {
+		return tid.getValue().getName() + "_" + tid.getValue().getPortalId();
 	}
 
 	// check if duplicate item is present;

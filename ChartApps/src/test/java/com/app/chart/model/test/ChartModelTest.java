@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Random;
-import java.util.Scanner;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
