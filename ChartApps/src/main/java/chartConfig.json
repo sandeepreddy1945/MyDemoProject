@@ -4,8 +4,12 @@
 	"animateOnInit": true,
 	"animateOnInitDelay": 6500,
 	"connectors": {
-		"type": "step"
+		"type": "step",
+		"style": {
+			"stroke-width": 3
+		}
 	},
+	"levelSeparation": 40,
 	"animation": {
 		"nodeSpeed": 1500,
 		"connectorsAnimation": "linear",
@@ -13,7 +17,7 @@
 		"connectorsSpeed": 1500
 	},
 	"node": {
-		"HTMLclass": "nodeExample1",
+		"HTMLclass": "customColored",
 		"collapsable": true
 	}
 }

@@ -378,8 +378,6 @@ public class AddressBook extends Application {
 	private void onSaveActionPerfomed() {
 		// save action
 		if (teamCombo.getSelectionModel().getSelectedIndex() != -1) {
-			// do an auto save action
-			this.onSaveActionPerfomed();
 
 			List<EmployeeDetails> empList = new ArrayList<>();
 			data.stream().forEach(p -> {
@@ -415,7 +413,9 @@ public class AddressBook extends Application {
 		alert.showAndWait();
 
 		if (alert.getResult() == ButtonType.OK) {
-
+			// do a auto save action before proceeding  further.
+			this.onSaveActionPerfomed();
+			
 			Dialog orgPreviewDialog = new Dialog<>();
 			List<EmployeeDetails> empList = new ArrayList<>();
 			data.stream().forEach(p -> {

@@ -5,16 +5,17 @@ package com.app.chart.fx.tree;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.AddressBook;
+import com.app.chart.fx.BuildJavaScript;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.EmployeeDetails;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +33,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
@@ -47,7 +49,12 @@ import javafx.stage.Window;
 /**
  * @author Sandeep
  * @param <T>
- *
+ *            For Parent Node escape "" literals as the javascript cannot find
+ *            the parent if it is in quotes .<br>
+ *            So skip the quotes by just pasing the template without quotes
+ *            .<br>
+ *            This nature to skip quotes is applicable only to the parent
+ *            element in all aspects as per the java script conditionality .<br>
  */
 public class OrgTreeView<T> extends Application {
 
@@ -55,7 +62,9 @@ public class OrgTreeView<T> extends Application {
 
 	private TreeView<EmployeeDetails> treeView = new TreeView<EmployeeDetails>();
 
-	private Map<String, List<EmployeeDetails>> jsMap = new LinkedHashMap<String, List<EmployeeDetails>>();
+	private List<EmployeeDetails> previewList = new LinkedList<EmployeeDetails>();
+
+	private boolean isTemphtmlLoaded = false;
 
 	private WebView view = null;
 	private WebEngine webEngine = null;
@@ -66,6 +75,8 @@ public class OrgTreeView<T> extends Application {
 
 	public static final String HEADER_MEMBER = "1";
 
+	private static final String COMMA = ", \n";
+
 	private final File appDir;
 
 	private final Stage stage;
@@ -75,7 +86,9 @@ public class OrgTreeView<T> extends Application {
 	public OrgTreeView(List<EmployeeDetails> employeeList, Stage stage, File appDir) {
 		this.employeeList = employeeList;
 		comboBox = new JFXComboBox<>();
-		comboBox.getItems().addAll(employeeList);
+		// remove header from the list and the add the list
+		comboBox.getItems().addAll(
+				employeeList.stream().filter(e -> !e.getParent().equals(HEADER_MEMBER)).collect(Collectors.toList()));
 		this.appDir = appDir;
 		this.stage = stage;
 		// comboBox.setCellFactory(c -> addCellFcatoryForComboBox());
@@ -85,7 +98,8 @@ public class OrgTreeView<T> extends Application {
 	public OrgTreeView(List<EmployeeDetails> employeeList, Dialog dialog, File appDir) {
 		this.employeeList = employeeList;
 		comboBox = new JFXComboBox<>();
-		comboBox.getItems().addAll(employeeList);
+		comboBox.getItems().addAll(
+				employeeList.stream().filter(e -> !e.getParent().equals(HEADER_MEMBER)).collect(Collectors.toList()));
 		this.appDir = appDir;
 
 		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -132,9 +146,10 @@ public class OrgTreeView<T> extends Application {
 		EmployeeDetails headerEmployee = fetchHeaderEmployee();
 		TreeItem<EmployeeDetails> rootItem = new TreeItem<>(headerEmployee);
 		treeView.setRoot(rootItem);
+		treeView.setEditable(true);
 
-		// add the header element to map with empty list under him.
-		jsMap.put(headerEmployee.getPortalId(), new ArrayList<>());
+		// add the header element to list as he is the first element of the tree.
+		previewList.add(headerEmployee);
 
 		treeView.setOnEditStart(e -> {
 
@@ -275,26 +290,12 @@ public class OrgTreeView<T> extends Application {
 				alert.showAndWait();
 			} else {
 				// check for duplicates
-				for (TreeItem<EmployeeDetails> ti : parent.getChildren()) {
-					// check if child already has the same child
-					if (ti.getValue().getPortalId().equals(selectedItem.getPortalId())) {
-						isDuplicateData = true;
-						break;
-					}
-				}
+				// loop and completey check if item is already present.
+				isDuplicateData = checkIfItemAlreadyPresentInTree(selectedItem, treeView.getRoot().getChildren()
+						.toArray(new TreeItem[treeView.getRoot().getChildren().size()]));
 				// check if the same parent element is added again
 				if (selectedItem.getPortalId().equals(parent.getValue().getPortalId())) {
 					isDuplicateData = true;
-				}
-
-				// check if element is already in existing in the tree
-				// double looping on all the elements available.
-				for (TreeItem<EmployeeDetails> ti : treeView.getRoot().getChildren()) {
-					for (TreeItem<EmployeeDetails> tic : ti.getChildren()) {
-						if (selectedItem.getPortalId().equals(tic.getValue().getPortalId())) {
-							isDuplicateData = true;
-						}
-					}
 				}
 
 				if (isDuplicateData) {
@@ -305,17 +306,6 @@ public class OrgTreeView<T> extends Application {
 				} else {
 					TreeItem<EmployeeDetails> ti = new TreeItem<EmployeeDetails>(selectedItem);
 					parent.getChildren().add(ti);
-
-					// check if the parent is present and set him a list if not
-					if (jsMap.containsKey(parent.getValue().getPortalId())) {
-						if (jsMap.get(parent.getValue().getPortalId()) != null) {
-							jsMap.get(parent.getValue().getPortalId()).add(selectedItem);
-						} else {
-							jsMap.put(parent.getValue().getPortalId(), new ArrayList<>());
-						}
-					} else {
-						jsMap.put(parent.getValue().getPortalId(), new ArrayList<>());
-					}
 
 					itemTF.clear();
 					if (!parent.isExpanded()) {
@@ -337,19 +327,14 @@ public class OrgTreeView<T> extends Application {
 			// add a Pseudo Node here
 			EmployeeDetails details = new EmployeeDetails();
 			details.setPortalId(String.valueOf(random.nextInt(999999)));
-			details.setName("Pseudo *");
+			details.setName("Pseudo");
 			details.setPseudo(true);
 			// check if the parent is present and set him a list if not
-			if (jsMap.containsKey(parent.getValue().getPortalId())) {
-				if (jsMap.get(parent.getValue().getPortalId()) != null) {
-					jsMap.get(parent.getValue().getPortalId()).add(details);
-				} else {
-					jsMap.put(parent.getValue().getPortalId(), new ArrayList<>());
-				}
-			} else {
-				jsMap.put(parent.getValue().getPortalId(), new ArrayList<>());
-			}
 			parent.getChildren().add(new TreeItem<EmployeeDetails>(details));
+
+			if (!parent.isExpanded()) {
+				parent.setExpanded(true);
+			}
 		}
 
 	}
@@ -376,21 +361,204 @@ public class OrgTreeView<T> extends Application {
 	}
 
 	private void refreshWebView(ActionEvent e) {
-		webEngine.reload();
 
+		// empty string to skip possible null pointers.
+		String fileContent = "";
+		try {
+			fileContent = FileUtils.readFileToString(
+					new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_HTML),
+					Charset.defaultCharset());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if (fileContent.length() > 0) {
+
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Org Tree Editor");
+			alert.setContentText(
+					"This would perform an Auto Save Operation . \n " + "Press OK to Auto Save and Continue. ");
+			alert.showAndWait();
+			if (alert.getResult() == ButtonType.OK) {
+				// do an auto save action
+				doSaveAction(e);
+				if (isTemphtmlLoaded) {
+					// reload the browser .
+					webEngine.reload();
+				} else {
+					try {
+						webEngine.load(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_HTML)
+								.toURI().toURL().toExternalForm());
+					} catch (MalformedURLException e1) {
+						e1.printStackTrace();
+					}
+					isItemPresent = true;
+				}
+			}
+
+		} else {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Org Tree Editor");
+			alert.setContentText("Plese Add Organizational Tree in order to Preview / Refresh it.");
+			alert.showAndWait();
+		}
 	}
 
 	private void doSaveAction(ActionEvent e) {
 		// write the map to preview.json file
 		ObjectMapper mapper = new ObjectMapper();
+
+		// clear the preview list if it had any elements in previous or so for safety.
+		previewList.clear();
+
+		// add the header item to the preview list
+		previewList.add(treeView.getRoot().getValue());
 		try {
-			FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.PREVIEW_JSON),
-					mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsMap), Charset.defaultCharset(), false);
+
+			// TODO next write the things to app.js and temp.js file.
+			// either use the treeview as it contains the defaut things or use the jsMap in
+			// order to achieve the order.
+			int stepCount = 1;
+			// builder for individual chart mapping
+			StringBuilder sb = new StringBuilder();
+			// config builder for individual elements added.
+			StringBuilder configOrderBuilder = new StringBuilder();
+			// append first config as the letter as per procedure.
+			configOrderBuilder.append("config");
+			configOrderBuilder.append(COMMA);
+
+			BuildJavaScript bjs = new BuildJavaScript(employeeList);
+			sb.append(bjs.buildChartConfigJsString());
+			sb.append(COMMA);
+			// add the header member
+			sb.append(bjs.buildHeadMemberJsString(treeView.getRoot().getValue()));
+			sb.append(COMMA);
+
+			// add header employee next
+			configOrderBuilder.append(
+					treeView.getRoot().getValue().getName() + "_" + treeView.getRoot().getValue().getPortalId());
+			configOrderBuilder.append(COMMA);
+
+			// loop on the entire view of list of tree nodes availabe in seq by order.
+			loopOnTreeView(sb, configOrderBuilder, bjs, stepCount,
+					treeView.getRoot().getChildren().toArray(new TreeItem[treeView.getRoot().getChildren().size()]));
+			// print for debug purpose
+			System.out.println("******************************************************");
+			System.out.println(sb.toString());
+			System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+			System.out.println(
+					String.format(BuildJavaScript.jsConfigTemplate, "chart_config", configOrderBuilder.toString()));
+
+			System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+			System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList));
+
+			// write the things back to files
+			synchronized (sb) {
+				FileUtils
+						.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.APP_JS),
+								sb.toString() + " \n \n " + String.format(BuildJavaScript.jsConfigTemplate,
+										" chart_config", configOrderBuilder.toString()),
+								Charset.defaultCharset(), false);
+				FileUtils
+						.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_JS),
+								sb.toString() + " \n \n " + String.format(BuildJavaScript.jsConfigTemplate,
+										" chart_config", configOrderBuilder.toString()),
+								Charset.defaultCharset(), false);
+
+				FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.PREVIEW_JSON),
+						mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList),
+						Charset.defaultCharset(), false);
+			}
+
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+	}
 
-		// next write the things to app.json file.
+	int DEPTH = 20;
+	int iterationCount = 0;
+	int checkCount = 0;
+
+	private void loopOnTreeView(StringBuilder sb, StringBuilder configOrderBuilder, BuildJavaScript bjs, int stepCount,
+			@SuppressWarnings("unchecked") TreeItem<EmployeeDetails>... ti) throws IOException {
+
+		if (iterationCount == DEPTH) {
+			return;
+		}
+
+		for (TreeItem<EmployeeDetails> tid : ti) {
+			// set the parent portal id as the parent of the child
+			tid.getValue()
+					.setParent(tid.getParent().getValue().getName() + "_" + tid.getParent().getValue().getPortalId());
+			if (tid.getChildren().size() >= 3) {
+				if (tid.getValue().isPseudo()) {
+					sb.append(bjs.buildPseudoJsString(tid.getValue(), stepCount++));
+					sb.append(COMMA);
+					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(COMMA);
+				} else {
+					sb.append(bjs.buildMemberJsString(tid.getValue(), stepCount++));
+					sb.append(COMMA);
+					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(COMMA);
+				}
+				previewList.add(tid.getValue());
+			} else {
+				if (tid.getValue().isPseudo()) {
+					sb.append(bjs.buildPseudoJsString(tid.getValue()));
+					sb.append(COMMA);
+					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(COMMA);
+				} else {
+					sb.append(bjs.buildMemberJsString(tid.getValue()));
+					sb.append(COMMA);
+					configOrderBuilder.append(tid.getValue().getName() + "_" + tid.getValue().getPortalId());
+					configOrderBuilder.append(COMMA);
+				}
+				previewList.add(tid.getValue());
+			}
+
+			// check if the child has any more children
+			if (tid.getChildren().size() > 0) {
+				iterationCount = 0;
+				loopOnTreeView(sb, configOrderBuilder, bjs, stepCount,
+						tid.getChildren().toArray(new TreeItem[tid.getChildren().size()]));
+			}
+			iterationCount++;
+		}
+
+	}
+
+	// check if duplicate item is present;
+	boolean isItemPresent = false;
+
+	/**
+	 * Loops and check if employee is already present on the tree.
+	 * 
+	 * @param ed
+	 * @param checkRootNode
+	 * @return
+	 */
+	private boolean checkIfItemAlreadyPresentInTree(EmployeeDetails ed, TreeItem<EmployeeDetails>... checkRootNode) {
+
+		if (checkCount == DEPTH) {
+			return false;
+		}
+
+		for (TreeItem<EmployeeDetails> tid : checkRootNode) {
+			if (tid.getValue().getPortalId().equals(ed.getPortalId())) {
+				isItemPresent = true;
+				break;
+			}
+
+			if (tid.getChildren().size() > 0) {
+				checkCount = 0;
+				checkIfItemAlreadyPresentInTree(ed, tid.getChildren().toArray(new TreeItem[tid.getChildren().size()]));
+			}
+			checkCount++;
+		}
+		return isItemPresent;
+
 	}
 
 	private EmployeeDetails fetchHeaderEmployee() {
