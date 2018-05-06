@@ -59,7 +59,7 @@ import javafx.stage.Window;
 public class OrgTreeView<T> extends Application {
 
 	/**
-	 * Re-Load Page.
+	 * Re-Load Page using the window object on the javascript to reload the page.
 	 */
 	private static final String WINDOW_LOCATION_RELOAD = " window.location.reload();";
 
@@ -487,11 +487,11 @@ public class OrgTreeView<T> extends Application {
 								sb.toString() + " \n \n " + String.format(BuildJavaScript.jsConfigTemplate,
 										" chart_config", configOrderBuilder.toString()),
 								Charset.defaultCharset(), false);
-				FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_JS),
-						sb.toString() + " \n \n "
-								+ String.format(BuildJavaScript.jsConfigTemplate, " chart_config",
-										configOrderBuilder.toString()),
-						Charset.defaultCharset(), false);
+				FileUtils
+						.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_JS),
+								sb.toString() + " \n \n " + String.format(BuildJavaScript.jsConfigTemplate,
+										" chart_config", configOrderBuilder.toString()),
+								Charset.defaultCharset(), false);
 
 				FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.PREVIEW_JSON),
 						mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList),
