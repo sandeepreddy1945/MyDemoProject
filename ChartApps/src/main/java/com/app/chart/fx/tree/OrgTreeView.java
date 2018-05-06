@@ -58,6 +58,16 @@ import javafx.stage.Window;
  */
 public class OrgTreeView<T> extends Application {
 
+	/**
+	 * Re-Load Page.
+	 */
+	private static final String WINDOW_LOCATION_RELOAD = " window.location.reload();";
+
+	public static final String RELOAD_JS_SCRIPT = " function reloadPage() {\r\n" + "    window.location.reload();\r\n"
+			+ "}";
+
+	public static final String RELOAD_PAGE = "reloadPage()";
+
 	private List<EmployeeDetails> employeeList;
 
 	private TreeView<EmployeeDetails> treeView = new TreeView<EmployeeDetails>();
@@ -230,6 +240,9 @@ public class OrgTreeView<T> extends Application {
 		itemTF.setPromptText("Select Item From ComboBox");
 		view = new WebView();
 		webEngine = view.getEngine();
+		// set the javascript mode enabled to true in order to js function.
+		webEngine.setJavaScriptEnabled(true);
+		webEngine.setUserDataDirectory(FileUtils.getTempDirectory());
 
 		// set size preferences for each element.
 		itemTF.setMinWidth(350);
@@ -394,9 +407,10 @@ public class OrgTreeView<T> extends Application {
 				// do an auto save action
 				doSaveAction(e);
 				if (isTemphtmlLoaded) {
-					// reload the browser .
-					webEngine.loadContent(fileContent);
-					webEngine.reload();
+					// reload the browser using the js function reloadPage.
+					// webEngine.loadContent(fileContent);
+					// webEngine.reload();
+					webEngine.executeScript(WINDOW_LOCATION_RELOAD);
 				} else {
 					try {
 						webEngine.load(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_HTML)
@@ -404,7 +418,7 @@ public class OrgTreeView<T> extends Application {
 					} catch (MalformedURLException e1) {
 						e1.printStackTrace();
 					}
-					isItemPresent = true;
+					isTemphtmlLoaded = true;
 				}
 			}
 
@@ -473,11 +487,11 @@ public class OrgTreeView<T> extends Application {
 								sb.toString() + " \n \n " + String.format(BuildJavaScript.jsConfigTemplate,
 										" chart_config", configOrderBuilder.toString()),
 								Charset.defaultCharset(), false);
-				FileUtils
-						.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_JS),
-								sb.toString() + " \n \n " + String.format(BuildJavaScript.jsConfigTemplate,
-										" chart_config", configOrderBuilder.toString()),
-								Charset.defaultCharset(), false);
+				FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_JS),
+						sb.toString() + " \n \n "
+								+ String.format(BuildJavaScript.jsConfigTemplate, " chart_config",
+										configOrderBuilder.toString()),
+						Charset.defaultCharset(), false);
 
 				FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.PREVIEW_JSON),
 						mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList),
@@ -581,6 +595,18 @@ public class OrgTreeView<T> extends Application {
 
 	private EmployeeDetails fetchHeaderEmployee() {
 		return employeeList.stream().filter(e -> e.getParent().equals(HEADER_MEMBER)).findFirst().get();
+	}
+
+	/**
+	 * As there is a bug in JDK we need to reload the page using js.<br>
+	 * In order to do that this function is executed against the engine.<br>
+	 * For now as an alternative this will reload the page.
+	 * 
+	 * @return
+	 */
+	private String buildReloadJSScript() {
+		return RELOAD_JS_SCRIPT;
+
 	}
 
 	/**
