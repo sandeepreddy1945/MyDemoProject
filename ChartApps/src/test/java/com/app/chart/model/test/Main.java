@@ -77,8 +77,8 @@ public class Main extends Application {
 		AnchorPane.setLeftAnchor(pagination, 10.0);
 		anchor.getChildren().addAll(pagination);
 		Scene scene = new Scene(anchor, 400, 450);
-		scene.getStylesheets()
-				.add(ClassLoader.getSystemResource("com/app/chart/model/test/stylesheet.css").toExternalForm());
+		//scene.getStylesheets()
+		//		.add(ClassLoader.getSystemResource("com/app/chart/model/test/stylesheet.css").toExternalForm());
 		stage.setScene(scene);
 		stage.show();
 	}

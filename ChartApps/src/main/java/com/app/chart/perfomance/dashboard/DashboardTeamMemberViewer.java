@@ -9,13 +9,11 @@ import java.util.List;
 import com.app.chart.model.TeamMember;
 
 import eu.hansolo.tilesfx.Tile;
-import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.Tile.SkinType;
+import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.skins.LeaderBoardItem;
-import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 
 /**
  * @author Sandeep Displays the team meber board in order wise of top to bottom.
@@ -54,6 +52,14 @@ public class DashboardTeamMemberViewer extends HBox {
 		pagination.setPageFactory((Integer pageIndex) -> createPage(pageIndex));
 		pagination.getStyleClass().add(Pagination.STYLE_CLASS_BULLET);
 
+		// add the style sheets to the UI / currently no required
+		// getStylesheets().add(STYLESHEET_PATH);
+
+		// add the appgination to UI
+		getChildren().add(pagination);
+
+		// add the black background.
+		setBackground(DashboardUtil.blackBackGround());
 	}
 
 	public Tile createPage(int pageIndex) {
@@ -64,8 +70,10 @@ public class DashboardTeamMemberViewer extends HBox {
 		List<LeaderBoardItem> leaderBoardItems = new ArrayList<>();
 		for (int i = page; i < size; i++) {
 			String name = teamMembers.get(i).getName();
-			Double score = (double) (teamMembers.get(i).getScore1() + teamMembers.get(i).getScore2()
-					+ teamMembers.get(i).getScore3());
+			// TODO considering 100 per month this is calculated ..recode this if values
+			// changes.
+			Double score = (double) ((teamMembers.get(i).getScore1() + teamMembers.get(i).getScore2()
+					+ teamMembers.get(i).getScore3()) / 3);
 			leaderBoardItems.add(new LeaderBoardItem(name, score));
 		}
 		@SuppressWarnings("unchecked")
@@ -73,6 +81,7 @@ public class DashboardTeamMemberViewer extends HBox {
 				.prefSize(DashboardUI.TILE_WIDTH, DashboardUI.TILE_HEIGHT).title("LeaderBoard").
 				// TODO to decide a text for the leader board display.
 				text("").leaderBoardItems(leaderBoardItems).build();
+
 		return leaderBoardTile;
 	}
 
