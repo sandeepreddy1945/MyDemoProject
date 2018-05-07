@@ -21,7 +21,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @JsonPropertyOrder({ "portalId", "name", "description", "team", "parent", "link","pseudo" })
 @JsonInclude(value = Include.NON_NULL)
-@JsonRootName(value = "children")
 public class EmployeeDetails {
 
 	@JsonProperty("portalId")
