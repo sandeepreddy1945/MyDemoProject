@@ -19,13 +19,18 @@ import javafx.scene.paint.Color;
  */
 public class DashboardUtil {
 
+	public static final Background BLACK_BACKGROUND = new Background(
+			new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY));
+	public static final Background LIGHT_BLUE_BACKGROUND = new Background(
+			new BackgroundFill(Color.web("#ccd9ff"), CornerRadii.EMPTY, Insets.EMPTY));
+
 	/**
 	 * Black BackGround
 	 * 
 	 * @return
 	 */
 	public static Background blackBackGround() {
-		return new Background(new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY));
+		return BLACK_BACKGROUND;
 	}
 
 	/**
