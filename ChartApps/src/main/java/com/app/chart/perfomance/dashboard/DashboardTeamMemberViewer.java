@@ -22,8 +22,6 @@ public class DashboardTeamMemberViewer extends DashboardAbstract {
 	private final List<TeamMember> teamMembers;
 	private Pagination pagination;
 	private static final int ITEMS_PER_PAGE = 5;
-	private String STYLESHEET_PATH = ClassLoader
-			.getSystemResource("com/app/chart/perfomance/dashboard/teammeberstylesheet.css").toExternalForm();
 	private int pageCount;
 	private int animationPageIndex = 0;
 	// private Random random = new Random();

@@ -10,9 +10,9 @@ import java.util.List;
 import com.app.chart.model.TeamMember;
 
 import eu.hansolo.tilesfx.Tile;
-import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Pagination;
@@ -21,35 +21,35 @@ import javafx.scene.control.Pagination;
  * @author Sandeep
  *
  */
-public class DashboardBarChart extends DashboardAbstract {
+public class DashboardStackedBarChart extends DashboardAbstract {
 
 	private static final String MONTHLY_PERFOMANCE = "Monthly Perfomance";
 	private final List<TeamMember> teamMembers;
 	private CategoryAxis categoryAxis;
 	private NumberAxis numberAxis;
-	private BarChart<String, Number> barChart = null;
+	private StackedBarChart<String, Number> barChart = null;
 	private final String categoryAxisName;
 	private final String numberAxisName;
 	private final String title;
 
 	private Pagination pagination;
-	private static final int ITEMS_PER_PAGE = 3;
+	private static final int ITEMS_PER_PAGE = 5;
 	private int pageCount;
 	private int animationPageIndex = 0;
 
-	public DashboardBarChart(List<TeamMember> teamMembers) {
+	public DashboardStackedBarChart(List<TeamMember> teamMembers) {
 		this(teamMembers, MONTHLY_PERFOMANCE);
 	}
 
-	public DashboardBarChart(List<TeamMember> teamMembers, String categoryAxisName, String numberAxisName) {
+	public DashboardStackedBarChart(List<TeamMember> teamMembers, String categoryAxisName, String numberAxisName) {
 		this(teamMembers, categoryAxisName, numberAxisName, MONTHLY_PERFOMANCE);
 	}
 
-	public DashboardBarChart(List<TeamMember> teamMembers, String title) {
+	public DashboardStackedBarChart(List<TeamMember> teamMembers, String title) {
 		this(teamMembers, "Month Wise Perfomance", "Scores Achieved", title);
 	}
 
-	public DashboardBarChart(List<TeamMember> teamMembers, String categoryAxisName, String numberAxisName,
+	public DashboardStackedBarChart(List<TeamMember> teamMembers, String categoryAxisName, String numberAxisName,
 			String title) {
 		super(teamMembers);
 		this.teamMembers = teamMembers;
@@ -80,8 +80,8 @@ public class DashboardBarChart extends DashboardAbstract {
 		 * xAxis.setCategories(FXCollections.<String>observableArrayList(
 		 * Arrays.asList(austria, brazil, france, italy, usa)));
 		 */ // if required
-		numberAxis = new NumberAxis(0, 100, 50);
-		barChart = new BarChart<String, Number>(categoryAxis, numberAxis);
+		numberAxis = new NumberAxis();
+		barChart = new StackedBarChart<String, Number>(categoryAxis, numberAxis);
 
 		// 3 charts per page so initializng the 3 graphs data.
 		XYChart.Series<String, Number> series1 = new Series<>();
@@ -98,7 +98,6 @@ public class DashboardBarChart extends DashboardAbstract {
 		categoryAxis.setLabel(categoryAxisName);
 		numberAxis.setLabel(numberAxisName);
 		barChart.setTitle(title);
-		barChart.setBarGap(3);
 		barChart.setCategoryGap(20);
 
 		barChart.getData().addAll(series1, series2, series3);
