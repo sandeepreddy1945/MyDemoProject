@@ -23,19 +23,19 @@ import javafx.scene.control.Pagination;
  */
 public class DashboardStackedBarChart extends DashboardAbstract {
 
-	private static final String MONTHLY_PERFOMANCE = "Monthly Perfomance";
-	private final List<TeamMember> teamMembers;
-	private CategoryAxis categoryAxis;
-	private NumberAxis numberAxis;
-	private StackedBarChart<String, Number> barChart = null;
-	private final String categoryAxisName;
-	private final String numberAxisName;
-	private final String title;
+	protected static final String MONTHLY_PERFOMANCE = "Monthly Perfomance";
+	protected List<TeamMember> teamMembers;
+	protected CategoryAxis categoryAxis;
+	protected NumberAxis numberAxis;
+	protected StackedBarChart<String, Number> barChart = null;
+	protected String categoryAxisName;
+	protected String numberAxisName;
+	protected String title;
 
-	private Pagination pagination;
-	private static final int ITEMS_PER_PAGE = 5;
-	private int pageCount;
-	private int animationPageIndex = 0;
+	protected Pagination pagination;
+	protected static final int ITEMS_PER_PAGE = 5;
+	protected int pageCount;
+	protected int animationPageIndex = 0;
 
 	public DashboardStackedBarChart(List<TeamMember> teamMembers) {
 		this(teamMembers, MONTHLY_PERFOMANCE);
@@ -90,9 +90,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 
 		for (int i = page; i < size; i++) {
 			String name = teamMembers.get(i).getName();
-			series1.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore1()));
-			series2.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore2()));
-			series3.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore3()));
+			presentedSeriesData(series1, series2, series3, i, name);
 		}
 
 		categoryAxis.setLabel(categoryAxisName);
@@ -105,6 +103,13 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		Tile leaderBoardTile = generateCustomTile(barChart);
 
 		return leaderBoardTile;
+	}
+
+	protected void presentedSeriesData(XYChart.Series<String, Number> series1, XYChart.Series<String, Number> series2,
+			XYChart.Series<String, Number> series3, int i, String name) {
+		series1.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore1()));
+		series2.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore2()));
+		series3.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore3()));
 	}
 
 	@Override

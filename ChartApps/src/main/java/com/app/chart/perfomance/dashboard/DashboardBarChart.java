@@ -90,9 +90,7 @@ public class DashboardBarChart extends DashboardAbstract {
 
 		for (int i = page; i < size; i++) {
 			String name = teamMembers.get(i).getName();
-			series1.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore1()));
-			series2.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore2()));
-			series3.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore3()));
+			presentedSeriesData(series1, series2, series3, i, name);
 		}
 
 		categoryAxis.setLabel(categoryAxisName);
@@ -106,6 +104,13 @@ public class DashboardBarChart extends DashboardAbstract {
 		Tile leaderBoardTile = generateCustomTile(barChart);
 
 		return leaderBoardTile;
+	}
+
+	protected void presentedSeriesData(XYChart.Series<String, Number> series1, XYChart.Series<String, Number> series2,
+			XYChart.Series<String, Number> series3, int i, String name) {
+		series1.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore1()));
+		series2.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore2()));
+		series3.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore3()));
 	}
 
 	@Override

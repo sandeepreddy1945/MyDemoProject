@@ -12,7 +12,7 @@ import org.testfx.framework.junit.ApplicationTest;
 
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardPieChart;
-import com.app.chart.perfomance.dashboard.DashboardTeamMemberViewer;
+import com.app.chart.perfomance.dashboard.DashboardTeamMemberScoreViewer;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -24,13 +24,13 @@ import junit.framework.Assert;
  */
 public class DashboardUITest extends ApplicationTest {
 
-	DashboardTeamMemberViewer teamMember;
+	DashboardTeamMemberScoreViewer teamMember;
 	DashboardPieChart dashboardPieChart;
 	static Random random = new Random(12000);
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		teamMember = new DashboardTeamMemberViewer(teamMembers());
+		teamMember = new DashboardTeamMemberScoreViewer(teamMembers());
 		dashboardPieChart = new DashboardPieChart(teamMembers());
 
 		Scene scene = new Scene(dashboardPieChart, 800, 800);

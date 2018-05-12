@@ -20,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @JsonPropertyOrder({ "portalId", "name", "description", "team", "parent", "link", "score1", "score2", "score3",
-		"intreval1", "intreval2", "intreval3" })
+		"intreval1", "intreval2", "intreval3", "valueAdd", "quality", "onTime", "extraDescription" })
 @JsonInclude(value = Include.NON_NULL)
 public class TeamMember {
 
@@ -48,5 +48,13 @@ public class TeamMember {
 	String intreval2;
 	@JsonProperty("intreval3")
 	String intreval3;
+	@JsonProperty("valueAdd")
+	int valueAdd;
+	@JsonProperty("quality")
+	int quality;
+	@JsonProperty("onTime")
+	int onTime;
+	@JsonProperty("extraDescription")
+	String extraDescription;
 	// TODO add score getters and calendar events.
 }

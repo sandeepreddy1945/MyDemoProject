@@ -49,9 +49,27 @@ public class DashboardUtil {
 
 		@Override
 		public int compare(TeamMember arg0, TeamMember arg1) {
-			Integer score1 = arg0.getScore1() + arg0.getScore2() + arg0.getScore3();
-			Integer score2 = arg1.getScore1() + arg1.getScore2() + arg1.getScore3();
-			return score1.compareTo(score2);
+			Integer score1 = arg0.getScore1() + arg0.getScore2() + arg0.getScore3() + arg0.getOnTime()
+					+ arg0.getQuality() + arg0.getValueAdd();
+			Integer score2 = arg1.getScore1() + arg1.getScore2() + arg1.getScore3() + arg1.getOnTime()
+					+ arg1.getQuality() + arg1.getValueAdd();
+			// based on complete scores available
+			if (score1 != score2) {
+				return score1.compareTo(score2);
+			} else {
+				// on monthly ratings
+				score1 = arg0.getScore1() + arg0.getScore2() + arg0.getScore3();
+				score2 = arg1.getScore1() + arg1.getScore2() + arg1.getScore3();
+				if (score1 != score2) {
+					return score1.compareTo(score2);
+				} else {
+					// on timely ratings availabe quarterly.
+					score1 = arg0.getOnTime() + arg0.getQuality() + arg0.getValueAdd();
+					score2 = arg1.getOnTime() + arg1.getQuality() + arg1.getValueAdd();
+					return score1.compareTo(score2);
+				}
+
+			}
 		}
 
 	}

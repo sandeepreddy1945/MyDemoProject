@@ -17,7 +17,7 @@ import javafx.scene.control.Pagination;
 /**
  * @author Sandeep Displays the team meber board in order wise of top to bottom.
  */
-public class DashboardTeamMemberViewer extends DashboardAbstract {
+public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 	private final List<TeamMember> teamMembers;
 	private Pagination pagination;
@@ -30,14 +30,14 @@ public class DashboardTeamMemberViewer extends DashboardAbstract {
 	 * 
 	 */
 	// TODO to add model object here for displaying the list
-	public DashboardTeamMemberViewer(List<TeamMember> teamMembers) {
+	public DashboardTeamMemberScoreViewer(List<TeamMember> teamMembers) {
 		this(5, teamMembers);
 	}
 
 	/**
 	 * @param spacing
 	 */
-	public DashboardTeamMemberViewer(double spacing, List<TeamMember> teamMembers) {
+	public DashboardTeamMemberScoreViewer(double spacing, List<TeamMember> teamMembers) {
 		super(teamMembers);
 		this.teamMembers = teamMembers;
 	}

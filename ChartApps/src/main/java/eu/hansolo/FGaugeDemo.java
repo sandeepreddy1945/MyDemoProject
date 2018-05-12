@@ -48,6 +48,8 @@ import javafx.stage.Stage;
 
 import java.util.Random;
 
+import com.app.chart.perfomance.dashboard.DashboardUtil;
+
 
 /**
  * Created by hansolo on 12.01.16.
@@ -238,6 +240,7 @@ public class FGaugeDemo extends Application {
 
     @Override public void start(Stage stage) {
         HBox pane = new HBox(fGauge, button);
+        pane.setBackground(DashboardUtil.BLACK_BACKGROUND);
         pane.setPadding(new Insets(10));
         pane.setSpacing(20);
 
