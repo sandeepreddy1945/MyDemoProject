@@ -3,6 +3,7 @@
  */
 package com.app.chart.perfomance.dashboard;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,11 +14,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.Label;
+import javafx.scene.chart.PieChart.Data;
+import javafx.scene.control.Tooltip;
+import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 
 /**
  * @author Sandeep
@@ -25,15 +27,14 @@ import javafx.scene.paint.Color;
  */
 public class DashboardPieChart extends DashboardAbstract {
 
-	final List<TeamMember> teamMembers;
 	private PieChart chart;
+	private double totalScore;
 
 	/**
 	 * @param spacing
 	 */
 	public DashboardPieChart(List<TeamMember> teamMembers) {
 		super(teamMembers);
-		this.teamMembers = teamMembers;
 		// add listeners
 		addListenersForNodes();
 	}
@@ -52,39 +53,56 @@ public class DashboardPieChart extends DashboardAbstract {
 	}
 
 	private void addListenersForNodes() {
-		final Label caption = new Label("");
-		caption.setTextFill(Color.RED);
-		caption.setStyle("-fx-font: 24 arial;");
 
-		for (final PieChart.Data data : chart.getData()) {
-			data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
+		chart.getData().stream().forEach(data -> {
+			final Tooltip t = new Tooltip(data.getName() + " : "
+					+ new DecimalFormat("#.##").format((data.getPieValue() / totalScore) * 100) + " %");
+			data.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent e) {
-					caption.setTranslateX(e.getSceneX());
-					caption.setTranslateY(e.getSceneY());
-					caption.setText(String.valueOf(data.getPieValue()) + "%");
+					if (e.getSource() instanceof Node) {
+						Node sender = (Node) e.getSource();
+						Tooltip.install(sender, t);
+						sender.setEffect(new Glow(0.5));
+					}
 				}
 			});
-		}
+
+			data.getNode().setOnMouseExited(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent me) {
+					if (me.getSource() instanceof Node) {
+						Node sender = (Node) me.getSource();
+						sender.setEffect(null);
+						t.hide();
+					}
+				}
+			});
+		});
 	}
 
 	@Override
 	public void initUI() {
-		ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(createPieChartData());
+		ObservableList<Data> pieChartData = FXCollections.observableArrayList(createPieChartData());
 		chart = new PieChart(pieChartData);
-		chart.setAnimated(true);
-		chart.setClockwise(false);
-		chart.setLabelLineLength(0);
-		// chart.setLabelsVisible(true);
-		// chart.setEffect(getEffect());
-		chart.setLegendVisible(true);
-		chart.setLegendSide(Side.BOTTOM);
+		chart.setTitle("Pie Chart");
+		chart.setClockwise(true);
+		chart.setLabelLineLength(20);
+		chart.setLabelsVisible(true);
+		chart.getStylesheets().add(getClass().getResource("teammeberstylesheet.css").toExternalForm());
 
-		Tile tile = generateCustomTile(chart);
+		Tile tile = generateCustomTile(chart, "Pie Chart", 450, 500);
 
 		setAlignment(Pos.CENTER);
 
 		getChildren().add(tile);
+
+		// total score
+		teamMembers.stream().forEach(tm -> {
+			double score = Double.valueOf((tm.getScore1() + tm.getScore2() + tm.getScore3())) / 3;
+			totalScore += score;
+		});
+		System.out.println("Total Score : " + totalScore);
 
 	}
 

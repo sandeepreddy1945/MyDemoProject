@@ -1,85 +1,74 @@
 package com.app.chart.model.test;
-
-/*//from  w  ww.  ja va 2s. c o m
- * Copyright (c) 2008, 2014, Oracle and/or its affiliates.
- * All rights reserved. Use is subject to license terms.
- *
- * This file is available and licensed under the following license:
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *  - Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  - Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in
- *    the documentation and/or other materials provided with the distribution.
- *  - Neither the name of Oracle nor the names of its
- *    contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Pagination;
-import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Main extends Application {
+    
+    final static String itemA = "A";
+    final static String itemB = "B";
+    final static String itemC = "F";
+    @Override
+    public void start(Stage stage) {
+        final NumberAxis xAxis = new NumberAxis();
+        final CategoryAxis yAxis = new CategoryAxis();
+        final BarChart<Number, String> bc = new BarChart<Number, String>(xAxis, yAxis);
+        bc.setTitle("Summary");
+        xAxis.setLabel("Value");
+        xAxis.setTickLabelRotation(90);
+        yAxis.setLabel("Item");
 
-	private Pagination pagination;
-	String[] fonts = new String[] {};
+        XYChart.Series series1 = new XYChart.Series();
+        series1.setName("2003");
+        series1.getData().add(new XYChart.Data(2, itemA));
+        series1.getData().add(new XYChart.Data(20, itemB));
+        series1.getData().add(new XYChart.Data(10, itemC));
 
-	public static void main(String[] args) throws Exception {
-		launch(args);
-	}
+        XYChart.Series series2 = new XYChart.Series();
+        series2.setName("2004");
+        series2.getData().add(new XYChart.Data(50, itemA));
+        series2.getData().add(new XYChart.Data(41, itemB));
+        series2.getData().add(new XYChart.Data(45, itemC));
 
-	public int itemsPerPage() {
-		return 13;
-	}
+        XYChart.Series series3 = new XYChart.Series();
+        series3.setName("2005");
+        series3.getData().add(new XYChart.Data(45, itemA));
+        series3.getData().add(new XYChart.Data(44, itemB));
+        series3.getData().add(new XYChart.Data(18, itemC));
 
-	public VBox createPage(int pageIndex) {
-		VBox box = new VBox(5);
-		int page = pageIndex * itemsPerPage();
-		for (int i = page; i < page + itemsPerPage(); i++) {
-			Label font = new Label(fonts[i]);
-			box.getChildren().add(font);
-		}
-		return box;
-	}
+        Timeline tl = new Timeline();
+        tl.getKeyFrames().add(new KeyFrame(Duration.millis(1500), 
+            new EventHandler<ActionEvent>() {
+                @Override public void handle(ActionEvent actionEvent) {
+                for (XYChart.Series<Number, String> series : bc.getData()) {
+                    for (XYChart.Data<Number, String> data : series.getData()) {
+                    	Number x = data.getXValue();
+                       
+                        data.setXValue(x.intValue() + 5);
+                    }
+                }
+            }
+        }));
+        tl.setCycleCount(Animation.INDEFINITE);
+        tl.play();
 
-	@Override
-	public void start(final Stage stage) throws Exception {
-		fonts = Font.getFamilies().toArray(fonts);
-		pagination = new Pagination(fonts.length / itemsPerPage(), 0);
-		pagination.setPageFactory((Integer pageIndex) -> createPage(pageIndex));
-		pagination.getStyleClass().add(Pagination.STYLE_CLASS_BULLET);
+        Scene scene = new Scene(bc, 800, 600);
+        bc.getData().addAll(series1, series2, series3);
+        stage.setScene(scene);
+        stage.show();
+    }
 
-		AnchorPane anchor = new AnchorPane();
-		AnchorPane.setTopAnchor(pagination, 10.0);
-		AnchorPane.setRightAnchor(pagination, 10.0);
-		AnchorPane.setBottomAnchor(pagination, 10.0);
-		AnchorPane.setLeftAnchor(pagination, 10.0);
-		anchor.getChildren().addAll(pagination);
-		Scene scene = new Scene(anchor, 400, 450);
-		//scene.getStylesheets()
-		//		.add(ClassLoader.getSystemResource("com/app/chart/model/test/stylesheet.css").toExternalForm());
-		stage.setScene(scene);
-		stage.show();
-	}
+    public static void main(String[] args) {
+        launch(args);
+    }
 }

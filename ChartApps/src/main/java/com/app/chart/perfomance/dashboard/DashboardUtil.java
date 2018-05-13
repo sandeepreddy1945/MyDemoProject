@@ -23,6 +23,9 @@ public class DashboardUtil {
 			new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY));
 	public static final Background LIGHT_BLUE_BACKGROUND = new Background(
 			new BackgroundFill(Color.web("#ccd9ff"), CornerRadii.EMPTY, Insets.EMPTY));
+	public static final int TILE_WIDTH = 250;
+	public static final int TILE_HEIGHT = 250;
+	
 
 	/**
 	 * Black BackGround

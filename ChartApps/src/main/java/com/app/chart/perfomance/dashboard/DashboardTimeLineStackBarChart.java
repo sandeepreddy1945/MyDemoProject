@@ -30,7 +30,6 @@ public class DashboardTimeLineStackBarChart extends DashboardStackedBarChart {
 	public DashboardTimeLineStackBarChart(List<TeamMember> teamMembers, String categoryAxisName, String numberAxisName,
 			String title) {
 		super(teamMembers);
-		this.teamMembers = teamMembers;
 		this.categoryAxisName = categoryAxisName;
 		this.numberAxisName = numberAxisName;
 		this.title = title;

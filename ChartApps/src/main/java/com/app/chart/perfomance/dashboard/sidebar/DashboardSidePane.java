@@ -7,7 +7,6 @@ import java.io.IOException;
 
 import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXDrawer.DrawerDirection;
-import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.transitions.hamburger.HamburgerSlideCloseTransition;
 
 import javafx.application.Platform;
@@ -23,46 +22,60 @@ import javafx.scene.layout.VBox;
  * @author Sandeep
  *
  */
-public class DashboardSidePane extends HBox {
+public class DashboardSidePane {
 
 	private JFXDrawer drawer;
 	private final Node node;
+	private HBox mainBox;
 
 	/**
 	 * @throws IOException
 	 * 
 	 */
-	public DashboardSidePane(Node node) throws IOException {
+	public DashboardSidePane(Node node, HBox mainBox) throws IOException {
 		super();
 		this.node = node;
+		this.mainBox = mainBox;
 		init();
 	}
 
 	private void init() throws IOException {
-
 		drawer = new JFXDrawer();
-		drawer.setAlignment(Pos.BASELINE_LEFT);
-		drawer.setDefaultDrawerSize(150);
-		drawer.setDirection(DrawerDirection.RIGHT);
+		drawer.setAlignment(Pos.TOP_LEFT);
+		drawer.setDefaultDrawerSize(250);
+		drawer.setDirection(DrawerDirection.LEFT);
 		drawer.getStyleClass().add("jfx-drawer");
 		drawer.setOverLayVisible(true);
 		drawer.setResizableOnDrag(false);
+		//drawer.setMouseTransparent(true);
 		VBox toolbar = FXMLLoader
 				.load(getClass().getResource("/com/app/chart/perfomance/dashboard/sidebar/toolbar.fxml"));
 		drawer.setSidePane(toolbar);
+		drawer.setOverLayVisible(false);
 		HamburgerSlideCloseTransition task = new HamburgerSlideCloseTransition();
 		task.setRate(-1);
 		node.addEventHandler(MouseEvent.MOUSE_CLICKED, (Event event) -> {
 			task.setRate(task.getRate() * -1);
 			task.play();
-			if (drawer.isHidden()) {
-				Platform.runLater(() -> drawer.open());
-				;
-				drawer.setVisible(true);
+			if (drawer.isClosed()) {
+				Platform.runLater(() -> {
+					drawer.open();
+					mainBox.getChildren().add(0, drawer);
+				});
 			} else {
 				drawer.close();
+				mainBox.getChildren().remove(0);
+
 			}
 		});
+
+		// getChildren().add(drawer);
 	}
 
+	/**
+	 * @return the drawer
+	 */
+	public JFXDrawer getDrawer() {
+		return drawer;
+	}
 }

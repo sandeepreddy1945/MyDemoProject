@@ -25,7 +25,7 @@ dependencies {
     implementation 'com.google.guava:guava:23.0'
     compile 'commons-io:commons-io:2.6'
     compile 'eu.hansolo:Medusa:8.0'
-    compile 'com.jfoenix:jfoenix:8.0.1'
+    compile 'com.jfoenix:jfoenix:8.0.3'
     compile 'org.apache.httpcomponents:httpclient:4.5.5'
     compile 'org.jsoup:jsoup:1.11.3'
     compile 'com.googlecode.json-simple:json-simple:1.1.1'

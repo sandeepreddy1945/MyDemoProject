@@ -9,11 +9,9 @@ import eu.hansolo.medusa.Gauge.NeedleSize;
 import eu.hansolo.medusa.Gauge.SkinType;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.TickMarkType;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -27,6 +25,10 @@ import javafx.scene.paint.Color;
 public class DashboardTeamProgressViewer extends HBox {
 
 	private MultiGauge gauge;
+	private long lastTimerCall;
+	double mainPercentage;
+	double currentProgress;
+	double pendingProgress;
 
 	/**
 	 * 
@@ -41,18 +43,40 @@ public class DashboardTeamProgressViewer extends HBox {
 
 		getChildren().add(pane);
 
+		this.mainPercentage = mainPercentage;
+		this.currentProgress = currentProgress;
+		this.pendingProgress = pendingProgress;
+
 		// add values.
 		Platform.runLater(() -> {
-			gauge.getMainGauge().setValue(mainPercentage);
-			gauge.getCurrentGauge().setValue(currentProgress);
-			gauge.getPendingGauge().setValue(pendingProgress);
+			gauge.getMainGauge().setValue(0);
+			gauge.getCurrentGauge().setValue(0);
+			gauge.getPendingGauge().setValue(0);
 		});
 
+		animateValues();
+	}
+
+	private void animateValues() {
+		lastTimerCall = System.nanoTime();
+		AnimationTimer animationTimer = new AnimationTimer() {
+
+			@Override
+			public void handle(long now) {
+				if (now > lastTimerCall + 3_500_000_000L) {
+					gauge.getMainGauge().setValue(mainPercentage);
+					gauge.getCurrentGauge().setValue(currentProgress);
+					gauge.getPendingGauge().setValue(pendingProgress);
+				}
+			}
+		};
+
+		animationTimer.start();
 	}
 
 	public class MultiGauge extends Region {
 		private static final double PREFERRED_WIDTH = 320;
-		private static final double PREFERRED_HEIGHT = 320;
+		private static final double PREFERRED_HEIGHT = 250;
 		private static final double MINIMUM_WIDTH = 5;
 		private static final double MINIMUM_HEIGHT = 5;
 		private static final double MAXIMUM_WIDTH = 1024;
@@ -92,28 +116,26 @@ public class DashboardTeamProgressViewer extends HBox {
 
 		private void initGraphics() {
 			rpmGauge = GaugeBuilder.create().borderPaint(Color.WHITE).foregroundBaseColor(Color.WHITE)
-					.prefSize(400, 400).startAngle(290).angleRange(220).minValue(0).maxValue(4000).valueVisible(false)
+					.prefSize(400, 250).startAngle(290).angleRange(220).minValue(0).maxValue(4000).valueVisible(true)
 					.minorTickMarksVisible(false).majorTickMarkType(TickMarkType.BOX)
-					.mediumTickMarkType(TickMarkType.BOX).title("Perfomance Progress /n  Percentage")
-					.needleShape(NeedleShape.ROUND).needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38))
-					.knobColor(Gauge.DARK_COLOR).customTickLabelsEnabled(true).customTickLabelFontSize(40)
+					.mediumTickMarkType(TickMarkType.BOX).title("Perfomance %").needleShape(NeedleShape.ROUND)
+					.needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38)).knobColor(Gauge.DARK_COLOR)
+					.customTickLabelsEnabled(true).customTickLabelFontSize(40)
 					.customTickLabels("0", "", "20", "", "40", "", "60", "", "80", "", "100").animated(true).build();
 
-			currentProgress = GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170, 170).autoScale(false)
-					.foregroundBaseColor(Color.WHITE).title("CURRENT").valueVisible(false).angleRange(90).minValue(100)
-					.maxValue(250).needleShape(NeedleShape.ROUND).needleSize(NeedleSize.THICK)
-					.needleColor(Color.rgb(234, 67, 38)).minorTickMarksVisible(false).mediumTickMarksVisible(false)
-					.majorTickMarkType(TickMarkType.BOX).knobColor(Gauge.DARK_COLOR).customTickLabelsEnabled(true)
-					.customTickLabelFontSize(36)
-					.customTickLabels("100", "", "", "", "", "", "", "250", "", "", "", "", "", "", "", "500")
-					.animated(true).build();
+			currentProgress = GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170, 170)
+					.foregroundBaseColor(Color.WHITE).title("CURRENT").valueVisible(false).angleRange(90).maxValue(2000)
+					.needleShape(NeedleShape.ROUND).needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38))
+					.minorTickMarksVisible(false).mediumTickMarksVisible(false).majorTickMarkType(TickMarkType.BOX)
+					.knobColor(Gauge.DARK_COLOR).customTickLabelsEnabled(true).customTickLabelFontSize(36)
+					.customTickLabels("0", "", "", "", "", "1000", "", "", "", "", "2000").animated(true).build();
 
-			pendingProgress = GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170, 170)
+			pendingProgress = GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170, 170).valueVisible(true)
 					.foregroundBaseColor(Color.WHITE).title("PENDING").valueVisible(false).angleRange(90)
 					.needleShape(NeedleShape.ROUND).needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38))
 					.minorTickMarksVisible(false).mediumTickMarksVisible(false).majorTickMarkType(TickMarkType.BOX)
 					.knobColor(Gauge.DARK_COLOR).customTickLabelsEnabled(true).customTickLabelFontSize(36)
-					.customTickLabels("0", "", "", "", "", "100", "", "", "", "", "200").animated(true).build();
+					.customTickLabels("0", "", "", "", "", "50", "", "", "", "", "100").animated(true).build();
 			pane = new Pane(currentProgress, pendingProgress, rpmGauge);
 
 			getChildren().setAll(pane);
@@ -158,3 +180,18 @@ public class DashboardTeamProgressViewer extends HBox {
 		}
 	}
 }
+
+// current progress commented code
+/*
+ * GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170,
+ * 170).autoScale(false)
+ * .foregroundBaseColor(Color.WHITE).title("CURRENT").valueVisible(false).
+ * angleRange(90).minValue(100)
+ * .maxValue(500).needleShape(NeedleShape.ROUND).needleSize(NeedleSize.THICK)
+ * .needleColor(Color.rgb(234, 67,
+ * 38)).minorTickMarksVisible(false).mediumTickMarksVisible(false)
+ * .majorTickMarkType(TickMarkType.BOX).knobColor(Gauge.DARK_COLOR).
+ * customTickLabelsEnabled(true)
+ * .customTickLabelFontSize(36).customTickLabels("0", "", "", "", "", "200", "",
+ * "", "", "", "500") .animated(true).build()
+ */

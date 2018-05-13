@@ -24,7 +24,6 @@ import javafx.scene.control.Pagination;
 public class DashboardStackedBarChart extends DashboardAbstract {
 
 	protected static final String MONTHLY_PERFOMANCE = "Monthly Perfomance";
-	protected List<TeamMember> teamMembers;
 	protected CategoryAxis categoryAxis;
 	protected NumberAxis numberAxis;
 	protected StackedBarChart<String, Number> barChart = null;
@@ -52,7 +51,6 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 	public DashboardStackedBarChart(List<TeamMember> teamMembers, String categoryAxisName, String numberAxisName,
 			String title) {
 		super(teamMembers);
-		this.teamMembers = teamMembers;
 		this.categoryAxisName = categoryAxisName;
 		this.numberAxisName = numberAxisName;
 		this.title = title;

@@ -15,15 +15,9 @@ import com.app.chart.model.TeamMember;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
-import javafx.geometry.Insets;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 
 /**
  * @author Sandeep Used for the displaying the leader board images in the
@@ -71,11 +65,11 @@ public class DashboardImageViewer extends HBox {
 		img2 = new ImageView();
 
 		// setting dimensions
-		img1.setFitHeight(300);
-		img1.setFitWidth(250);
+		img1.setFitHeight(250);
+		img1.setFitWidth(200);
 
-		img2.setFitHeight(300);
-		img2.setFitWidth(250);
+		img2.setFitHeight(250);
+		img2.setFitWidth(200);
 
 		img1.setPreserveRatio(true);
 		img2.setPreserveRatio(true);
@@ -85,14 +79,14 @@ public class DashboardImageViewer extends HBox {
 		img2.setImage(new Image(FileUtils.openInputStream(img2Path)));
 
 		Tile tile1 = TileBuilder.create().skinType(SkinType.CUSTOM)
-				.prefSize(DashboardUI.IMG_TILE_WIDTH, DashboardUI.IMG_TILE_HEIGHT).title("Custom Tile")
+				.prefSize(200, 250).title("Custom Tile")
 				.text("Whatever text").graphic(img1).roundedCorners(false).build();
 
 		Tile tile2 = TileBuilder.create().skinType(SkinType.CUSTOM)
-				.prefSize(DashboardUI.IMG_TILE_WIDTH, DashboardUI.IMG_TILE_HEIGHT).title("Custom Tile")
+				.prefSize(200, 250).title("Custom Tile")
 				.text("Whatever text").graphic(img2).roundedCorners(false).build();
 
-		setBlendMode(BlendMode.SOFT_LIGHT);
+		//setBlendMode(BlendMode.COLOR_BURN);
 
 		// set black background
 		setBackground(DashboardUtil.blackBackGround());

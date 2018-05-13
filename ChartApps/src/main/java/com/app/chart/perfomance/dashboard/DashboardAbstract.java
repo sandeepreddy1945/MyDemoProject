@@ -26,7 +26,7 @@ public abstract class DashboardAbstract extends HBox {
 
 	private AnimationTimer animationTimer;
 	private long lastTimerCall;
-	private final List<TeamMember> teamMembers;
+	protected final List<TeamMember> teamMembers;
 	private File[] files;
 
 	/**
@@ -121,7 +121,7 @@ public abstract class DashboardAbstract extends HBox {
 	 * @return
 	 */
 	public Tile generateBarChartTile(BarChartItem... leaderboardChartItems) {
-		Tile leaderBoardTile = generateBarChartTile(DashboardUI.TILE_WIDTH, DashboardUI.TILE_HEIGHT,
+		Tile leaderBoardTile = generateBarChartTile(DashboardUtil.TILE_WIDTH, DashboardUtil.TILE_HEIGHT,
 				leaderboardChartItems);
 		return leaderBoardTile;
 	}
@@ -166,7 +166,6 @@ public abstract class DashboardAbstract extends HBox {
 		// TODO to decide a text for the leader board display And decided to put team
 		// name here.
 				text(btmText).barChartItems(leaderboardChartItems).decimals(0).build();
-
 		return leaderBoardTile;
 	}
 
@@ -187,7 +186,7 @@ public abstract class DashboardAbstract extends HBox {
 	 * @return
 	 */
 	public Tile generateCustomTile(javafx.scene.chart.Chart chart, String title) {
-		Tile tile = generateCustomTile(chart, title, DashboardUI.TILE_WIDTH, DashboardUI.TILE_HEIGHT);
+		Tile tile = generateCustomTile(chart, title, DashboardUtil.TILE_WIDTH, DashboardUtil.TILE_HEIGHT);
 		return tile;
 	}
 
@@ -217,7 +216,7 @@ public abstract class DashboardAbstract extends HBox {
 			String btmText) {
 		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).
 		// TODO think of a name for this text .
-				text(btmText).graphic(chart).roundedCorners(false).build();
+				text(btmText).graphic(chart).roundedCorners(true).build();
 		return tile;
 	}
 }

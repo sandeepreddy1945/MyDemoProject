@@ -12,6 +12,7 @@ import com.app.chart.model.TeamMember;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.skins.BarChartItem;
+import javafx.animation.AnimationTimer;
 import javafx.scene.control.Pagination;
 
 /**
@@ -19,11 +20,14 @@ import javafx.scene.control.Pagination;
  */
 public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
-	private final List<TeamMember> teamMembers;
 	private Pagination pagination;
-	private static final int ITEMS_PER_PAGE = 5;
+	private static final int ITEMS_PER_PAGE = 6;
 	private int pageCount;
 	private int animationPageIndex = 0;
+	private long lastTimerCall;
+	private Tile tileToAnimate;
+	private int size;
+	private int page;
 	// private Random random = new Random();
 
 	/**
@@ -39,27 +43,37 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 	 */
 	public DashboardTeamMemberScoreViewer(double spacing, List<TeamMember> teamMembers) {
 		super(teamMembers);
-		this.teamMembers = teamMembers;
 	}
 
 	public Tile createPage(int pageIndex) {
 
-		int page = pageIndex * ITEMS_PER_PAGE;
-		int size = pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE > teamMembers.size() ? teamMembers.size()
+		tileToAnimate = null;
+		page = pageIndex * ITEMS_PER_PAGE;
+		size = pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE > teamMembers.size() ? teamMembers.size()
 				: pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
 		List<BarChartItem> leaderboardChartItems = new ArrayList<>();
+
 		for (int i = page; i < size; i++) {
 			String name = teamMembers.get(i).getName();
 			// TODO considering 100 per month this is calculated ..recode this if values
 			// changes.
-			Double score = (double) ((teamMembers.get(i).getScore1() + teamMembers.get(i).getScore2()
-					+ teamMembers.get(i).getScore3()) / 3);
+
+			// here set score to 0 and animate it later
+			Double score = 0.0;
 			leaderboardChartItems.add(new BarChartItem(name, score, getRandomTileColor()));
 		}
 
-		Tile leaderBoardTile = generateBarChartTile(leaderboardChartItems);
+		Tile leaderBoardTile = generateBarChartTile(350, 500,
+				leaderboardChartItems.stream().toArray(BarChartItem[]::new));
+		tileToAnimate = leaderBoardTile;
 
 		return leaderBoardTile;
+	}
+
+	private Double calculateScore(int i) {
+		Double score = (double) ((teamMembers.get(i).getScore1() + teamMembers.get(i).getScore2()
+				+ teamMembers.get(i).getScore3()) / 3);
+		return score;
 	}
 
 	@Override
@@ -77,7 +91,7 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 	public void initUI() {
 		// set the terms for pagination
 		pagination = new Pagination();
-		double pageSizes = (double) teamMembers.size() / (double) ITEMS_PER_PAGE;
+		double pageSizes = Double.valueOf(teamMembers.size()) / Double.valueOf(ITEMS_PER_PAGE);
 		pageCount = new BigDecimal(pageSizes).setScale(0, RoundingMode.UP).intValue();
 		pagination = new Pagination(pageCount, 0);
 		pagination.setPageFactory((Integer pageIndex) -> createPage(pageIndex));
@@ -91,6 +105,35 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
+
+		// animate the values after this.
+		animateInternalDetails();
+	}
+
+	private void animateInternalDetails() {
+		lastTimerCall = System.nanoTime();
+
+		AnimationTimer animationTimer = new AnimationTimer() {
+
+			private int count;
+
+			@Override
+			public void handle(long now) {
+				if (now > lastTimerCall + 2_500_000_000L) {
+					// call the animation timer here in for all the instances applicable.
+					count = page;
+					if (tileToAnimate != null) {
+						tileToAnimate.getBarChartItems().forEach(i -> {
+							i.setValue(calculateScore(count++));
+
+						});
+					}
+					lastTimerCall = now;
+				}
+			}
+		};
+
+		animationTimer.start();
 
 	}
 

@@ -6,8 +6,12 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.stage.Screen;
 
 public class ToolbarController implements Initializable {
+	
+	@FXML
+	private Screen screen;
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
