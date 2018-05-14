@@ -15,6 +15,7 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.skins.BarChartItem;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
@@ -217,6 +218,23 @@ public abstract class DashboardAbstract extends HBox {
 		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).
 		// TODO think of a name for this text .
 				text(btmText).graphic(chart).roundedCorners(true).build();
+		return tile;
+	}
+	
+	/**
+	 * 
+	 * @param node
+	 * @param title
+	 * @param width
+	 * @param height
+	 * @param btmText
+	 * @return
+	 */
+	public Tile generateCustomTile(Node node, String title, double width, double height,
+			String btmText) {
+		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).
+		// TODO think of a name for this text .
+				text(btmText).graphic(node).roundedCorners(true).build();
 		return tile;
 	}
 }

@@ -63,7 +63,7 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 			leaderboardChartItems.add(new BarChartItem(name, score, getRandomTileColor()));
 		}
 
-		Tile leaderBoardTile = generateBarChartTile(350, 500,
+		Tile leaderBoardTile = generateBarChartTile(350, 450,
 				leaderboardChartItems.stream().toArray(BarChartItem[]::new));
 		tileToAnimate = leaderBoardTile;
 
@@ -99,9 +99,11 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 		// add the style sheets to the UI / currently no required
 		// getStylesheets().add(STYLESHEET_PATH);
+		
 
-		// add the appgination to UI
-		getChildren().add(pagination);
+		// add the appgination to UI using Tile Config
+		//TODO change the naming here if wanted
+		getChildren().add(generateCustomTile(pagination, "", 370,500,""));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());

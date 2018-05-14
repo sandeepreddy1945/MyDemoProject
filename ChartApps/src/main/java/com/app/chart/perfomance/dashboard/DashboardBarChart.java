@@ -7,8 +7,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.Super;
-
 import com.app.chart.model.TeamMember;
 
 import eu.hansolo.tilesfx.Tile;
@@ -118,7 +116,7 @@ public class DashboardBarChart extends DashboardAbstract {
 		series2.setName(teamMembers.get(0).getIntreval2());
 		series3.setName(teamMembers.get(0).getIntreval3());
 
-		Tile leaderBoardTile = generateCustomTile(barChart, "Team Perfomance", 450, 500);
+		Tile leaderBoardTile = generateCustomTile(barChart, "Team Perfomance", 430, 500);
 
 		return leaderBoardTile;
 	}
@@ -143,8 +141,9 @@ public class DashboardBarChart extends DashboardAbstract {
 		// add the style sheets to the UI / currently no required
 		// getStylesheets().add(STYLESHEET_PATH);
 
-		// add the appgination to UI
-		getChildren().add(pagination);
+		// add the appgination to UI using Tile 
+		//TODO change the naming here if wanted
+		getChildren().add(generateCustomTile(pagination, "", 450,500,""));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
