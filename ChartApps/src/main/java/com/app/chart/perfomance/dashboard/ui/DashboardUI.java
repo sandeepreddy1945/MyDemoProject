@@ -98,7 +98,7 @@ public class DashboardUI extends Application {
 		secondLayer.getChildren().add(0, progressViewer);
 
 		thirdLayer.getChildren().addAll(barChart, pieChart, stackBarChart);
-		
+
 		HBox fourthLayer = initializeIndividualStatsViewer();
 
 		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer);
@@ -215,12 +215,12 @@ public class DashboardUI extends Application {
 		DashboardTeamProgressViewer progressViewer = new DashboardTeamProgressViewer(2400, 1210, 90);
 		return progressViewer;
 	}
-	
+
 	/**
 	 * Initialize the Perfomance Meter Viewer<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="stackbarchart.png"/>
+	 * &nbsp;&nbsp; <img alt="Leader Board" src="statsviewer.png"/>
 	 * 
 	 * @return
 	 */
@@ -231,7 +231,15 @@ public class DashboardUI extends Application {
 		DashboardStackedBarChart stackedBarChart = new DashboardStackedBarChart(list);
 		return stackedBarChart;
 	}
-	
+
+	/**
+	 * Initialize the Individual Stats Viewer<br>
+	 * <b>Preview : <b><br>
+	 * <br>
+	 * &nbsp;&nbsp; <img alt="Leader Board" src="stackbarchart.png"/>
+	 * 
+	 * @return
+	 */
 	private HBox initializeIndividualStatsViewer() {
 		List<TeamMember> list = teamMembers();
 		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
