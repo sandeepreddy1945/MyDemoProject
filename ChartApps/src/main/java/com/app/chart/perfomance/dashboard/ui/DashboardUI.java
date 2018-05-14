@@ -157,7 +157,7 @@ public class DashboardUI extends Application {
 	 * Initialize the Leader Board Chart<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="teamperfomance.png"/>
+	 * &nbsp;&nbsp; <img alt="Leader Board" src="leaderboard.png"/>
 	 * 
 	 * @return
 	 */
@@ -190,7 +190,7 @@ public class DashboardUI extends Application {
 	 * Initialize the Perfomance Bar Chart<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="leaderboard.png"/>
+	 * &nbsp;&nbsp; <img alt="Leader Board" src="teamperfomance.png"/>
 	 * 
 	 * @return
 	 */
