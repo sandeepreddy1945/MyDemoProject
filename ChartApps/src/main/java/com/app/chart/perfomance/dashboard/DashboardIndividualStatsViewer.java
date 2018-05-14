@@ -16,6 +16,9 @@ import org.apache.commons.io.FileUtils;
 import com.app.chart.model.TeamMember;
 
 import eu.hansolo.FunLevelGauge;
+import eu.hansolo.medusa.Gauge;
+import eu.hansolo.medusa.GaugeBuilder;
+import eu.hansolo.medusa.Section;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
@@ -48,6 +51,9 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	private Tile memberGaugeTile;
 	private FunLevelGauge memberFunGuage;
 	private AnimationTimer animationTimer;
+	private Gauge modernGuage;
+	private Gauge thirdGuage;
+	private Gauge secondGuage;
 
 	public DashboardIndividualStatsViewer(List<TeamMember> teamMembers) {
 		super(teamMembers);
@@ -79,7 +85,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 	public HBox createPage(int pageIndex) {
 
-		HBox indBox = new HBox(5);
+		HBox indBox = new HBox(10);
 		TeamMember member = teamMembers.get(pageIndex);
 
 		// initialize page
@@ -119,6 +125,30 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		// Animate it by setting some delay on it.
 		memberGaugeTile.setValue(/* member.getOnTime() + member.getValueAdd() + member.getQuality() */0);
 
+		// 1st month perfomance
+		modernGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.MODERN).prefSize(200, 200)
+				.sections(new Section(85, 90, "", Color.rgb(204, 0, 0, 0.5)),
+						new Section(90, 95, "", Color.rgb(204, 0, 0, 0.75)),
+						new Section(95, 100, "", Color.rgb(204, 0, 0)))
+				.sectionTextVisible(true).title("MODERN").unit("Points").threshold(85).thresholdVisible(true)
+				.animated(true).build();
+
+		// alternative guage here for second one
+		// TODO select one of them both.
+		/*
+		 * GaugeBuilder.create() .skinType(SkinType.SIMPLE_DIGITAL)
+		 * .foregroundBaseColor(Color.rgb(0, 249, 222)) .barColor(Color.rgb(0, 249,
+		 * 222)) .unit("KPH") .animated(true) .build();
+		 */
+		secondGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.FLAT).title("Flat").unit("Points")
+				.prefSize(200, 200).foregroundBaseColor(Color.WHITE).animated(true).build();
+
+		thirdGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION).title("Title")
+				.prefSize(200, 200).unit("Points").titleColor(Color.WHITE).unitColor(Color.WHITE)
+				.valueColor(Color.WHITE).sections(new Section(0, 33, Color.LIME), new Section(33, 66, Color.YELLOW),
+						new Section(66, 100, Color.CRIMSON))
+				.build();
+
 		// stop and start the animation timer once the page is reloaded.
 		// This consevers the threads as well.
 		if (animationTimer != null) {
@@ -127,7 +157,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		}
 
 		// add all componets in order
-		indBox.getChildren().addAll(memberImage, memberTextTile, funBox, memberGaugeTile);
+		indBox.getChildren().addAll(memberImage, memberTextTile, funBox, memberGaugeTile, modernGuage, secondGuage,
+				thirdGuage);
 
 		return indBox;
 	}
@@ -180,6 +211,11 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 						memberFunGuage.setLevel(
 								Double.valueOf((member.getScore1() + member.getScore2() + member.getScore3())) / 300);
 						memberGaugeTile.setValue(member.getOnTime() + member.getValueAdd() + member.getQuality());
+
+						// modern guage 1st month
+						modernGuage.setValue(member.getScore1());
+						secondGuage.setValue(member.getScore2());
+						thirdGuage.setValue(member.getScore3());
 					}
 					lastTimerCall = now;
 					animationTimer.stop();
