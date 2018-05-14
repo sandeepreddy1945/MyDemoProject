@@ -4,11 +4,16 @@
 package com.app.chart.perfomance.dashboard.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
@@ -17,16 +22,24 @@ import com.app.chart.perfomance.dashboard.DashboardImageViewer;
 import com.app.chart.perfomance.dashboard.DashboardIndividualStatsViewer;
 import com.app.chart.perfomance.dashboard.DashboardPieChart;
 import com.app.chart.perfomance.dashboard.DashboardStackedBarChart;
+import com.app.chart.perfomance.dashboard.DashboardTeamBarChart;
 import com.app.chart.perfomance.dashboard.DashboardTeamMemberScoreViewer;
 import com.app.chart.perfomance.dashboard.DashboardTeamProgressViewer;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
 
+import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.TileBuilder;
+import eu.hansolo.tilesfx.Tile.SkinType;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -82,10 +95,15 @@ public class DashboardUI extends Application {
 		// initializeHeader();
 
 		HBox headerBox = initializeHeader();
+		headerBox.setPadding(new Insets(0, 0, 5, 0));
+
 		vbox.setPrefSize(WIDTH, HEIGHT);
 		vbox.setMinSize(WIDTH - 160, HEIGHT);
 
 		HBox secondLayer = initializeTopImages();
+		HBox secondLayerChild = initializeHeaderTeamPointsViewer();
+		Tile secondLayerChild2 = initializeManagerPicture();
+		secondLayer.setSpacing(5);
 
 		HBox thirdLayer = initializeLeaderBoard();
 
@@ -93,9 +111,10 @@ public class DashboardUI extends Application {
 		HBox barChart = initializeBarChart();
 		HBox pieChart = initializePieChart();
 		HBox progressViewer = initializeTeamProgressViewer();
-		HBox stackBarChart = initializeStckBarChart();
+		HBox stackBarChart = initializeStackBarChart();
 
 		secondLayer.getChildren().add(0, progressViewer);
+		secondLayer.getChildren().addAll(secondLayerChild, secondLayerChild2);
 
 		thirdLayer.getChildren().addAll(barChart, pieChart, stackBarChart);
 
@@ -120,8 +139,8 @@ public class DashboardUI extends Application {
 			File logo2 = new File(url2.toURI().getPath());
 
 			dashboardHeader = new DashboardHeader(logo1, logo2, "Sandeep Reddy Battula");
-			dashboardHeader.setMinSize(WIDTH - 160, 100);
-			dashboardHeader.setPrefSize(WIDTH, 100);
+			dashboardHeader.setMinSize(WIDTH - 160, 90);
+			dashboardHeader.setPrefSize(WIDTH, 90);
 
 			// initalize the side panel by passing the main panel.
 			// side pane explictly uses it hide and unhide the side pane.
@@ -174,7 +193,7 @@ public class DashboardUI extends Application {
 	 * Initialize the Pie Board Chart<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="piechart.png"/>
+	 * &nbsp;&nbsp; <img alt="Pie Chart" src="piechart.png"/>
 	 * 
 	 * @return
 	 */
@@ -190,7 +209,7 @@ public class DashboardUI extends Application {
 	 * Initialize the Perfomance Bar Chart<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="teamperfomance.png"/>
+	 * &nbsp;&nbsp; <img alt="Team Perfomance" src="teamperfomance.png"/>
 	 * 
 	 * @return
 	 */
@@ -207,7 +226,7 @@ public class DashboardUI extends Application {
 	 * Initialize the Perfomance Meter Viewer<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="progressViewer.png"/>
+	 * &nbsp;&nbsp; <img alt="Progress Viewer" src="progressViewer.png"/>
 	 * 
 	 * @return
 	 */
@@ -220,11 +239,11 @@ public class DashboardUI extends Application {
 	 * Initialize the Perfomance Meter Viewer<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="statsviewer.png"/>
+	 * &nbsp;&nbsp; <img alt="Stats Viewer" src="statsviewer.png"/>
 	 * 
 	 * @return
 	 */
-	private HBox initializeStckBarChart() {
+	private HBox initializeStackBarChart() {
 		List<TeamMember> list = teamMembers();
 		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
 		Collections.reverse(list);
@@ -236,7 +255,7 @@ public class DashboardUI extends Application {
 	 * Initialize the Individual Stats Viewer<br>
 	 * <b>Preview : <b><br>
 	 * <br>
-	 * &nbsp;&nbsp; <img alt="Leader Board" src="stackbarchart.png"/>
+	 * &nbsp;&nbsp; <img alt="Stack Chart" src="stackbarchart.png"/>
 	 * 
 	 * @return
 	 */
@@ -246,6 +265,42 @@ public class DashboardUI extends Application {
 		Collections.reverse(list);
 		DashboardIndividualStatsViewer statsViewer = new DashboardIndividualStatsViewer(list);
 		return statsViewer;
+	}
+
+	/**
+	 * Initialize the Team Points Scored Viewer<br>
+	 * <b>Preview : <b><br>
+	 * <br>
+	 * &nbsp;&nbsp; <img alt="Team Points Scored" src="teampointsscore.png"/>
+	 * 
+	 * @return
+	 */
+	private HBox initializeHeaderTeamPointsViewer() {
+		DashboardTeamBarChart dashboardTeamBarChart = new DashboardTeamBarChart(100, 90, 10);
+		return dashboardTeamBarChart;
+	}
+
+	private Tile initializeManagerPicture() {
+		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/nttlogo.png");
+		File logo1;
+		Image image = null;
+		try {
+			logo1 = new File(url1.toURI().getPath());
+			image = new Image(FileUtils.openInputStream(logo1));
+		} catch (URISyntaxException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		ImageView imageView = new ImageView(image);
+		imageView.setFitHeight(250);
+		imageView.setFitWidth(200);
+		imageView.setPreserveRatio(true);
+
+		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(250, 250).title("Custom Tile")
+				.text("Whatever text").graphic(imageView).roundedCorners(true).build();
+
+		return tile;
 	}
 
 	// TODO to remove this variables later
@@ -304,10 +359,10 @@ public class DashboardUI extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 
-		// stage.setMaximized(true);
+		stage.setMaximized(true);
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
-		// stage.setFullScreen(true);
+		stage.setFullScreen(true);
 
 		Scene scene = new Scene(hbox, WIDTH, HEIGHT);
 		hbox.setBackground(DashboardUtil.BLACK_BACKGROUND);

@@ -80,11 +80,11 @@ public class DashboardImageViewer extends HBox {
 
 		Tile tile1 = TileBuilder.create().skinType(SkinType.CUSTOM)
 				.prefSize(200, 250).title("Custom Tile")
-				.text("Whatever text").graphic(img1).roundedCorners(false).build();
+				.text("Whatever text").graphic(img1).roundedCorners(true).build();
 
 		Tile tile2 = TileBuilder.create().skinType(SkinType.CUSTOM)
 				.prefSize(200, 250).title("Custom Tile")
-				.text("Whatever text").graphic(img2).roundedCorners(false).build();
+				.text("Whatever text").graphic(img2).roundedCorners(true).build();
 
 		//setBlendMode(BlendMode.COLOR_BURN);
 
