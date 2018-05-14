@@ -20,7 +20,6 @@ import javafx.scene.layout.StackPane;
 
 /**
  * @author Sandeep
- *
  */
 public class DashboardStackedBarChart extends DashboardAbstract {
 
@@ -105,6 +104,11 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		barChart.setTitle(title);
 		barChart.setCategoryGap(20);
 
+		// set the names for the series of the intrevals
+		series1.setName(teamMembers.get(0).getIntreval1());
+		series2.setName(teamMembers.get(0).getIntreval2());
+		series3.setName(teamMembers.get(0).getIntreval3());
+
 		barChart.getData().addAll(series1, series2, series3);
 
 		// stop and start the animation timer once the page is reloaded.
@@ -118,7 +122,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		// Tile leaderBoardTile = generateCustomTile(barChart, "Team Perfomance", 430,
 		// 500);
 		StackPane pane = new StackPane(barChart);
-		pane.setPrefSize(430, 500);
+		pane.setPrefSize(430, 470);
 
 		return pane;
 	}
@@ -200,7 +204,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 
 			@Override
 			public void handle(long now) {
-				if (now > lastTimerCall + 2_500_000_000L && barChart != null) {
+				if (now > lastTimerCall + 1_500_000_000L && barChart != null) {
 					int count = 0;
 					XYChart.Series<String, Number> series1 = barChart.getData().get(0);
 					XYChart.Series<String, Number> series2 = barChart.getData().get(1);

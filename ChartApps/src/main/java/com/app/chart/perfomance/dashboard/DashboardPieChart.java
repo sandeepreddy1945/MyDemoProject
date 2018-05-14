@@ -91,7 +91,7 @@ public class DashboardPieChart extends DashboardAbstract {
 		chart.setLabelsVisible(true);
 		chart.getStylesheets().add(getClass().getResource("teammeberstylesheet.css").toExternalForm());
 
-		Tile tile = generateCustomTile(chart, "Pie Chart", 450, 500);
+		Tile tile = generateCustomTile(chart, "Pie Chart", 450, 470);
 
 		setAlignment(Pos.CENTER);
 

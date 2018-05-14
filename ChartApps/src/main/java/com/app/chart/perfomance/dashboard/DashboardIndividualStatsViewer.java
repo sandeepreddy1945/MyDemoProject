@@ -213,7 +213,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 			@Override
 			public void handle(long now) {
 
-				if (now > lastTimerCall + 2_500_000_000L) {
+				if (now > lastTimerCall + 1_500_000_000L) {
 
 					// call the animation timer here in for all the instances applicable.
 					if (teamMembers.get(page) != null && memberFunGuage != null && memberFunGuage != null) {

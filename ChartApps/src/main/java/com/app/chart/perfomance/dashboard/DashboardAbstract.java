@@ -62,7 +62,7 @@ public abstract class DashboardAbstract extends HBox {
 	 */
 	public abstract void startTimer(long now);
 
-	public void initTimer() {
+	private void initTimer() {
 		lastTimerCall = System.nanoTime();
 		// run as a thread safe one.
 		Platform.runLater(() -> {
@@ -70,23 +70,16 @@ public abstract class DashboardAbstract extends HBox {
 
 				@Override
 				public void handle(long now) {
-					if (now > lastTimerCall + 3_500_000_000L) {
+					if (now > lastTimerCall + 8_500_000_000L) {
 						// call the animation timer here in for all the instances applicable.
 						startTimer(now);
 						lastTimerCall = now;
 					}
 				}
 			};
+			animationTimer.start();
 		});
 
-	}
-
-	public void startTimer() {
-		animationTimer.start();
-	}
-
-	public void stopTimer() {
-		animationTimer.stop();
 	}
 
 	public void sortTeamMembers() {
@@ -220,7 +213,7 @@ public abstract class DashboardAbstract extends HBox {
 				text(btmText).graphic(chart).roundedCorners(true).build();
 		return tile;
 	}
-	
+
 	/**
 	 * 
 	 * @param node
@@ -230,8 +223,7 @@ public abstract class DashboardAbstract extends HBox {
 	 * @param btmText
 	 * @return
 	 */
-	public Tile generateCustomTile(Node node, String title, double width, double height,
-			String btmText) {
+	public Tile generateCustomTile(Node node, String title, double width, double height, String btmText) {
 		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).
 		// TODO think of a name for this text .
 				text(btmText).graphic(node).roundedCorners(true).build();

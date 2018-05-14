@@ -121,7 +121,7 @@ public class DashboardBarChart extends DashboardAbstract {
 		}
 
 		StackPane pane = new StackPane(barChart);
-		pane.setPrefSize(430, 500);
+		pane.setPrefSize(430, 470);
 		// Tile leaderBoardTile = generateCustomTile(barChart, "Team Perfomance", 430,
 		// 500);
 
@@ -203,7 +203,7 @@ public class DashboardBarChart extends DashboardAbstract {
 		animationTimer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
-				if (now > lastTimerCall + 2_500_000_000L && barChart != null) {
+				if (now > lastTimerCall + 1_500_000_000L && barChart != null) {
 
 					int count = 0;
 

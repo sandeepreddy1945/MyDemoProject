@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
@@ -29,8 +28,8 @@ import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
 
 import eu.hansolo.tilesfx.Tile;
-import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.Tile.SkinType;
+import eu.hansolo.tilesfx.TileBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -39,14 +38,15 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
- * @author Sandeep
+ * @author Sandeep<br>
+ *         Class with All sort of functonalities to dsiplay the Dashboard .<br>
+ *         <b>Preview : </b> <br>
+ *         <img alt="Dashboard" src="dashboard.png">
  *
  */
 public class DashboardUI extends Application {
@@ -120,6 +120,11 @@ public class DashboardUI extends Application {
 		thirdLayer.getChildren().addAll(barChart, pieChart, stackBarChart);
 
 		HBox fourthLayer = initializeIndividualStatsViewer();
+
+		// set the insets for the layers
+		secondLayer.setPadding(new Insets(0, 0, 0, 50));
+		thirdLayer.setPadding(new Insets(0, 0, 0, 50));
+		fourthLayer.setPadding(new Insets(0, 0, 0, 50));
 
 		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer);
 
@@ -360,12 +365,12 @@ public class DashboardUI extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 
-		// stage.setMaximized(true);
+		stage.setMaximized(true);
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
-		// stage.setFullScreen(true);
+		stage.setFullScreen(true);
 
-		Scene scene = new Scene(hbox, WIDTH, HEIGHT);
+		Scene scene = new Scene(hbox, WIDTH - 10, HEIGHT - 10);
 		hbox.setBackground(DashboardUtil.BLACK_BACKGROUND);
 
 		stage.setScene(scene);

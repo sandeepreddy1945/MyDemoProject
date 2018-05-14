@@ -111,7 +111,7 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 		// add the appgination to UI using Tile Config
 		// TODO change the naming here if wanted
-		getChildren().add(generateCustomTile(pagination, "", 370, 500, ""));
+		getChildren().add(generateCustomTile(pagination, "", 370, 470, ""));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
@@ -129,7 +129,7 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 			@Override
 			public void handle(long now) {
-				if (now > lastTimerCall + 3_500_000_000L) {
+				if (now > lastTimerCall + 1_500_000_000L) {
 					// call the animation timer here in for all the instances applicable.
 					count = page;
 					if (tileToAnimate != null) {
