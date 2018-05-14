@@ -7,6 +7,8 @@ import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.Gauge.NeedleShape;
 import eu.hansolo.medusa.Gauge.NeedleSize;
 import eu.hansolo.medusa.Gauge.SkinType;
+import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.TickMarkType;
 import javafx.animation.AnimationTimer;
@@ -29,6 +31,7 @@ public class DashboardTeamProgressViewer extends HBox {
 	double mainPercentage;
 	double currentProgress;
 	double pendingProgress;
+	private AnimationTimer animationTimer;
 
 	/**
 	 * 
@@ -38,10 +41,16 @@ public class DashboardTeamProgressViewer extends HBox {
 		gauge = new MultiGauge();
 
 		StackPane pane = new StackPane(gauge);
-		pane.setPadding(new Insets(20));
-		pane.setBackground(DashboardUtil.BLACK_BACKGROUND);
 
-		getChildren().add(pane);
+		Tile tile = TileBuilder.create().skinType(eu.hansolo.tilesfx.Tile.SkinType.CUSTOM).prefSize(300, 250)
+				.title("Team Perfomance").
+				// TODO think of a name for this text .
+				text("").graphic(pane).roundedCorners(true).build();
+
+		// pane.setPadding(new Insets(20));
+		// pane.setBackground(DashboardUtil.BLACK_BACKGROUND);
+
+		getChildren().add(tile);
 
 		this.mainPercentage = mainPercentage;
 		this.currentProgress = currentProgress;
@@ -59,7 +68,7 @@ public class DashboardTeamProgressViewer extends HBox {
 
 	private void animateValues() {
 		lastTimerCall = System.nanoTime();
-		AnimationTimer animationTimer = new AnimationTimer() {
+		animationTimer = new AnimationTimer() {
 
 			@Override
 			public void handle(long now) {
@@ -67,6 +76,9 @@ public class DashboardTeamProgressViewer extends HBox {
 					gauge.getMainGauge().setValue(mainPercentage);
 					gauge.getCurrentGauge().setValue(currentProgress);
 					gauge.getPendingGauge().setValue(pendingProgress);
+
+					// stop the timer single attribute here
+					animationTimer.stop();
 				}
 			}
 		};

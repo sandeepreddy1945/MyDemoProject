@@ -19,6 +19,7 @@ import eu.hansolo.FunLevelGauge;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
+import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Pagination;
@@ -42,9 +43,17 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	private static final int ITEMS_PER_PAGE = 1;
 	private int pageCount;
 	private int animationPageIndex = 0;
+	private long lastTimerCall;
+	private int page;
+	private Tile memberGaugeTile;
+	private FunLevelGauge memberFunGuage;
+	private AnimationTimer animationTimer;
 
 	public DashboardIndividualStatsViewer(List<TeamMember> teamMembers) {
 		super(teamMembers);
+
+		// animate the internal Details
+		animateInternalDetails();
 	}
 
 	@Override
@@ -73,6 +82,9 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		HBox indBox = new HBox(5);
 		TeamMember member = teamMembers.get(pageIndex);
 
+		// initialize page
+		page = pageIndex;
+
 		// First fetch the Image
 		// using page index as we have only 1 member per page.
 		ImageView memberImage = fetchMemberImage(member);
@@ -87,20 +99,32 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		label.setFont(Font.font("Verdana", 20));
 		label.setTextFill(Color.WHITESMOKE);
 		// TODO to apply css to the label for text.
-		FunLevelGauge memberFunGuage = new FunLevelGauge();
+		memberFunGuage = new FunLevelGauge();
 		memberFunGuage.setPrefSize(200, 200);
 		// pass the value of percentage to it i.e from 0.0 t0 0.99 for display..
-		memberFunGuage.setLevel(Double.valueOf((member.getScore1() + member.getScore2() + member.getScore3())) / 300);
+		// Animate it by setting some delay on it.
+		memberFunGuage.setLevel(/*
+								 * Double.valueOf((member.getScore1() + member.getScore2() +
+								 * member.getScore3())) / 300
+								 */0);
 		VBox funBox = new VBox(5);
 		funBox.getChildren().addAll(label, memberFunGuage);
 
 		// member ontime guage tile
-		Tile memberGaugeTile = TileBuilder.create().skinType(SkinType.GAUGE).prefSize(200, 200)
-				.title("Quarterly Perfomance").unit("P").threshold(150).build();
+		memberGaugeTile = TileBuilder.create().skinType(SkinType.GAUGE).prefSize(200, 200).title("Quarterly Perfomance")
+				.unit("P").threshold(150).build();
 		memberGaugeTile.setMinValue(0);
 		memberGaugeTile.setMaxValue(300);
 		memberGaugeTile.setAnimationDuration(1200);
-		memberGaugeTile.setValue(member.getOnTime() + member.getValueAdd() + member.getQuality());
+		// Animate it by setting some delay on it.
+		memberGaugeTile.setValue(/* member.getOnTime() + member.getValueAdd() + member.getQuality() */0);
+
+		// stop and start the animation timer once the page is reloaded.
+		// This consevers the threads as well.
+		if (animationTimer != null) {
+			lastTimerCall = System.nanoTime();
+			animationTimer.start();
+		}
 
 		// add all componets in order
 		indBox.getChildren().addAll(memberImage, memberTextTile, funBox, memberGaugeTile);
@@ -141,6 +165,32 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 			e.printStackTrace();
 		}
 		return imageView;
+	}
+
+	private void animateInternalDetails() {
+		lastTimerCall = System.nanoTime();
+
+		animationTimer = new AnimationTimer() {
+			@Override
+			public void handle(long now) {
+				if (now > lastTimerCall + 2_500_000_000L) {
+					// call the animation timer here in for all the instances applicable.
+					if (teamMembers.get(page) != null && memberFunGuage != null && memberFunGuage != null) {
+						TeamMember member = teamMembers.get(page);
+						memberFunGuage.setLevel(
+								Double.valueOf((member.getScore1() + member.getScore2() + member.getScore3())) / 300);
+						memberGaugeTile.setValue(member.getOnTime() + member.getValueAdd() + member.getQuality());
+					}
+					lastTimerCall = now;
+					animationTimer.stop();
+				}
+
+			}
+
+		};
+
+		animationTimer.start();
+
 	}
 
 }

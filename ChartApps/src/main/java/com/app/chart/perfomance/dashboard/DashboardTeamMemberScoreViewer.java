@@ -21,13 +21,14 @@ import javafx.scene.control.Pagination;
 public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 	private Pagination pagination;
-	private static final int ITEMS_PER_PAGE = 5;
+	private static final int ITEMS_PER_PAGE = 4;
 	private int pageCount;
 	private int animationPageIndex = 0;
 	private long lastTimerCall;
 	private Tile tileToAnimate;
 	private int size;
 	private int page;
+	private AnimationTimer animationTimer;
 	// private Random random = new Random();
 
 	/**
@@ -67,6 +68,14 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 				leaderboardChartItems.stream().toArray(BarChartItem[]::new));
 		tileToAnimate = leaderBoardTile;
 
+		// stop and start the animation timer once the page is reloaded.
+		// This consevers the threads as well.
+		// Make sure this is added after the bar charrt is set with data of series.
+		if (animationTimer != null) {
+			lastTimerCall = System.nanoTime();
+			animationTimer.start();
+		}
+
 		return leaderBoardTile;
 	}
 
@@ -99,11 +108,10 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 		// add the style sheets to the UI / currently no required
 		// getStylesheets().add(STYLESHEET_PATH);
-		
 
 		// add the appgination to UI using Tile Config
-		//TODO change the naming here if wanted
-		getChildren().add(generateCustomTile(pagination, "", 370,500,""));
+		// TODO change the naming here if wanted
+		getChildren().add(generateCustomTile(pagination, "", 370, 500, ""));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
@@ -115,13 +123,13 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 	private void animateInternalDetails() {
 		lastTimerCall = System.nanoTime();
 
-		AnimationTimer animationTimer = new AnimationTimer() {
+		animationTimer = new AnimationTimer() {
 
 			private int count;
 
 			@Override
 			public void handle(long now) {
-				if (now > lastTimerCall + 2_500_000_000L) {
+				if (now > lastTimerCall + 3_500_000_000L) {
 					// call the animation timer here in for all the instances applicable.
 					count = page;
 					if (tileToAnimate != null) {
@@ -131,6 +139,7 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 						});
 					}
 					lastTimerCall = now;
+					animationTimer.stop();
 				}
 			}
 		};

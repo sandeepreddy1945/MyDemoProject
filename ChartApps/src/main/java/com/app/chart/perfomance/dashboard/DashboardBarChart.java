@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.app.chart.model.TeamMember;
 
-import eu.hansolo.tilesfx.Tile;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.chart.BarChart;
@@ -18,6 +17,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Pagination;
+import javafx.scene.layout.StackPane;
 
 /**
  * @author Sandeep
@@ -35,12 +35,12 @@ public class DashboardBarChart extends DashboardAbstract {
 
 	private Pagination pagination;
 	private static final int ITEMS_PER_PAGE = 3;
-	public int resetAnimateCount = 1;
 	private int pageCount;
 	private int animationPageIndex = 0;
 	private int page;
 	private int size;
 	private long lastTimerCall;
+	private AnimationTimer animationTimer;
 
 	public DashboardBarChart(List<TeamMember> teamMembers) {
 		this(teamMembers, MONTHLY_PERFOMANCE);
@@ -77,15 +77,12 @@ public class DashboardBarChart extends DashboardAbstract {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Tile createPage(int pageIndex) {
+	public StackPane createPage(int pageIndex) {
 
 		page = pageIndex * ITEMS_PER_PAGE;
 		size = pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE > teamMembers.size() ? teamMembers.size()
 				: pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
 		categoryAxis = new CategoryAxis();
-
-		// reset the animate count
-		resetAnimateCount++;
 		/*
 		 * xAxis.setCategories(FXCollections.<String>observableArrayList(
 		 * Arrays.asList(austria, brazil, france, italy, usa)));
@@ -100,7 +97,7 @@ public class DashboardBarChart extends DashboardAbstract {
 
 		for (int i = page; i < size; i++) {
 			String name = teamMembers.get(i).getName();
-			// presentedSeriesData(series1, series2, series3, i, name);
+			presentedSeriesData(series1, series2, series3, i, name);
 		}
 
 		categoryAxis.setLabel(categoryAxisName);
@@ -116,16 +113,67 @@ public class DashboardBarChart extends DashboardAbstract {
 		series2.setName(teamMembers.get(0).getIntreval2());
 		series3.setName(teamMembers.get(0).getIntreval3());
 
-		Tile leaderBoardTile = generateCustomTile(barChart, "Team Perfomance", 430, 500);
+		// stop and start the animation timer once the page is reloaded.
+		// This consevers the threads as well.
+		if (animationTimer != null) {
+			lastTimerCall = System.nanoTime();
+			animationTimer.start();
+		}
 
-		return leaderBoardTile;
+		StackPane pane = new StackPane(barChart);
+		pane.setPrefSize(430, 500);
+		// Tile leaderBoardTile = generateCustomTile(barChart, "Team Perfomance", 430,
+		// 500);
+
+		return pane;
 	}
 
+	/**
+	 * Set the initial values to 0 ..And in the later stage animate it to actual
+	 * values . <br>
+	 * 
+	 * @See Java bug on bar chart . Need to do this as there is a java bug outhere
+	 *      causing disturbance in displaying labels .<br>
+	 *      So first set the label names and then set the values to them during
+	 *      animation.
+	 * @param series1
+	 * @param series2
+	 * @param series3
+	 * @param i
+	 * @param name
+	 */
 	protected void presentedSeriesData(XYChart.Series<String, Number> series1, XYChart.Series<String, Number> series2,
 			XYChart.Series<String, Number> series3, int i, String name) {
-		series1.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore1()));
-		series2.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore2()));
-		series3.getData().add(new XYChart.Data<String, Number>(name, teamMembers.get(i).getScore3()));
+
+		series1.getData().add(new XYChart.Data<String, Number>(name, 0));
+		series2.getData().add(new XYChart.Data<String, Number>(name, 0));
+		series3.getData().add(new XYChart.Data<String, Number>(name, 0));
+	}
+
+	/**
+	 * Set the initial values to 0 ..And in the later stage animate it to actual
+	 * values . <br>
+	 * 
+	 * @See Java bug on bar chart . Need to do this as there is a java bug outhere
+	 *      causing disturbance in displaying labels .<br>
+	 *      So first set the label names and then set the values to them during
+	 *      animation.
+	 * @param series1
+	 * @param series2
+	 * @param series3
+	 * @param i
+	 * @param name
+	 * @param count
+	 */
+	protected void presentedSeriesData(XYChart.Series<String, Number> series1, XYChart.Series<String, Number> series2,
+			XYChart.Series<String, Number> series3, int i, String name, int count) {
+		if (series1.getData().get(count) != null && series2.getData().get(count) != null
+				&& series3.getData().get(count) != null) {
+			series1.getData().get(count).setYValue(teamMembers.get(i).getScore1());
+			series2.getData().get(count).setYValue(teamMembers.get(i).getScore2());
+			series3.getData().get(count).setYValue(teamMembers.get(i).getScore3());
+		}
+
 	}
 
 	@Override
@@ -141,9 +189,9 @@ public class DashboardBarChart extends DashboardAbstract {
 		// add the style sheets to the UI / currently no required
 		// getStylesheets().add(STYLESHEET_PATH);
 
-		// add the appgination to UI using Tile 
-		//TODO change the naming here if wanted
-		getChildren().add(generateCustomTile(pagination, "", 450,500,""));
+		// add the appgination to UI using Tile
+		// TODO change the naming here if wanted
+		getChildren().add(generateCustomTile(pagination, "Team Perfomance Bar", 450, 500, "Team Perfomance"));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
@@ -152,27 +200,25 @@ public class DashboardBarChart extends DashboardAbstract {
 
 	private void animateGraph() {
 		lastTimerCall = System.nanoTime();
-
-		AnimationTimer animationTimer = new AnimationTimer() {
-
-			private int count = resetAnimateCount;
-
+		animationTimer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
-				if (now > lastTimerCall + 4_500_000_000L && barChart != null && count < resetAnimateCount) {
+				if (now > lastTimerCall + 2_500_000_000L && barChart != null) {
+
+					int count = 0;
 
 					XYChart.Series<String, Number> series1 = barChart.getData().get(0);
-					// series1.getData().clear();
 					XYChart.Series<String, Number> series2 = barChart.getData().get(1);
-					// series2.getData().clear();
 					XYChart.Series<String, Number> series3 = barChart.getData().get(2);
-					// series3.getData().clear();
+
 					for (int i = page; i < size; i++) {
 						String name = teamMembers.get(i).getName();
 						System.out.println(teamMembers.get(i).getName());
-						presentedSeriesData(series1, series2, series3, i, name);
+						presentedSeriesData(series1, series2, series3, i, name, count++);
 					}
-					count++;
+
+					animationTimer.stop();
+
 				}
 
 			}
