@@ -10,6 +10,7 @@ import java.math.RoundingMode;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
@@ -21,6 +22,7 @@ import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
+import eu.hansolo.tilesfx.tools.Helper;
 import eu.hansolo.tilesfx.TileBuilder;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
@@ -29,6 +31,7 @@ import javafx.scene.control.Pagination;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -54,6 +57,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	private Gauge modernGuage;
 	private Gauge thirdGuage;
 	private Gauge secondGuage;
+	private Tile flipTile;
 
 	public DashboardIndividualStatsViewer(List<TeamMember> teamMembers) {
 		super(teamMembers);
@@ -96,7 +100,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		ImageView memberImage = fetchMemberImage(member);
 
 		// member details .
-		Tile memberTextTile = TileBuilder.create().skinType(SkinType.TEXT).prefSize(200, 200).title(member.getName())
+		Tile memberTextTile = TileBuilder.create().skinType(SkinType.TEXT).prefSize(240, 200).title(member.getName())
 				.text("Team Member").description(member.getDescription() + "\n" + member.getExtraDescription())
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
@@ -149,6 +153,9 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 						new Section(66, 100, Color.CRIMSON))
 				.build();
 
+		flipTile = TileBuilder.create().skinType(SkinType.FLIP).prefSize(200, 200).characters(Helper.TIME_00_TO_59)
+				.flipTimeInMS(500).flipText(" ").title("Timer ").build();
+
 		// stop and start the animation timer once the page is reloaded.
 		// This consevers the threads as well.
 		if (animationTimer != null) {
@@ -158,7 +165,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 		// add all componets in order
 		indBox.getChildren().addAll(memberImage, memberTextTile, funBox, memberGaugeTile, modernGuage, secondGuage,
-				thirdGuage);
+				thirdGuage, flipTile);
+		HBox.setHgrow(indBox, Priority.ALWAYS);
 
 		return indBox;
 	}
@@ -204,9 +212,15 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		animationTimer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
+
 				if (now > lastTimerCall + 2_500_000_000L) {
+
 					// call the animation timer here in for all the instances applicable.
 					if (teamMembers.get(page) != null && memberFunGuage != null && memberFunGuage != null) {
+						// initialize the flip tile
+						if (flipTile != null)
+							flipTile.setFlipText(
+									Helper.TIME_0_TO_5[new Random().nextInt(Helper.TIME_0_TO_5.length - 1)]);
 						TeamMember member = teamMembers.get(page);
 						memberFunGuage.setLevel(
 								Double.valueOf((member.getScore1() + member.getScore2() + member.getScore3())) / 300);
@@ -216,6 +230,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 						modernGuage.setValue(member.getScore1());
 						secondGuage.setValue(member.getScore2());
 						thirdGuage.setValue(member.getScore3());
+
 					}
 					lastTimerCall = now;
 					animationTimer.stop();

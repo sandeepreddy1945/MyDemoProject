@@ -39,6 +39,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -359,10 +360,10 @@ public class DashboardUI extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 
-		stage.setMaximized(true);
+		// stage.setMaximized(true);
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
-		stage.setFullScreen(true);
+		// stage.setFullScreen(true);
 
 		Scene scene = new Scene(hbox, WIDTH, HEIGHT);
 		hbox.setBackground(DashboardUtil.BLACK_BACKGROUND);

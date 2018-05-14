@@ -70,10 +70,10 @@ public class DashboardTeamBarChart extends HBox {
 		bc.getData().addAll(series1, series2, series3);
 
 		StackPane pane = new StackPane(bc);
-		pane.setMinSize(800, 190);
-		pane.setPrefSize(900, 190);
+		pane.setMinSize(730, 190);
+		pane.setPrefSize(730, 190);
 
-		getChildren().add(generateCustomTile(pane, "", 950, 210, ""));
+		getChildren().add(generateCustomTile(pane, "", 765, 210, ""));
 
 		setBackground(DashboardUtil.blackBackGround());
 
