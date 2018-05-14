@@ -14,7 +14,9 @@ import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
 import com.app.chart.perfomance.dashboard.DashboardHeader;
 import com.app.chart.perfomance.dashboard.DashboardImageViewer;
+import com.app.chart.perfomance.dashboard.DashboardIndividualStatsViewer;
 import com.app.chart.perfomance.dashboard.DashboardPieChart;
+import com.app.chart.perfomance.dashboard.DashboardStackedBarChart;
 import com.app.chart.perfomance.dashboard.DashboardTeamMemberScoreViewer;
 import com.app.chart.perfomance.dashboard.DashboardTeamProgressViewer;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
@@ -91,12 +93,15 @@ public class DashboardUI extends Application {
 		HBox barChart = initializeBarChart();
 		HBox pieChart = initializePieChart();
 		HBox progressViewer = initializeTeamProgressViewer();
+		HBox stackBarChart = initializeStckBarChart();
 
 		secondLayer.getChildren().add(0, progressViewer);
 
-		thirdLayer.getChildren().addAll(barChart, pieChart);
+		thirdLayer.getChildren().addAll(barChart, pieChart, stackBarChart);
+		
+		HBox fourthLayer = initializeIndividualStatsViewer();
 
-		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer);
+		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer);
 
 		// dynamically add the drawer pane implicityly
 		hbox.getChildren().addAll(vbox);
@@ -198,9 +203,41 @@ public class DashboardUI extends Application {
 
 	}
 
+	/**
+	 * Initialize the Perfomance Meter Viewer<br>
+	 * <b>Preview : <b><br>
+	 * <br>
+	 * &nbsp;&nbsp; <img alt="Leader Board" src="progressViewer.png"/>
+	 * 
+	 * @return
+	 */
 	private HBox initializeTeamProgressViewer() {
 		DashboardTeamProgressViewer progressViewer = new DashboardTeamProgressViewer(2400, 1210, 90);
 		return progressViewer;
+	}
+	
+	/**
+	 * Initialize the Perfomance Meter Viewer<br>
+	 * <b>Preview : <b><br>
+	 * <br>
+	 * &nbsp;&nbsp; <img alt="Leader Board" src="stackbarchart.png"/>
+	 * 
+	 * @return
+	 */
+	private HBox initializeStckBarChart() {
+		List<TeamMember> list = teamMembers();
+		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
+		Collections.reverse(list);
+		DashboardStackedBarChart stackedBarChart = new DashboardStackedBarChart(list);
+		return stackedBarChart;
+	}
+	
+	private HBox initializeIndividualStatsViewer() {
+		List<TeamMember> list = teamMembers();
+		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
+		Collections.reverse(list);
+		DashboardIndividualStatsViewer statsViewer = new DashboardIndividualStatsViewer(list);
+		return statsViewer;
 	}
 
 	// TODO to remove this variables later
@@ -231,6 +268,9 @@ public class DashboardUI extends Application {
 		member.setTeam(randomString());
 		member.setName(randomString());
 		member.setLink(randomString());
+		member.setQuality(randomNumber());
+		member.setOnTime(randomNumber());
+		member.setValueAdd(randomNumber());
 
 		return member;
 	}

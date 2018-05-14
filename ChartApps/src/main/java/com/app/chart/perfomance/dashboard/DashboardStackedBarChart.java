@@ -10,6 +10,7 @@ import java.util.List;
 import com.app.chart.model.TeamMember;
 
 import eu.hansolo.tilesfx.Tile;
+import javafx.animation.AnimationTimer;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.StackedBarChart;
@@ -35,6 +36,10 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 	protected static final int ITEMS_PER_PAGE = 5;
 	protected int pageCount;
 	protected int animationPageIndex = 0;
+	private long lastTimerCall;
+	public int resetAnimateCount = 1;
+	private int page;
+	private int size;
 
 	public DashboardStackedBarChart(List<TeamMember> teamMembers) {
 		this(teamMembers, MONTHLY_PERFOMANCE);
@@ -54,6 +59,9 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		this.categoryAxisName = categoryAxisName;
 		this.numberAxisName = numberAxisName;
 		this.title = title;
+
+		// animate the stack bar chart animation 
+		animateGraph();
 	}
 
 	@Override
@@ -70,10 +78,13 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 	@SuppressWarnings("unchecked")
 	public Tile createPage(int pageIndex) {
 
-		int page = pageIndex * ITEMS_PER_PAGE;
-		int size = pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE > teamMembers.size() ? teamMembers.size()
+		page = pageIndex * ITEMS_PER_PAGE;
+		size = pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE > teamMembers.size() ? teamMembers.size()
 				: pageIndex * ITEMS_PER_PAGE + ITEMS_PER_PAGE;
 		categoryAxis = new CategoryAxis();
+
+		// reset the animate count
+		resetAnimateCount++;
 		/*
 		 * xAxis.setCategories(FXCollections.<String>observableArrayList(
 		 * Arrays.asList(austria, brazil, france, italy, usa)));
@@ -88,7 +99,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 
 		for (int i = page; i < size; i++) {
 			String name = teamMembers.get(i).getName();
-			presentedSeriesData(series1, series2, series3, i, name);
+			// presentedSeriesData(series1, series2, series3, i, name);
 		}
 
 		categoryAxis.setLabel(categoryAxisName);
@@ -98,7 +109,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 
 		barChart.getData().addAll(series1, series2, series3);
 
-		Tile leaderBoardTile = generateCustomTile(barChart);
+		Tile leaderBoardTile = generateCustomTile(barChart, "Team Perfomance", 430, 500);
 
 		return leaderBoardTile;
 	}
@@ -124,11 +135,42 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		// getStylesheets().add(STYLESHEET_PATH);
 
 		// add the appgination to UI
-		getChildren().add(pagination);
+		getChildren().add(generateCustomTile(pagination, "", 450, 500, ""));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
 
+	}
+
+	private void animateGraph() {
+		lastTimerCall = System.nanoTime();
+
+		AnimationTimer animationTimer = new AnimationTimer() {
+
+			private int count = resetAnimateCount;
+
+			@Override
+			public void handle(long now) {
+				if (now > lastTimerCall + 4_500_000_000L && barChart != null && count < resetAnimateCount) {
+
+					XYChart.Series<String, Number> series1 = barChart.getData().get(0);
+					// series1.getData().clear();
+					XYChart.Series<String, Number> series2 = barChart.getData().get(1);
+					// series2.getData().clear();
+					XYChart.Series<String, Number> series3 = barChart.getData().get(2);
+					// series3.getData().clear();
+					for (int i = page; i < size; i++) {
+						String name = teamMembers.get(i).getName();
+						System.out.println(teamMembers.get(i).getName());
+						presentedSeriesData(series1, series2, series3, i, name);
+					}
+					count++;
+				}
+
+			}
+		};
+
+		animationTimer.start();
 	}
 
 }

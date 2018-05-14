@@ -21,7 +21,7 @@ import javafx.scene.control.Pagination;
 public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 	private Pagination pagination;
-	private static final int ITEMS_PER_PAGE = 6;
+	private static final int ITEMS_PER_PAGE = 5;
 	private int pageCount;
 	private int animationPageIndex = 0;
 	private long lastTimerCall;

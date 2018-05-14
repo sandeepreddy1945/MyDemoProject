@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -36,7 +38,6 @@ import javafx.scene.text.Font;
  */
 public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
-	private final List<TeamMember> teamMembers;
 	private Pagination pagination;
 	private static final int ITEMS_PER_PAGE = 1;
 	private int pageCount;
@@ -44,7 +45,6 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 	public DashboardIndividualStatsViewer(List<TeamMember> teamMembers) {
 		super(teamMembers);
-		this.teamMembers = teamMembers;
 	}
 
 	@Override
@@ -89,7 +89,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		// TODO to apply css to the label for text.
 		FunLevelGauge memberFunGuage = new FunLevelGauge();
 		memberFunGuage.setPrefSize(200, 200);
-		memberFunGuage.setLevel((member.getScore1() + member.getScore2() + member.getScore3()) / 3);
+		// pass the value of percentage to it i.e from 0.0 t0 0.99 for display..
+		memberFunGuage.setLevel(Double.valueOf((member.getScore1() + member.getScore2() + member.getScore3())) / 300);
 		VBox funBox = new VBox(5);
 		funBox.getChildren().addAll(label, memberFunGuage);
 
@@ -98,6 +99,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 				.title("Quarterly Perfomance").unit("P").threshold(150).build();
 		memberGaugeTile.setMinValue(0);
 		memberGaugeTile.setMaxValue(300);
+		memberGaugeTile.setAnimationDuration(1200);
 		memberGaugeTile.setValue(member.getOnTime() + member.getValueAdd() + member.getQuality());
 
 		// add all componets in order
@@ -118,9 +120,18 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	}
 
 	public ImageView fetchMemberImage(TeamMember member) {
-		File imgFile = new File("Default path to image folder" + "/" + member.getPortalId() + ".png");
+		// for now hard coded for dev purpose
+		// TODO to change the hard coded value to get the image by portal ID.
+		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/nttlogo.png");
+		File imgFile = null;
+		try {
+			imgFile = new File(url1.toURI().getPath());
+		} catch (URISyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		ImageView imageView = new ImageView();
-		imageView.setFitHeight(300);
+		imageView.setFitHeight(200);
 		imageView.setFitWidth(250);
 		imageView.setPreserveRatio(true);
 		try {
