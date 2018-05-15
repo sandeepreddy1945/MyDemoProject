@@ -62,13 +62,13 @@ public class DashboardUI extends Application {
 	/**
 	 * Visual Bounds of the Screen.
 	 */
-	static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
-	static double MIN_X = visualBounds.getMinX();
-	static double MIN_Y = visualBounds.getMinY();
-	static double MAX_X = visualBounds.getMaxX();
-	static double MAX_Y = visualBounds.getMaxY();
-	static double WIDTH = visualBounds.getWidth();
-	static double HEIGHT = visualBounds.getHeight();
+	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+	public static double MIN_X = visualBounds.getMinX();
+	public static double MIN_Y = visualBounds.getMinY();
+	public static double MAX_X = visualBounds.getMaxX();
+	public static double MAX_Y = visualBounds.getMaxY();
+	public static double WIDTH = visualBounds.getWidth();
+	public static double HEIGHT = visualBounds.getHeight();
 
 	private final List<TeamMember> teamMembers;
 	private VBox vbox;

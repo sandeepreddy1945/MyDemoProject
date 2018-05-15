@@ -61,7 +61,7 @@ public class OrgTreeView<T> extends Application {
 	/**
 	 * Re-Load Page using the window object on the javascript to reload the page.
 	 */
-	private static final String WINDOW_LOCATION_RELOAD = " window.location.reload();";
+	public static final String WINDOW_LOCATION_RELOAD = " window.location.reload();";
 
 	public static final String RELOAD_JS_SCRIPT = " function reloadPage() {\r\n" + "    window.location.reload();\r\n"
 			+ "}";

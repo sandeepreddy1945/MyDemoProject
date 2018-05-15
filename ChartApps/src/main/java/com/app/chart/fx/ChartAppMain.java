@@ -3,9 +3,13 @@
  */
 package com.app.chart.fx;
 
+import com.app.chart.perfomance.dashboard.DashboardUtil;
+import com.app.chart.perfomance.dashboard.ui.DashboardUI;
+
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -13,8 +17,6 @@ import javafx.stage.Stage;
  *
  */
 public class ChartAppMain extends Application {
-
-	
 
 	/**
 	 * @param args
@@ -34,19 +36,34 @@ public class ChartAppMain extends Application {
 		primaryStage.setMaximized(true);
 		primaryStage.setMinWidth(600);
 		primaryStage.setMinHeight(600);
-		primaryStage.setResizable(false);
-		primaryStage.setAlwaysOnTop(true);
+		primaryStage.setResizable(true);
+		primaryStage.setAlwaysOnTop(false);
 		primaryStage.setTitle("MPS - Project Details");
 
 		// initialize the chart web engine
 		ChartWebEngine chartWebEngine = new ChartWebEngine().initialize();
 
-		Scene scene = new Scene(chartWebEngine.getWebView(), primaryStage.getMaxWidth(), primaryStage.getMaxHeight());
+		HBox box = new HBox();
+		VBox mainBox = new VBox(5);
+		mainBox.getChildren().add(DashboardUtil.HeaderSegment(box));
+		chartWebEngine.getWebView().setPrefSize(DashboardUI.WIDTH, DashboardUI.HEIGHT - 60);
+		chartWebEngine.getWebView().setMinSize(DashboardUI.WIDTH - 160, DashboardUI.HEIGHT - 110);
+		chartWebEngine.getWebView().setTranslateZ(10);
+		mainBox.getChildren().add(chartWebEngine.getWebView());
+		HBox footerSegment = DashboardUtil.FooterSegment();
+		footerSegment.setPrefHeight(25);
+		mainBox.getChildren().add(footerSegment);
+
+		box.getChildren().add(mainBox);
+		Scene scene = new Scene(box, primaryStage.getMaxWidth(), primaryStage.getMaxHeight());
 		primaryStage.setScene(scene);
-		Platform.runLater(() -> primaryStage.show());
+		primaryStage.show();
+
+		// display the screen after data shows up
+		chartWebEngine.displayData();
+
 		// start the timer
-		chartWebEngine.getAnimationTimer().start();
+		// chartWebEngine.getAnimationTimer().start();
 	}
 
-	
 }

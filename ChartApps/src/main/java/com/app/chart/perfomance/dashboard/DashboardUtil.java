@@ -3,15 +3,27 @@
  */
 package com.app.chart.perfomance.dashboard;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Comparator;
 
 import com.app.chart.model.TeamMember;
+import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
+import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 /**
  * @author Sandeep
@@ -25,7 +37,6 @@ public class DashboardUtil {
 			new BackgroundFill(Color.web("#ccd9ff"), CornerRadii.EMPTY, Insets.EMPTY));
 	public static final int TILE_WIDTH = 250;
 	public static final int TILE_HEIGHT = 250;
-	
 
 	/**
 	 * Black BackGround
@@ -34,6 +45,65 @@ public class DashboardUtil {
 	 */
 	public static Background blackBackGround() {
 		return BLACK_BACKGROUND;
+	}
+
+	/**
+	 * Header Initialization.
+	 */
+	public static HBox HeaderSegment(HBox hbox) {
+
+		DashboardHeader dashboardHeader = null;
+		try {
+			URL url1 = ClassLoader.getSystemResource("com/app/chart/images/nttlogo.png");
+			URL url2 = ClassLoader.getSystemResource("com/app/chart/images/ntt-data.png");
+			File logo1 = new File(url1.toURI().getPath());
+			File logo2 = new File(url2.toURI().getPath());
+
+			dashboardHeader = new DashboardHeader(logo1, logo2, "Sandeep Reddy Battula");
+			dashboardHeader.setMinSize(DashboardUI.WIDTH - 160, 90);
+			dashboardHeader.setPrefSize(DashboardUI.WIDTH, 90);
+
+			// initalize the side panel by passing the main panel.
+			// side pane explictly uses it hide and unhide the side pane.
+			// TODO to check if there is any other alternative than this.
+			DashboardSidePane dashboardSidePane = new DashboardSidePane(dashboardHeader.getImageView1(), hbox);
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return dashboardHeader;
+	}
+
+	public static HBox FooterSegment() {
+		Text creditsText = new Text("Designed and Developed by \"Sandeep Reddy Battula\"");
+		creditsText.setTextAlignment(TextAlignment.RIGHT);
+		creditsText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+		creditsText.setFill(Paint.valueOf("#ffffff"));
+
+		Text copyRights = new Text("Copy Rights Reserved.");
+		copyRights.setTextAlignment(TextAlignment.LEFT);
+		copyRights.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+		copyRights.setFill(Paint.valueOf("#ffffff"));
+
+		HBox copyRightsBox = new HBox(copyRights);
+		copyRightsBox.setPadding(new Insets(0, 15, 0, 0));
+		copyRightsBox.setMinSize(DashboardUI.WIDTH / 2 - 20, 10);
+		copyRightsBox.setBackground(DashboardUtil.BLACK_BACKGROUND);
+		copyRightsBox.setAlignment(Pos.BOTTOM_LEFT);
+
+		HBox creditsBox = new HBox(creditsText);
+		creditsBox.setPadding(new Insets(0, 15, 0, 0));
+		creditsBox.setMinSize(DashboardUI.WIDTH / 2 - 20, 10);
+		creditsBox.setBackground(DashboardUtil.BLACK_BACKGROUND);
+		creditsBox.setAlignment(Pos.BOTTOM_RIGHT);
+		HBox.setHgrow(copyRightsBox, Priority.ALWAYS);
+
+		HBox footerBox = new HBox(copyRightsBox, creditsBox);
+		footerBox.setAlignment(Pos.BOTTOM_CENTER);
+		footerBox.setMinSize(DashboardUI.WIDTH - 10, 10);
+
+		return footerBox;
+
 	}
 
 	/**
