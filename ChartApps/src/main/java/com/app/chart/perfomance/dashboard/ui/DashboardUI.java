@@ -128,7 +128,7 @@ public class DashboardUI extends Application {
 
 		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer);
 
-		// dynamically add the drawer pane implicityly
+		// dynamically add the drawer pane implicitly
 		hbox.getChildren().addAll(vbox);
 	}
 
@@ -303,7 +303,7 @@ public class DashboardUI extends Application {
 		imageView.setFitWidth(200);
 		imageView.setPreserveRatio(true);
 
-		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(250, 250).title("Custom Tile")
+		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(250, 250).title("Team Manager")
 				.text("Whatever text").graphic(imageView).roundedCorners(true).build();
 
 		return tile;
