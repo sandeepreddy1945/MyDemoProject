@@ -33,12 +33,19 @@ import eu.hansolo.tilesfx.TileBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -126,7 +133,10 @@ public class DashboardUI extends Application {
 		thirdLayer.setPadding(new Insets(0, 0, 0, 50));
 		fourthLayer.setPadding(new Insets(0, 0, 0, 50));
 
-		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer);
+		// footer for the dashboard
+		HBox foorterTile = initializeFooter();
+
+		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer, foorterTile);
 
 		// dynamically add the drawer pane implicitly
 		hbox.getChildren().addAll(vbox);
@@ -164,8 +174,8 @@ public class DashboardUI extends Application {
 		try {
 			// TODO to change this to dynamic
 			// Kept Juzz for testing.
-			URL url1 = ClassLoader.getSystemResource("com/app/chart/images/nttlogo.png");
-			URL url2 = ClassLoader.getSystemResource("com/app/chart/images/ntt-data.png");
+			URL url1 = ClassLoader.getSystemResource("com/app/chart/images/10.jpg");
+			URL url2 = ClassLoader.getSystemResource("com/app/chart/images/11.jpg");
 			File logo1 = new File(url1.toURI().getPath());
 			File logo2 = new File(url1.toURI().getPath());
 
@@ -287,7 +297,7 @@ public class DashboardUI extends Application {
 	}
 
 	private Tile initializeManagerPicture() {
-		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/nttlogo.png");
+		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/1.jpg");
 		File logo1;
 		Image image = null;
 		try {
@@ -307,6 +317,38 @@ public class DashboardUI extends Application {
 				.text("Whatever text").graphic(imageView).roundedCorners(true).build();
 
 		return tile;
+	}
+
+	private HBox initializeFooter() {
+		Text creditsText = new Text("Designed and Developed by \"Sandeep Reddy Battula\"");
+		creditsText.setTextAlignment(TextAlignment.RIGHT);
+		creditsText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+		creditsText.setFill(Paint.valueOf("#ffffff"));
+
+		Text copyRights = new Text("Copy Rights Reserved.");
+		copyRights.setTextAlignment(TextAlignment.LEFT);
+		copyRights.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+		copyRights.setFill(Paint.valueOf("#ffffff"));
+
+		HBox copyRightsBox = new HBox(copyRights);
+		copyRightsBox.setPadding(new Insets(0, 15, 0, 0));
+		copyRightsBox.setMinSize(WIDTH / 2 - 20, 10);
+		copyRightsBox.setBackground(DashboardUtil.BLACK_BACKGROUND);
+		copyRightsBox.setAlignment(Pos.BOTTOM_LEFT);
+
+		HBox creditsBox = new HBox(creditsText);
+		creditsBox.setPadding(new Insets(0, 15, 0, 0));
+		creditsBox.setMinSize(WIDTH / 2 - 20, 10);
+		creditsBox.setBackground(DashboardUtil.BLACK_BACKGROUND);
+		creditsBox.setAlignment(Pos.BOTTOM_RIGHT);
+		HBox.setHgrow(copyRightsBox, Priority.ALWAYS);
+
+		HBox footerBox = new HBox(copyRightsBox, creditsBox);
+		footerBox.setAlignment(Pos.BOTTOM_CENTER);
+		footerBox.setMinSize(WIDTH - 10, 10);
+
+		return footerBox;
+
 	}
 
 	// TODO to remove this variables later
