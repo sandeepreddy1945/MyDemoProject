@@ -21,6 +21,7 @@ import com.app.chart.perfomance.dashboard.DashboardImageViewer;
 import com.app.chart.perfomance.dashboard.DashboardIndividualStatsViewer;
 import com.app.chart.perfomance.dashboard.DashboardPieChart;
 import com.app.chart.perfomance.dashboard.DashboardStackedBarChart;
+import com.app.chart.perfomance.dashboard.DashboardSunburnChart;
 import com.app.chart.perfomance.dashboard.DashboardTeamBarChart;
 import com.app.chart.perfomance.dashboard.DashboardTeamMemberScoreViewer;
 import com.app.chart.perfomance.dashboard.DashboardTeamProgressViewer;
@@ -117,6 +118,9 @@ public class DashboardUI extends Application {
 
 		// Third Layer Charts
 		HBox barChart = initializeBarChart();
+		// Either Use the Bar chart or the sunbrun chart for display
+		HBox sunbutnChart = initializeSunburnChart();
+
 		HBox pieChart = initializePieChart();
 		HBox progressViewer = initializeTeamProgressViewer();
 		HBox stackBarChart = initializeStackBarChart();
@@ -124,7 +128,9 @@ public class DashboardUI extends Application {
 		secondLayer.getChildren().add(0, progressViewer);
 		secondLayer.getChildren().addAll(secondLayerChild, secondLayerChild2);
 
-		thirdLayer.getChildren().addAll(barChart, pieChart, stackBarChart);
+		// Either of The barchart or the stack can be used by uncommenting
+		// TODO to decide on which chart to use.
+		thirdLayer.getChildren().addAll(/* barChart */sunbutnChart, pieChart, stackBarChart);
 
 		HBox fourthLayer = initializeIndividualStatsViewer();
 
@@ -294,6 +300,18 @@ public class DashboardUI extends Application {
 	private HBox initializeHeaderTeamPointsViewer() {
 		DashboardTeamBarChart dashboardTeamBarChart = new DashboardTeamBarChart(100, 90, 10);
 		return dashboardTeamBarChart;
+	}
+
+	/**
+	 * Initializes the Team Sunburn Chart of Releases <br>
+	 * <b> Preview : <b> <br>
+	 * &nbsp;&nbsp;
+	 * <img alt="SunBurn Chart" src="sunburnchart.png">
+	 * @return
+	 */
+	private HBox initializeSunburnChart() {
+		DashboardSunburnChart sunburnChart = new DashboardSunburnChart();
+		return sunburnChart;
 	}
 
 	private Tile initializeManagerPicture() {
