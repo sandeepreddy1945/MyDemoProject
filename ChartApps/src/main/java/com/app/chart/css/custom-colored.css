@@ -1,49 +1,115 @@
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td { margin:0; padding:0; }
-table { border-collapse:collapse; border-spacing:0; }
-fieldset,img { border:0; }
-address,caption,cite,code,dfn,em,strong,th,var { font-style:normal; font-weight:normal; }
-caption,th { text-align:left; }
-h1,h2,h3,h4,h5,h6 { font-size:100%; font-weight:normal; }
-q:before,q:after { content:''; }
-abbr,acronym { border:0; }
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form,
+	fieldset, input, textarea, p, blockquote, th, td {
+	margin: 0;
+	padding: 0;
+}
 
-body { background: #fff; margin: auto; }
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+fieldset, img {
+	border: 0;
+}
+
+address, caption, cite, code, dfn, em, strong, th, var {
+	font-style: normal;
+	font-weight: normal;
+}
+
+caption, th {
+	text-align: left;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-size: 100%;
+	font-weight: normal;
+}
+
+q:before, q:after {
+	content: '';
+}
+
+abbr, acronym {
+	border: 0;
+}
+
+body {
+	background: #fff;
+	margin: auto;
+}
 /* optional Container STYLES */
-.chart { height: 95%; margin: 15px; width: 95%; margin: auto;  }
-.Treant > .node { background-color: #DC143C; }
-.Treant > p { font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; font-weight: bold; font-size: 12px; }
-.node-name { font-weight: bold;}
-.node-title { font-weight: bold;}
+.chart {
+	height: 95%;
+	margin: 15px;
+	width: 95%;
+	margin: auto;
+}
 
+.Treant>.node {
+	background-color: #DC143C;
+	text-decoration: none;
+	/* Setting this to none disables the UnderLine for anchor tag that ocurs by default */
+}
+
+.Treant>p {
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light",
+		"Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+/*Edit this for name field*/
+.node-name {
+	font-weight: bold;
+	padding-bottom: 5px;
+	padding-top: 2px;
+	padding-left: 5px;
+}
+/*Edit this for title field - 2nd field*/
+.node-title {
+	font-weight: bold;
+	padding-bottom: 5px;
+	padding-left: 5px;
+}
+/*Edit this for title description - 3rd field*/
+.node-desc {
+	font-weight: bold;
+	padding-bottom: 5px;
+	padding-left: 5px;
+}
+
+/*Css Proeprties that applies to the Node entire body . */
 .customColored {
-    padding: 2px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    background-color: #262626;
-    border: 1px solid #000;
-    width: 250px;
-	//height: 100px;
-    font-family: Tahoma;
-    font-size: 12px;
+	padding: 2px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background-color: #262626;
+	border: 1px solid #000;
+	width: 250px; //
+	height: 100px;
+	font-family: Tahoma;
+	font-size: 12px;
 	font-weight: bold;
 	color: #ffffff;
 }
-
+/*Css Proeprties that applies to the Node image display . */
 .customColored img {
-    margin-right:  10px;
-	//border-radius: 50%;
+	margin-right: 10px; //
+	border-radius: 50%;
 	height: 80px;
 }
 
 .gray {
-    background-color: #909090;
+	background-color: #909090;
 }
 
 .light-gray {
-    background-color:  #DC143C;
+	background-color: #DC143C;
 }
 
 .blue {
-    background-color: #A2BDFD;
+	background-color: #A2BDFD;
 }

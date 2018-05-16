@@ -116,7 +116,8 @@ public class FilesUtil {
 	}
 
 	public static void copyRequiredJsAndCssFiles() throws IOException {
-		fileCopierForJSAndCss(JS_DIR_PATH, "js", "bootstrap.min.js");
+		// fileCopierForJSAndCss(JS_DIR_PATH, "js", "bootstrap.min.js"); // no more
+		// requirement for this
 		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery-ui.min.js");
 		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery.easing.js");
 		fileCopierForJSAndCss(JS_DIR_PATH, "js", "jquery.min.js");
@@ -127,12 +128,14 @@ public class FilesUtil {
 
 		// create dir for perfect scroll bar scripts
 		checkAndCreateDir(JS_DIR_PATH + SLASH + "perfect-scrollbar");
-		
+
 		fileCopierForJSAndCss(JS_DIR_PATH, "js", "perfect-scrollbar/perfect-scrollbar.js");
 		fileCopierForJSAndCss(JS_DIR_PATH, "js", "perfect-scrollbar/perfect-scrollbar.css");
 		// css files
-		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "bootstrap-grid.min.css");
-		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "bootstrap.min.css");
+		// fileCopierForJSAndCss(CSS_DIR_PATH, "css", "bootstrap-grid.min.css"); // no
+		// more requirement for this
+		// fileCopierForJSAndCss(CSS_DIR_PATH, "css", "bootstrap.min.css"); // no more
+		// requirement for this
 		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "custom-colored.css");
 		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "Treant.css");
 	}

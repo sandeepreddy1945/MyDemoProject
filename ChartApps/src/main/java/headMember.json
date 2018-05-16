@@ -2,7 +2,8 @@
 	"HTMLclass": "%s",
 	"text": {
 		"name": "%s",
-		"title": "%s"
+		"title": "%s",
+		"desc": "%s"
 	},
 	"link": {
 		"href": "%s"

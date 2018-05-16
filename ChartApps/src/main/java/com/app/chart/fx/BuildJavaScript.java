@@ -56,7 +56,7 @@ public class BuildJavaScript {
 		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("member.json"), file);
 		String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
 		String memberJsonStr = String.format(fileStr, emp.getParent(), "light-gray", emp.getName(),
-				emp.getDescription(), emp.getLink(), emp.getPortalId() + ".png");
+				emp.getDescription(), emp.getTeam(), emp.getLink(), emp.getPortalId() + ".png");
 		file.delete();
 		return String.format(jsTemplate, emp.getName() + "_" + emp.getPortalId(), memberJsonStr);
 	}
@@ -68,7 +68,8 @@ public class BuildJavaScript {
 		EmployeeDetails headerEmployee = employeeDetails.stream().filter(e -> e.getParent().equals(HEADER_MEMBER))
 				.findFirst().get();
 		String headerMemberStr = String.format(fileStr, "light-gray", headerEmployee.getName(),
-				headerEmployee.getDescription(), headerEmployee.getLink(), headerEmployee.getPortalId() + ".png");
+				headerEmployee.getDescription(), headerEmployee.getTeam(), headerEmployee.getLink(),
+				headerEmployee.getPortalId() + ".png");
 		// header Employee Template with Values filled.
 		headerMemberStr = String.format(jsTemplate, headerEmployee.getName() + "_" + headerEmployee.getPortalId(),
 				headerMemberStr);
@@ -81,7 +82,8 @@ public class BuildJavaScript {
 		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("headMember.json"), file);
 		String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
 		String headerMemberStr = String.format(fileStr, "light-gray", headerEmployee.getName(),
-				headerEmployee.getDescription(), headerEmployee.getLink(), headerEmployee.getPortalId() + ".png");
+				headerEmployee.getDescription(), headerEmployee.getTeam(), headerEmployee.getLink(),
+				headerEmployee.getPortalId() + ".png");
 		// header Employee Template with Values filled.
 		headerMemberStr = String.format(jsTemplate, headerEmployee.getName() + "_" + headerEmployee.getPortalId(),
 				headerMemberStr);
@@ -94,7 +96,7 @@ public class BuildJavaScript {
 		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("postHeadMember.json"), file);
 		String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
 		String memberJsonStr = String.format(fileStr, emp.getParent(), String.valueOf(pos), "light-gray", emp.getName(),
-				emp.getDescription(), emp.getLink(), emp.getPortalId() + ".png");
+				emp.getDescription(), emp.getTeam(), emp.getLink(), emp.getPortalId() + ".png");
 		file.delete();
 		return String.format(jsTemplate, emp.getName() + "_" + emp.getPortalId(), memberJsonStr);
 	}
