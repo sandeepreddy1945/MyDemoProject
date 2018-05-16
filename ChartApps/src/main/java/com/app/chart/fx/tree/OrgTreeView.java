@@ -446,7 +446,7 @@ public class OrgTreeView<T> extends Application {
 			// TODO next write the things to app.js and temp.js file.
 			// either use the treeview as it contains the defaut things or use the jsMap in
 			// order to achieve the order.
-			int stepCount = 1;
+			int stepCount = 0;
 			// builder for individual chart mapping
 			StringBuilder sb = new StringBuilder();
 			// config builder for individual elements added.

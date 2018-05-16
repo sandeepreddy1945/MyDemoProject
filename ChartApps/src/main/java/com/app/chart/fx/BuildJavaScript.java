@@ -111,7 +111,8 @@ public class BuildJavaScript {
 		File file = File.createTempFile("psuedoNode", "json");
 		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("psuedoNode.json"), file);
 		String pseudoNodeStr = FileUtils.readFileToString(file, Charset.defaultCharset());
-		return String.format(jsTemplate, pseudoNodeStr, parent.getName() + "_" + parent.getPortalId());
+		pseudoNodeStr = String.format(pseudoNodeStr, parent.getParent());
+		return String.format(jsTemplate, parent.getName() + "_" + parent.getPortalId(), pseudoNodeStr);
 	}
 
 	public String buildPseudoJsString(EmployeeDetails parent, int step) throws IOException {
@@ -119,7 +120,8 @@ public class BuildJavaScript {
 		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("psuedoNodeExtended.json"),
 				file);
 		String pseudoNodeStr = FileUtils.readFileToString(file, Charset.defaultCharset());
-		return String.format(jsTemplate, pseudoNodeStr, parent.getName() + "_" + parent.getPortalId(), step);
+		pseudoNodeStr = String.format(pseudoNodeStr, parent.getParent(), step);
+		return String.format(jsTemplate, parent.getName() + "_" + parent.getPortalId(), pseudoNodeStr);
 	}
 
 	public String buildChartConfigJsStr() {
