@@ -42,6 +42,8 @@ public class ChartAppMain extends Application {
 
 		// initialize the chart web engine
 		ChartWebEngine chartWebEngine = new ChartWebEngine().initialize();
+		// set the primary stage object to webview for popup displays
+		chartWebEngine.setParenStage(primaryStage);
 
 		HBox box = new HBox();
 		VBox mainBox = new VBox(5);

@@ -338,7 +338,7 @@ public class DashboardUI extends Application {
 	}
 
 	private HBox initializeFooter() {
-		Text creditsText = new Text("Designed and Developed by \"Sandeep Reddy Battula\"");
+		Text creditsText = new Text("© Sandeep Reddy Battula");
 		creditsText.setTextAlignment(TextAlignment.RIGHT);
 		creditsText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
 		creditsText.setFill(Paint.valueOf("#ffffff"));

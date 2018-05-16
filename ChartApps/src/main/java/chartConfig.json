@@ -9,7 +9,7 @@
 			"stroke-width": 3
 		}
 	},
-	"levelSeparation": 40,
+	"levelSeparation": 80,
 	"animation": {
 		"nodeSpeed": 1500,
 		"connectorsAnimation": "linear",

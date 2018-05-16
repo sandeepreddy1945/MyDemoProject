@@ -10,16 +10,21 @@ import java.util.List;
 import com.app.chart.model.TeamMember;
 
 import eu.hansolo.tilesfx.Tile;
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.Glow;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Duration;
 
 /**
  * @author Sandeep
@@ -76,6 +81,39 @@ public class DashboardPieChart extends DashboardAbstract {
 						sender.setEffect(null);
 						t.hide();
 					}
+				}
+			});
+
+			// mouse clicked events
+			data.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+				if (event.getButton().ordinal() == MouseButton.PRIMARY.ordinal()) {
+					Bounds b1 = data.getNode().getBoundsInLocal();
+					double newX = (b1.getWidth()) / 2 + b1.getMinX();
+					double newY = (b1.getHeight()) / 2 + b1.getMinY();
+					// Make sure pie wedge location is reset
+					data.getNode().setTranslateX(0);
+					data.getNode().setTranslateY(0);
+					TranslateTransition tt = new TranslateTransition(Duration.millis(1500), data.getNode());
+					tt.setByX(newX);
+					tt.setByY(newY);
+					tt.setAutoReverse(true);
+					tt.setCycleCount(1);
+					tt.play();
+				}
+			});
+
+			data.getNode().addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+				if (event.getButton().ordinal() == MouseButton.SECONDARY.ordinal()) {
+					// Make sure pie wedge location is reset
+					FadeTransition tt = new FadeTransition(Duration.millis(2500), data.getNode());
+					// data.getNode().setTranslateX(0);
+					// data.getNode().setTranslateY(0);
+					tt.getNode().setTranslateX(0);
+					tt.getNode().setTranslateY(0);
+					// TODO currently it doesn't work ..Need to check on this.
+					// tt.setAutoReverse(true);
+					// tt.setCycleCount(1);
+					// tt.play();
 				}
 			});
 		});

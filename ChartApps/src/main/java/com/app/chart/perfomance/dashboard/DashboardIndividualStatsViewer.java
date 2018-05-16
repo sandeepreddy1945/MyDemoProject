@@ -58,6 +58,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	private Gauge thirdGuage;
 	private Gauge secondGuage;
 	private Tile flipTile;
+	private Random rd;
 
 	public DashboardIndividualStatsViewer(List<TeamMember> teamMembers) {
 		super(teamMembers);
@@ -134,7 +135,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 				.sections(new Section(85, 90, "", Color.rgb(204, 0, 0, 0.5)),
 						new Section(90, 95, "", Color.rgb(204, 0, 0, 0.75)),
 						new Section(95, 100, "", Color.rgb(204, 0, 0)))
-				.sectionTextVisible(true).title("MODERN").unit("Points").threshold(85).thresholdVisible(true)
+				.sectionTextVisible(true).title("Sept").unit("Points").threshold(85).thresholdVisible(true)
 				.animated(true).build();
 
 		// alternative guage here for second one
@@ -185,7 +186,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	public ImageView fetchMemberImage(TeamMember member) {
 		// for now hard coded for dev purpose
 		// TODO to change the hard coded value to get the image by portal ID.
-		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/nttlogo.png");
+		rd = new Random();
+		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/" + 1 + ".jpg");
 		File imgFile = null;
 		try {
 			imgFile = new File(url1.toURI().getPath());

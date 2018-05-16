@@ -9,7 +9,7 @@ abbr,acronym { border:0; }
 
 body { background: #fff; margin: auto; }
 /* optional Container STYLES */
-.chart { height: 95%; margin: 15px; width: 95%;  }
+.chart { height: 95%; margin: 15px; width: 95%; margin: auto;  }
 .Treant > .node { background-color: #DC143C; }
 .Treant > p { font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; font-weight: bold; font-size: 12px; }
 .node-name { font-weight: bold;}
