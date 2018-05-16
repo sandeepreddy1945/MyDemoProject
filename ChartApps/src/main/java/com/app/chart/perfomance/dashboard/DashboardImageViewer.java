@@ -78,15 +78,13 @@ public class DashboardImageViewer extends HBox {
 		img1.setImage(new Image(FileUtils.openInputStream(img1Path)));
 		img2.setImage(new Image(FileUtils.openInputStream(img2Path)));
 
-		Tile tile1 = TileBuilder.create().skinType(SkinType.CUSTOM)
-				.prefSize(200, 250).title("Custom Tile")
-				.text("Whatever text").graphic(img1).roundedCorners(true).build();
+		Tile tile1 = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(200, 250).title("Performer of Quarter")
+				.text("Kathie").graphic(img1).roundedCorners(true).build();
 
-		Tile tile2 = TileBuilder.create().skinType(SkinType.CUSTOM)
-				.prefSize(200, 250).title("Custom Tile")
-				.text("Whatever text").graphic(img2).roundedCorners(true).build();
+		Tile tile2 = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(200, 250).title("Performer of Month")
+				.text("Kathie").graphic(img2).roundedCorners(true).build();
 
-		//setBlendMode(BlendMode.COLOR_BURN);
+		// setBlendMode(BlendMode.COLOR_BURN);
 
 		// set black background
 		setBackground(DashboardUtil.blackBackGround());

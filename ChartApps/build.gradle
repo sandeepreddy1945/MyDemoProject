@@ -52,6 +52,8 @@ dependencies {
 	// unsupported version problem
 	//compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
 	compile fileTree(dir: 'Libs', include: ['*.jar'])
+	//framework for webview hyperlink listeners
+	compile 'org.codefx.libfx:LibFX:0.3.0'
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     testCompile "org.testfx:testfx-core:4.0.13-alpha"
