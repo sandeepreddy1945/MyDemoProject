@@ -32,8 +32,10 @@ public class FilesUtil {
 			+ SLASH + "js";
 	public static final String CSS_DIR_PATH = FileUtils.getUserDirectory().getAbsolutePath() + SLASH + MPS_CHARTS_PATH
 			+ SLASH + "css";
-	public static final String RUN_PROPS_PATH = PROPS_DIR_PATH + SLASH + "run.properties";
+	public static final String RUN_PROPS_PATH = PROPS_DIR_PATH + SLASH + "run.json";
 	public static final String MANAGER_PROPS_PATH = PROPS_DIR_PATH + SLASH + "manager.properties";
+	public static final String DASHBOARD_PROPS_PATH = PROPS_DIR_PATH + SLASH + "dashboard.json";
+	public static final String DASHBOARD_CONTENT_PATH = MAIN_APP_PATH + SLASH + "dashboard";
 
 	/**
 	 * 
@@ -57,11 +59,11 @@ public class FilesUtil {
 	 */
 	public static void initializeFileSettings() throws IOException {
 		checkAndCreateDir(MAIN_APP_PATH, IMAGES_DIR_PATH, HTML_DIR_PATH, PROPS_DIR_PATH, JSON_MSGS_PATH, JS_DIR_PATH,
-				CSS_DIR_PATH);
+				CSS_DIR_PATH, DASHBOARD_CONTENT_PATH);
 
 		copyJsAndCssFilesToFolders();
 
-		checkAndCreateFile(RUN_PROPS_PATH, MANAGER_PROPS_PATH);
+		checkAndCreateFile(RUN_PROPS_PATH, MANAGER_PROPS_PATH, DASHBOARD_PROPS_PATH);
 
 		copyRequiredJsAndCssFiles();
 	}

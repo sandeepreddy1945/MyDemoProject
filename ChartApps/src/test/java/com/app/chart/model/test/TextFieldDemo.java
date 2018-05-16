@@ -1,5 +1,6 @@
 package com.app.chart.model.test;
 
+import com.jfoenix.controls.JFXColorPicker;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.RequiredFieldValidator;
@@ -76,6 +77,12 @@ public class TextFieldDemo extends Application {
             }
         });
         pane.getChildren().add(passwordField);
+        JFXColorPicker c = new JFXColorPicker();
+        c.setPromptText("Colors");
+        c.setOnAction(e -> {
+        	
+        });
+        pane.getChildren().add(new JFXColorPicker());
 
         final Scene scene = new Scene(pane, 600, 400, Color.WHITE);
         /*scene.getStylesheets()

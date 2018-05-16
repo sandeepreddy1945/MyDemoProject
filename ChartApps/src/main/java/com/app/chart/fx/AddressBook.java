@@ -18,7 +18,11 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.validation.RequiredFieldValidator;
 
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -58,6 +62,8 @@ public class AddressBook extends Application {
 	public static final String INDEX_HTML = "index.html";
 	public static final String APP_JSON = "app.json";
 	public static final String APP_JS = "app.js";
+	private static final String EM1 = "1em";
+	private static final String ERROR = "error";
 	private TableView<Person> table = new TableView<Person>();
 	private final ObservableList<Person> data = FXCollections
 			.observableArrayList(/*
@@ -89,7 +95,7 @@ public class AddressBook extends Application {
 		Scene scene = new Scene(new Group());
 		stage.setTitle("Add Members Here");
 		stage.setWidth(1600);
-		stage.setHeight(900);
+		stage.setHeight(1000);
 
 		final Label label = new Label("Chart Address Book");
 		label.setFont(new Font("Arial", 20));
@@ -114,6 +120,20 @@ public class AddressBook extends Application {
 		headerHb.setSpacing(10);
 		headerHb.getChildren().addAll(teamCombo, addManagerField, addChart, previewBtn);
 
+		JFXTextField chartNameTF = new JFXTextField();
+
+		chartNameTF.setPromptText("Enter Chart Name Here..");
+		RequiredFieldValidator validator = new RequiredFieldValidator();
+		validator.setMessage("This is a Required Field. Please Enter the Chart Name");
+		validator.setIcon(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.WARNING).size(EM1)
+				.styleClass(ERROR).build());
+		chartNameTF.getValidators().add(validator);
+		chartNameTF.focusedProperty().addListener((o, oldVal, newVal) -> {
+			if (!newVal) {
+				chartNameTF.validate();
+			}
+		});
+
 		table.setEditable(true);
 		Callback<TableColumn, TableCell> cellFactory = new Callback<TableColumn, TableCell>() {
 			public TableCell call(TableColumn p) {
@@ -122,7 +142,7 @@ public class AddressBook extends Application {
 		};
 
 		table.setPrefWidth(stage.getWidth() - 50);
-		table.setPrefHeight(stage.getHeight() - 200);
+		table.setPrefHeight(stage.getHeight() - 330);
 
 		TableColumn portalCol = new TableColumn("Portal Id");
 		portalCol.setMinWidth(230);
@@ -223,7 +243,7 @@ public class AddressBook extends Application {
 		});
 
 		addChart.setOnAction(e -> {
-			onAddChartAction(addManagerField);
+			onAddChartAction(addManagerField, chartNameTF);
 		});
 
 		previewBtn.setOnAction(e -> {
@@ -246,10 +266,12 @@ public class AddressBook extends Application {
 		hb.getChildren().addAll(portalTF, nameTF, designationTF, teamTF, parentTF, addButton, delButton, saveBtn);
 		hb.setSpacing(3);
 
+		chartNameTF.setPadding(new Insets(5, 5, 15, 5));
+
 		final VBox vbox = new VBox();
-		vbox.setSpacing(5);
+		vbox.setSpacing(30);
 		vbox.setPadding(new Insets(10, 0, 0, 10));
-		vbox.getChildren().addAll(label, headerHb, table, hb);
+		vbox.getChildren().addAll(label, headerHb, chartNameTF, table, hb);
 
 		((Group) scene.getRoot()).getChildren().addAll(vbox);
 
@@ -317,7 +339,7 @@ public class AddressBook extends Application {
 		}
 	}
 
-	private void onAddChartAction(final JFXTextField addManagerField) {
+	private void onAddChartAction(final JFXTextField addManagerField, final JFXTextField chartNameTF) {
 		if (addManagerField.getText().length() < 1) {
 			JFXAlert<String> alert = new JFXAlert<>();
 			alert.initModality(Modality.APPLICATION_MODAL);
@@ -342,7 +364,7 @@ public class AddressBook extends Application {
 				// add an entry to manager.properties file for loading.
 				if (!new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText()).exists()) {
 					FileUtils.write(new File(FilesUtil.MANAGER_PROPS_PATH),
-							addManagerField.getText() + "=" + addManagerField.getText() + "\n", true);
+							addManagerField.getText() + "=" + chartNameTF.getText() + "\n", true);
 				}
 				FilesUtil.checkAndCreateDir(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText());
 				FilesUtil.checkAndCreateFile(
@@ -413,9 +435,9 @@ public class AddressBook extends Application {
 		alert.showAndWait();
 
 		if (alert.getResult() == ButtonType.OK) {
-			// do a auto save action before proceeding  further.
+			// do a auto save action before proceeding further.
 			this.onSaveActionPerfomed();
-			
+
 			Dialog orgPreviewDialog = new Dialog<>();
 			List<EmployeeDetails> empList = new ArrayList<>();
 			data.stream().forEach(p -> {
