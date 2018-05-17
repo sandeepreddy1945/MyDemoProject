@@ -130,14 +130,14 @@ public class DashboardUI extends Application {
 
 		// Either of The barchart or the stack can be used by uncommenting
 		// TODO to decide on which chart to use.
-		thirdLayer.getChildren().addAll(/* barChart */sunbutnChart, pieChart, stackBarChart);
+		thirdLayer.getChildren().addAll(barChart /* sunbutnChart */, pieChart, stackBarChart);
 
 		HBox fourthLayer = initializeIndividualStatsViewer();
 
 		// set the insets for the layers
-		secondLayer.setPadding(new Insets(0, 0, 0, 50));
-		thirdLayer.setPadding(new Insets(0, 0, 0, 50));
-		fourthLayer.setPadding(new Insets(0, 0, 0, 50));
+		secondLayer.setPadding(new Insets(0, 0, 0, 5));
+		thirdLayer.setPadding(new Insets(0, 0, 0, 5));
+		fourthLayer.setPadding(new Insets(0, 0, 0, 15));
 
 		// footer for the dashboard
 		HBox foorterTile = initializeFooter();
@@ -305,8 +305,8 @@ public class DashboardUI extends Application {
 	/**
 	 * Initializes the Team Sunburn Chart of Releases <br>
 	 * <b> Preview : <b> <br>
-	 * &nbsp;&nbsp;
-	 * <img alt="SunBurn Chart" src="sunburnchart.png">
+	 * &nbsp;&nbsp; <img alt="SunBurn Chart" src="sunburnchart.png">
+	 * 
 	 * @return
 	 */
 	private HBox initializeSunburnChart() {

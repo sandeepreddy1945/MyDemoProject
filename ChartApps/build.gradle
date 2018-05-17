@@ -54,6 +54,12 @@ dependencies {
 	compile fileTree(dir: 'Libs', include: ['*.jar'])
 	//framework for webview hyperlink listeners
 	compile 'org.codefx.libfx:LibFX:0.3.0'
+	
+	//Gaming Library for more effects
+	//compile 'com.github.almasb:fxgl:0.5.1'
+	
+	// Excel Api Apache POI
+	compile 'org.apache.poi:poi-ooxml:3.17'
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     testCompile "org.testfx:testfx-core:4.0.13-alpha"

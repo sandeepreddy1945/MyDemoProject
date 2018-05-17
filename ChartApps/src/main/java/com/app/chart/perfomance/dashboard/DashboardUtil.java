@@ -5,12 +5,20 @@ package com.app.chart.perfomance.dashboard;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
 import com.app.chart.perfomance.dashboard.ui.DashboardUI;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.validation.RequiredFieldValidator;
 
+import de.jensd.fx.glyphs.GlyphsBuilder;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Background;
@@ -35,6 +43,8 @@ public class DashboardUtil {
 			new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY));
 	public static final Background LIGHT_BLUE_BACKGROUND = new Background(
 			new BackgroundFill(Color.web("#ccd9ff"), CornerRadii.EMPTY, Insets.EMPTY));
+	public static final String EM1 = "1em";
+	public static final String ERROR = "error";
 	public static final int TILE_WIDTH = 250;
 	public static final int TILE_HEIGHT = 250;
 
@@ -104,6 +114,55 @@ public class DashboardUtil {
 
 		return footerBox;
 
+	}
+
+	public static void buildRequestValidator(JFXTextField... fields) {
+		buildRequestValidator(Arrays.asList(fields));
+	}
+
+	public static void buildRequestValidator(List<JFXTextField> fields) {
+		fields.stream().forEach(DashboardUtil::buildRequestValidator);
+	}
+
+	/**
+	 * For adding a text filed as required .
+	 * 
+	 * @param field
+	 */
+	public static void buildRequestValidator(JFXTextField field) {
+		buildRequestValidator(field, null);
+	}
+
+	/**
+	 * 
+	 * @param field
+	 * @param errText
+	 */
+	public static void buildRequestValidator(JFXTextField field, String errText) {
+		RequiredFieldValidator validator = new RequiredFieldValidator();
+		validator.setMessage(errText == null || errText.length() == 0 ? "Input is Required!!" : errText);
+		validator.setIcon(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.WARNING).size(EM1)
+				.styleClass(ERROR).build());
+
+		field.getValidators().add(validator);
+		field.focusedProperty().addListener((o, oldVal, newVal) -> {
+			if (!newVal) {
+				field.validate();
+			}
+		});
+	}
+
+	public static boolean validateTextField(JFXTextField... fields) {
+		return validateTextField(Arrays.asList(fields));
+	}
+
+	public static boolean validateTextField(List<JFXTextField> fields) {
+		Optional<JFXTextField> field = fields.stream().filter(f -> f.getText().length() == 0).findFirst();
+		return !field.isPresent();
+	}
+
+	public static boolean validateTextField(JFXTextField field) {
+		return !(field.getText().length() == 0);
 	}
 
 	/**

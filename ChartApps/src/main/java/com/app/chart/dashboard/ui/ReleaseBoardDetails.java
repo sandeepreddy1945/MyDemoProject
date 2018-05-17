@@ -3,29 +3,29 @@
  */
 package com.app.chart.dashboard.ui;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
 import com.app.chart.model.EmployeeDetails;
+import com.app.chart.perfomance.dashboard.DashboardUtil;
+import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXColorPicker;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.validation.RequiredFieldValidator;
 
-import de.jensd.fx.glyphs.GlyphsBuilder;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import eu.hansolo.tilesfx.Tile;
-import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.Tile.SkinType;
+import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart.TextOrientation;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
 
 /**
  * @author Sandeep
@@ -36,7 +36,7 @@ public class ReleaseBoardDetails extends HBox {
 	private static final String SUNBURN_CHART = "Sunburn Chart";
 	private static final String RADIAL_CHART = "Radial Chart";
 	private static final String DONUT_CHART = "Donut Chart";
-	private TreeView<EmployeeDetails> treeView = new TreeView<EmployeeDetails>();
+	private TreeView<TreeNode> treeView = new TreeView<TreeNode>();
 	private JFXComboBox<String> pickBox = new JFXComboBox<>();
 	private ObservableList<String> comboBoxList = FXCollections.observableArrayList(SUNBURN_CHART, RADIAL_CHART,
 			DONUT_CHART);
@@ -53,6 +53,10 @@ public class ReleaseBoardDetails extends HBox {
 	}
 
 	private void initUI() {
+
+		treeView.setMinWidth(400);
+		treeView.setRoot(new TreeItem<>());
+
 		// add the comboBox Children
 		pickBox.setPromptText("Select Item From List To Edit");
 		pickBox.getItems().addAll(comboBoxList);
@@ -69,44 +73,81 @@ public class ReleaseBoardDetails extends HBox {
 
 	private HBox sunBurnChartEditor() {
 		HBox box = new HBox(5);
-		TreeNode tree = new TreeNode(new ChartData("ROOT"));
-		JFXTextField field = new JFXTextField();
-		field.setPromptText("Enter Team Name");
-		JFXTextField value1 = new JFXTextField();
-		value1.setPromptText("Enter Value");
 
-		this.buildRequestValidator(field);
+		JFXButton addRoot = new JFXButton("Add Root (+)");
+		addRoot.setOnAction(e -> {
+			JFXTextField field = new JFXTextField();
+			field.setPromptText("Enter Root Node Name");
+			// JFXAlert<String> alert = displayDialog("Add Roote Node", 1, field);
+		});
 
-		JFXTextField releaseField = new JFXTextField();
-		releaseField.setPromptText("Enter Release Name");
-		this.buildRequestValidator(releaseField);
+		JFXButton addRelease = new JFXButton("Add Release (+)");
+		addRelease.setOnAction(e -> {
+			JFXTextField field = new JFXTextField();
+			field.setPromptText("Enter Release Name");
 
-		JFXButton button = new JFXButton("Add Feature + ");
-		button.setOnAction(e -> {
+			JFXTextField field2 = new JFXTextField();
+			field2.setPromptText("Enter Release Points");
+
+			JFXColorPicker colorPicker = new JFXColorPicker();
+		});
+
+		JFXButton addFeature = new JFXButton("Add Feature (+) ");
+		addFeature.setOnAction(e -> {
 
 		});
 
-		sunburstTile = TileBuilder.create().skinType(SkinType.SUNBURST).prefSize(500, 500).title("SunburstTile")
-				.textVisible(false).sunburstTree(tree).sunburstBackgroundColor(Tile.BACKGROUND)
-				.sunburstTextColor(Tile.BACKGROUND).sunburstUseColorFromParent(true)
-				.sunburstTextOrientation(TextOrientation.TANGENT).sunburstAutoTextColor(true)
-				.sunburstUseChartDataTextColor(true).sunburstInteractive(true).build();
+		buildSunBurnTile(null);
 		return null;
 
 	}
 
-	private void buildRequestValidator(JFXTextField field) {
-		RequiredFieldValidator validator = new RequiredFieldValidator();
-		validator.setMessage("Input is Required!!");
-		validator.setIcon(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.WARNING).size(EM1)
-				.styleClass(ERROR).build());
+	private HBox previewBox() {
+		return null;
 
-		field.getValidators().add(validator);
-		field.focusedProperty().addListener((o, oldVal, newVal) -> {
-			if (!newVal) {
-				field.validate();
+	}
+
+	private JFXAlert<String> displayDialog(String dialogHeading, int action, JFXColorPicker colorPicker,
+			JFXTextField... fields) {
+		JFXAlert<String> alert = new JFXAlert<>();
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setOverlayClose(false);
+		JFXDialogLayout layout = new JFXDialogLayout();
+		layout.setHeading(new Text(dialogHeading));
+
+		// make fields as required fields with default text.
+		DashboardUtil.buildRequestValidator(fields);
+
+		HBox box = new HBox(10);
+		box.getChildren().addAll(fields);
+		box.getChildren().add(colorPicker);
+		layout.setBody(box);
+
+		JFXButton closeButton = new JFXButton("OK");
+		closeButton.getStyleClass().add("dialog-accept");
+		closeButton.setOnAction(event -> {
+			// if all fields are validated then only hide the dialog.
+			if (DashboardUtil.validateTextField(fields)) {
+				alert.hideWithAnimation();
 			}
 		});
+		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+				+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+				+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+		layout.setActions(closeButton);
+		alert.setContent(layout);
+		alert.show();
+
+		return alert;
+	}
+
+	private void buildSunBurnTile(TreeNode tree) {
+		sunburstTile = TileBuilder.create().skinType(SkinType.SUNBURST).prefSize(500, 500).title("SunburstTile")
+				.textVisible(false).sunburstTree(tree).sunburstBackgroundColor(Tile.BACKGROUND)
+				.sunburstTextColor(Tile.BACKGROUND).sunburstUseColorFromParent(true)
+				.sunburstTextOrientation(TextOrientation.ORTHOGONAL).sunburstAutoTextColor(true)
+				.sunburstUseChartDataTextColor(true).sunburstInteractive(true).build();
 	}
 
 	private HBox radialOrDonutEditor() {
