@@ -32,6 +32,7 @@ import eu.hansolo.tilesfx.chart.SunburstChart.TextOrientation;
 import eu.hansolo.tilesfx.tools.TreeNode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TreeItem;
@@ -61,7 +62,7 @@ public class ReleaseBoardDetails extends HBox {
 	private JFXColorPicker colorPicker = new JFXColorPicker();
 	private static final String EM1 = "1em";
 	private static final String ERROR = "error";
-	
+
 	private List<ChartData> radialChart = new LinkedList<>();
 	private List<ChartData> donutData = new LinkedList<>();
 
@@ -72,6 +73,8 @@ public class ReleaseBoardDetails extends HBox {
 	private VBox vbox;
 
 	private ObjectMapper mapper = new ObjectMapper();
+	private Tile donutChartTile;
+	private Tile radialChartTile;
 
 	public ReleaseBoardDetails() {
 		super(5);
@@ -91,9 +94,10 @@ public class ReleaseBoardDetails extends HBox {
 		pickBox.setOnAction(e -> {
 			if (pickBox.getSelectionModel().getSelectedIndex() == 0) {
 				editBox = sunBurnChartEditor();
-			} else if (pickBox.getSelectionModel().getSelectedIndex() == 1
-					|| pickBox.getSelectionModel().getSelectedIndex() == 2) {
-				editBox = radialOrDonutEditor();
+			} else if (pickBox.getSelectionModel().getSelectedIndex() == 1) {
+				editBox = radialChartEditor();
+			} else if (pickBox.getSelectionModel().getSelectedIndex() == 2) {
+				editBox = donutChartEditor();
 			}
 		});
 
@@ -113,7 +117,7 @@ public class ReleaseBoardDetails extends HBox {
 		addRoot.setOnAction(e -> {
 			JFXTextField field = new JFXTextField();
 			field.setPromptText("Enter Root Node Name");
-			this.displayDialog("Root Node", 1, null, field);
+			this.displayDialog("Root Node", 1, 1, null, field);
 		});
 
 		JFXButton addRelease = new JFXButton("Add Release (+)");
@@ -126,7 +130,7 @@ public class ReleaseBoardDetails extends HBox {
 
 			JFXColorPicker colorPicker = new JFXColorPicker();
 
-			this.displayDialog("Release Node", 2, colorPicker, field, field2);
+			this.displayDialog("Release Node", 1, 2, colorPicker, field, field2);
 		});
 
 		JFXButton addFeature = new JFXButton("Add Feature (+) ");
@@ -139,7 +143,7 @@ public class ReleaseBoardDetails extends HBox {
 
 			JFXColorPicker colorPicker = new JFXColorPicker();
 
-			this.displayDialog("Feature Node", 3, colorPicker, field, field2);
+			this.displayDialog("Feature Node", 1, 3, colorPicker, field, field2);
 		});
 		JFXButton previewBtn = new JFXButton("Preview");
 		previewBtn.setOnAction(e -> {
@@ -191,12 +195,83 @@ public class ReleaseBoardDetails extends HBox {
 
 	}
 
-	private HBox previewBox() {
+	private HBox radialChartEditor() {
+
+		HBox previewBox = new HBox(5);
+
+		JFXButton addRelease = new JFXButton("Add Chart Details (+)");
+		addRelease.setOnAction(e -> {
+			JFXTextField field = new JFXTextField();
+			field.setPromptText("Enter Release Name");
+
+			JFXTextField field2 = new JFXTextField();
+			field2.setPromptText("Enter Release Points");
+
+			JFXColorPicker colorPicker = new JFXColorPicker();
+
+			this.displayDialog("Radial / Donut Builder", 2, 2, colorPicker, field, field2);
+		});
+
+		JFXButton previewButton = new JFXButton("Preview");
+		previewButton.setOnAction(e -> {
+			if (previewBox.getChildren().size() > 0)
+				previewBox.getChildren().remove(0, previewBox.getChildren().size());
+			previewBox.getChildren().add(radialChartBuilder());
+		});
+
+		HBox box = new HBox(10);
+		box.getChildren().addAll(addRelease, previewButton);
+		vbox.getChildren().addAll(box, previewBox);
+
 		return new HBox();
 
 	}
 
-	private void displayDialog(String dialogHeading, int action, JFXColorPicker colorPicker, JFXTextField... fields) {
+	private Tile radialChartBuilder() {
+		return radialChartTile = TileBuilder.create().skinType(SkinType.RADIAL_CHART).prefSize(500, 500)
+				.title("RadialChart").text("Some text").textVisible(false).chartData(radialChart).build();
+	}
+
+	private HBox donutChartEditor() {
+
+		HBox previewBox = new HBox(5);
+
+		JFXButton addRelease = new JFXButton("Add Chart Details (+)");
+		addRelease.setOnAction(e -> {
+			JFXTextField field = new JFXTextField();
+			field.setPromptText("Enter Release Name");
+
+			JFXTextField field2 = new JFXTextField();
+			field2.setPromptText("Enter Release Points");
+
+			JFXColorPicker colorPicker = new JFXColorPicker();
+
+			this.displayDialog("Radial / Donut Builder", 2, 2, colorPicker, field, field2);
+		});
+
+		JFXButton previewButton = new JFXButton("Preview");
+		previewButton.setOnAction(e -> {
+			if (previewBox.getChildren().size() > 0)
+				previewBox.getChildren().remove(0, previewBox.getChildren().size());
+			previewBox.getChildren().add(donutChartBuilder());
+		});
+
+		HBox box = new HBox(10);
+		box.getChildren().addAll(addRelease, previewButton);
+		vbox.getChildren().addAll(box, previewBox);
+
+		return new HBox();
+
+	}
+
+	private Node donutChartBuilder() {
+		return donutChartTile = TileBuilder.create().skinType(SkinType.DONUT_CHART).prefSize(500, 500)
+				.title("DonutChart").text("Some text").textVisible(false).chartData(donutData).build();
+
+	}
+
+	private void displayDialog(String dialogHeading, int chartType, int action, JFXColorPicker colorPicker,
+			JFXTextField... fields) {
 		JFXAlert<String> alert = new JFXAlert<>();
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.setOverlayClose(false);
@@ -218,66 +293,89 @@ public class ReleaseBoardDetails extends HBox {
 		closeButton.setOnAction(event -> {
 			// if all fields are validated then only hide the dialog.
 			if (DashboardUtil.validateTextField(fields)) {
-				if (action == 1) {
-					if (sunBurstMap.containsKey(fields[0].getText())) {
-						// means already there is a entry for it. So ask them to add an other Name.
-						popOutAlert("This Root Name is already selected!!");
-						return;
-					} else if (treeView.getSelectionModel().getSelectedItem() == null) {
-						popOutAlert("Root Node not selected ..Please select the Root Node!!");
-						return;
-					} else {
-						sunBurstMap.put(fields[0].getText(), new SunburstBoundary());
-						sunBurstMap.get(fields[0].getText()).setRootName(fields[0].getText());
-						treeView.getRoot().getChildren().add(new TreeItem<String>(fields[0].getText()));
-						treeView.getSelectionModel().getSelectedItem().setExpanded(true);
-					}
-				} else if (action == 2) {
-					String str = treeView.getSelectionModel().getSelectedItem().getValue();
-					if (!sunBurstMap.containsKey(str)) {
-						popOutAlert("Root Node Properly Not Selected !!!. Wrong Node selected");
-						return;
-					} else {
-						if (sunBurstMap.get(str).getSubBoundaries() == null)
-							sunBurstMap.get(str).setSubBoundaries(new LinkedList<>());
-						SunburstBoundary snb = sunBurstMap.get(str);
-						ReleaseBoundary boundary = snb.new ReleaseBoundary(fields[0].getText(),
-								Double.valueOf(fields[1].getText()), colorPicker.getValue(), new LinkedList<>());
-						sunBurstMap.get(str).getSubBoundaries().add(boundary);
-						treeView.getSelectionModel().getSelectedItem().getChildren()
-								.add(new TreeItem<>(boundary.getFieldName()));
-						treeView.getSelectionModel().getSelectedItem().setExpanded(true);
-					}
-				} else if (action == 3) {
-					String str = treeView.getSelectionModel().getSelectedItem().getValue();
-					/*
-					 * Optional<List<ReleaseBoundary>> s = sunBurstMap.values().stream()
-					 * .map(SunburstBoundary::getSubBoundaries).filter(b -> {
-					 * Optional<ReleaseBoundary> o = b.stream().filter(r ->
-					 * r.getFieldName().equals(str)) .findFirst(); return o.isPresent();
-					 * }).findFirst();
-					 */
+				if (chartType == 1) {
+					if (action == 1) {
+						if (sunBurstMap.containsKey(fields[0].getText())) {
+							// means already there is a entry for it. So ask them to add an other Name.
+							popOutAlert("This Root Name is already selected!!");
+							return;
+						} else if (treeView.getSelectionModel().getSelectedItem() == null
+								|| treeView.getSelectionModel().getSelectedItem().getParent() != null) {
+							popOutAlert("Root Node not selected ..Please select the Root Node!!");
+							return;
+						} else {
+							sunBurstMap.put(fields[0].getText(), new SunburstBoundary());
+							sunBurstMap.get(fields[0].getText()).setRootName(fields[0].getText());
+							treeView.getRoot().getChildren().add(new TreeItem<String>(fields[0].getText()));
+							treeView.getSelectionModel().getSelectedItem().setExpanded(true);
+						}
+					} else if (action == 2) {
+						String str = treeView.getSelectionModel().getSelectedItem().getValue();
+						if (!sunBurstMap.containsKey(str)) {
+							popOutAlert("Root Node Properly Not Selected !!!. Wrong Node selected");
+							return;
+						} else {
+							if (sunBurstMap.get(str).getSubBoundaries() == null)
+								sunBurstMap.get(str).setSubBoundaries(new LinkedList<>());
+							SunburstBoundary snb = sunBurstMap.get(str);
+							ReleaseBoundary boundary = snb.new ReleaseBoundary(fields[0].getText(),
+									Double.valueOf(fields[1].getText()), colorPicker.getValue(), new LinkedList<>());
+							sunBurstMap.get(str).getSubBoundaries().add(boundary);
+							treeView.getSelectionModel().getSelectedItem().getChildren()
+									.add(new TreeItem<>(boundary.getFieldName()));
+							treeView.getSelectionModel().getSelectedItem().setExpanded(true);
+						}
+					} else if (action == 3) {
+						String str = treeView.getSelectionModel().getSelectedItem().getValue();
+						/*
+						 * Optional<List<ReleaseBoundary>> s = sunBurstMap.values().stream()
+						 * .map(SunburstBoundary::getSubBoundaries).filter(b -> {
+						 * Optional<ReleaseBoundary> o = b.stream().filter(r ->
+						 * r.getFieldName().equals(str)) .findFirst(); return o.isPresent();
+						 * }).findFirst();
+						 */
 
-					Optional<List<ReleaseBoundary>> optional = sunBurstMap.values().stream()
-							.map(SunburstBoundary::getSubBoundaries)
-							.filter(l -> l.stream().map(ReleaseBoundary::getFieldName).anyMatch(r -> r.equals(str)))
-							.findFirst();
+						Optional<List<ReleaseBoundary>> optional = sunBurstMap.values().stream()
+								.map(SunburstBoundary::getSubBoundaries)
+								.filter(l -> l.stream().map(ReleaseBoundary::getFieldName).anyMatch(r -> r.equals(str)))
+								.findFirst();
 
-					if (optional.isPresent()) {
-						List<ReleaseBoundary> boundaries = optional.get();
-						ReleaseBoundary rb = boundaries.stream().filter(s -> s.getFieldName().equals(str)).findFirst()
-								.get();
-						if (rb.getAttrBoundaries() == null)
-							rb.setAttrBoundaries(new LinkedList<>());
-						ReleaseAttrBoundary rab = rb.new ReleaseAttrBoundary(fields[0].getText(),
-								Double.valueOf(fields[1].getText()), colorPicker.getValue());
-						rb.getAttrBoundaries().add(rab);
+						if (optional.isPresent()) {
+							List<ReleaseBoundary> boundaries = optional.get();
+							ReleaseBoundary rb = boundaries.stream().filter(s -> s.getFieldName().equals(str))
+									.findFirst().get();
+							if (rb.getAttrBoundaries() == null)
+								rb.setAttrBoundaries(new LinkedList<>());
+							ReleaseAttrBoundary rab = rb.new ReleaseAttrBoundary(fields[0].getText(),
+									Double.valueOf(fields[1].getText()), colorPicker.getValue());
+							rb.getAttrBoundaries().add(rab);
+							treeView.getSelectionModel().getSelectedItem().getChildren()
+									.add(new TreeItem<String>(rab.getFieldName()));
+							treeView.getSelectionModel().getSelectedItem().setExpanded(true);
+						} else {
+							popOutAlert("Please Select a valid Sub Node (Release Node) to Add the Feature Details!!!");
+							return;
+						}
+					}
+				} else if (chartType == 2) {
+					if (treeView.getSelectionModel().getSelectedItem() != null) {
+						radialChart.add(new ChartData(fields[0].getText(), Double.valueOf(fields[1].getText()),
+								colorPicker.getValue()));
 						treeView.getSelectionModel().getSelectedItem().getChildren()
-								.add(new TreeItem<String>(rab.getFieldName()));
+								.add(new TreeItem<String>(fields[0].getText()));
 						treeView.getSelectionModel().getSelectedItem().setExpanded(true);
 					} else {
-						popOutAlert("Please Select a valid Sub Node (Release Node) to Add the Feature Details!!!");
-						return;
+						popOutAlert("No Root Node Selected. Please select a Root Node!!!");
+					}
+				} else if (chartType == 3) {
+					if (treeView.getSelectionModel().getSelectedItem() != null) {
+						donutData.add(new ChartData(fields[0].getText(), Double.valueOf(fields[1].getText()),
+								colorPicker.getValue()));
+						treeView.getSelectionModel().getSelectedItem().getChildren()
+								.add(new TreeItem<String>(fields[0].getText()));
+						treeView.getSelectionModel().getSelectedItem().setExpanded(true);
+					} else {
+						popOutAlert("No Root Node Selected. Please select a Root Node!!!");
 					}
 				}
 				alert.hideWithAnimation();
@@ -317,37 +415,6 @@ public class ReleaseBoardDetails extends HBox {
 				.sunburstUseChartDataTextColor(true).sunburstInteractive(true).build();
 
 		return sunburstTile;
-	}
-
-	private HBox radialOrDonutEditor() {
-		
-		JFXButton addRelease = new JFXButton("Add Chart Details (+)");
-		addRelease.setOnAction(e -> {
-			JFXTextField field = new JFXTextField();
-			field.setPromptText("Enter Release Name");
-
-			JFXTextField field2 = new JFXTextField();
-			field2.setPromptText("Enter Release Points");
-
-			JFXColorPicker colorPicker = new JFXColorPicker();
-
-			this.displayDialog("Radial / Donut Builder", 2, colorPicker, field, field2);
-		});
-		
-		
-		ChartData chartData1 = new ChartData("Item 1", 24.0, Tile.GREEN);
-		ChartData chartData2 = new ChartData("Item 2", 10.0, Tile.BLUE);
-		ChartData chartData3 = new ChartData("Item 3", 12.0, Tile.RED);
-		ChartData chartData4 = new ChartData("Item 4", 13.0, Tile.YELLOW_ORANGE);
-		radialPercentageTile = TileBuilder.create().skinType(SkinType.RADIAL_PERCENTAGE).prefSize(500, 500)
-				.backgroundColor(Color.web("#26262D")).maxValue(1000).title("RadialPercentageSkin")
-				.description("Product 1").textVisible(false).chartData(chartData1, chartData2, chartData3)
-				.animated(true).referenceValue(100).value(chartData1.getValue()).descriptionColor(Tile.GRAY)
-				// .valueColor(Tile.BLUE)
-				// .unitColor(Tile.BLUE)
-				.barColor(Tile.BLUE).decimals(0).build();
-		return new HBox();
-
 	}
 
 	private void popOutAlert(String text) {
