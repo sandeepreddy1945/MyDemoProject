@@ -36,6 +36,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -60,6 +61,9 @@ public class ReleaseBoardDetails extends HBox {
 	private JFXColorPicker colorPicker = new JFXColorPicker();
 	private static final String EM1 = "1em";
 	private static final String ERROR = "error";
+	
+	private List<ChartData> radialChart = new LinkedList<>();
+	private List<ChartData> donutData = new LinkedList<>();
 
 	private List<SunburstBoundary> sunburstBoundaries = new ArrayList<>();
 
@@ -103,6 +107,8 @@ public class ReleaseBoardDetails extends HBox {
 	private HBox sunBurnChartEditor() {
 		HBox box = new HBox(5);
 
+		HBox previewBox = new HBox(5);
+
 		JFXButton addRoot = new JFXButton("Add Root (+)");
 		addRoot.setOnAction(e -> {
 			JFXTextField field = new JFXTextField();
@@ -126,14 +132,31 @@ public class ReleaseBoardDetails extends HBox {
 		JFXButton addFeature = new JFXButton("Add Feature (+) ");
 		addFeature.setOnAction(e -> {
 			JFXTextField field = new JFXTextField();
-			field.setPromptText("Enter Release Name");
+			field.setPromptText("Enter Feature Name");
 
 			JFXTextField field2 = new JFXTextField();
-			field2.setPromptText("Enter Release Points");
+			field2.setPromptText("Enter Feature Points");
 
 			JFXColorPicker colorPicker = new JFXColorPicker();
 
 			this.displayDialog("Feature Node", 3, colorPicker, field, field2);
+		});
+		JFXButton previewBtn = new JFXButton("Preview");
+		previewBtn.setOnAction(e -> {
+			if (previewBox.getChildren().size() > 0)
+				previewBox.getChildren().remove(0, previewBox.getChildren().size());
+			sunBurstMap.values().stream().forEach(b -> {
+				TreeNode rootNode = new TreeNode(new ChartData(b.getRootName()));
+				b.getSubBoundaries().stream().forEach(bs -> {
+					TreeNode node = new TreeNode(new ChartData(bs.getFieldName(), bs.getScores(), bs.getColor()),
+							rootNode);
+					bs.getAttrBoundaries().stream().forEach(bsl -> {
+						TreeNode subNode = new TreeNode(
+								new ChartData(bsl.getFieldName(), bsl.getScores(), bsl.getColor()), node);
+					});
+				});
+				previewBox.getChildren().add(buildSunBurnTile(rootNode));
+			});
 		});
 
 		JFXButton removeNode = new JFXButton("Remove Node (-)");
@@ -160,9 +183,9 @@ public class ReleaseBoardDetails extends HBox {
 			});
 		});
 
-		box.getChildren().addAll(addRoot, addRelease, addFeature, removeNode, saveBtn);
+		box.getChildren().addAll(addRoot, addRelease, addFeature, removeNode, previewBtn, saveBtn);
 		// add it dynamically to the root
-		vbox.getChildren().add(box);
+		vbox.getChildren().addAll(box, previewBox);
 		// buildSunBurnTile(null);
 		return box;
 
@@ -268,21 +291,50 @@ public class ReleaseBoardDetails extends HBox {
 		cancelBtn.setOnAction(e -> {
 			alert.hideWithAnimation();
 		});
+		// add enter button listener on the button
+		closeButton.setOnKeyPressed(e -> {
+			if (e.getCode() == KeyCode.ENTER) {
+				closeButton.fire();
+			}
+		});
+
+		cancelBtn.setOnKeyPressed(e -> {
+			if (e.getCode() == KeyCode.ENTER) {
+				closeButton.fire();
+			}
+		});
 		layout.setActions(closeButton, cancelBtn);
 		alert.setContent(layout);
 		alert.show();
 
 	}
 
-	private void buildSunBurnTile(TreeNode tree) {
+	private Tile buildSunBurnTile(TreeNode tree) {
 		sunburstTile = TileBuilder.create().skinType(SkinType.SUNBURST).prefSize(500, 500).title("SunburstTile")
 				.textVisible(false).sunburstTree(tree).sunburstBackgroundColor(Tile.BACKGROUND)
 				.sunburstTextColor(Tile.BACKGROUND).sunburstUseColorFromParent(true)
 				.sunburstTextOrientation(TextOrientation.ORTHOGONAL).sunburstAutoTextColor(true)
 				.sunburstUseChartDataTextColor(true).sunburstInteractive(true).build();
+
+		return sunburstTile;
 	}
 
 	private HBox radialOrDonutEditor() {
+		
+		JFXButton addRelease = new JFXButton("Add Chart Details (+)");
+		addRelease.setOnAction(e -> {
+			JFXTextField field = new JFXTextField();
+			field.setPromptText("Enter Release Name");
+
+			JFXTextField field2 = new JFXTextField();
+			field2.setPromptText("Enter Release Points");
+
+			JFXColorPicker colorPicker = new JFXColorPicker();
+
+			this.displayDialog("Radial / Donut Builder", 2, colorPicker, field, field2);
+		});
+		
+		
 		ChartData chartData1 = new ChartData("Item 1", 24.0, Tile.GREEN);
 		ChartData chartData2 = new ChartData("Item 2", 10.0, Tile.BLUE);
 		ChartData chartData3 = new ChartData("Item 3", 12.0, Tile.RED);
