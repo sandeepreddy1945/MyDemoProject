@@ -54,6 +54,9 @@ dependencies {
 	compile fileTree(dir: 'Libs', include: ['*.jar'])
 	//framework for webview hyperlink listeners
 	compile 'org.codefx.libfx:LibFX:0.3.0'
+	//cache 
+	compile 'net.sf.ehcache:ehcache:2.10.5'
+	compile 'net.sf.ehcache:ehcache-core:2.6.11'
 	
 	//Gaming Library for more effects
 	//compile 'com.github.almasb:fxgl:0.5.1'

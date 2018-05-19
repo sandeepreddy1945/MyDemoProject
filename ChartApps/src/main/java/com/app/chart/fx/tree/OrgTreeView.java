@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTreeView;
+import com.jfoenix.controls.JFXTreeViewPath;
 import com.jfoenix.skins.JFXComboBoxListViewSkin;
 
 import javafx.application.Application;
@@ -37,7 +39,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeItem.TreeModificationEvent;
-import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebEngine;
@@ -70,7 +71,7 @@ public class OrgTreeView<T> extends Application {
 
 	private List<EmployeeDetails> employeeList;
 
-	private TreeView<EmployeeDetails> treeView = new TreeView<EmployeeDetails>();
+	private JFXTreeView<EmployeeDetails> treeView = new JFXTreeView<EmployeeDetails>();
 
 	private List<EmployeeDetails> previewList = new LinkedList<EmployeeDetails>();
 
@@ -286,7 +287,7 @@ public class OrgTreeView<T> extends Application {
 		});
 
 		// add all the components here.
-		mainBox.getChildren().addAll(editableBox, editableBox1, view, bottomBox);
+		mainBox.getChildren().addAll(editableBox, editableBox1, new JFXTreeViewPath(treeView), view, bottomBox);
 
 		return mainBox;
 	}

@@ -13,7 +13,7 @@ import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class Main extends Application {
+public class Main2 extends Application {
     
     final static String itemA = "A";
     final static String itemB = "B";

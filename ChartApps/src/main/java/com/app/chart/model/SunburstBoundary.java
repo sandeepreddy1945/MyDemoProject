@@ -38,39 +38,39 @@ public class SunburstBoundary {
 
 	@Getter
 	@Setter
-	@ToString
+	@ToString(includeFieldNames = true)
 	@NoArgsConstructor
 	@JsonInclude(value = Include.NON_NULL)
 	@AllArgsConstructor
 	@JsonPropertyOrder({ "fieldName", "scores", "color", "attrBoundaries" })
 	@JsonRootName("ReleaseBoundary")
-	public class ReleaseBoundary {
+	public static class ReleaseBoundary {
 
 		@JsonProperty("fieldName")
 		private String fieldName;
 		@JsonProperty("scores")
 		private double scores;
 		@JsonProperty("color")
-		private Color color;
+		private CustomColor color;
 		@JsonProperty("attrBoundaries")
 		private List<ReleaseAttrBoundary> attrBoundaries;
 
 		@Getter
 		@Setter
-		@ToString
+		@ToString(includeFieldNames = true)
 		@NoArgsConstructor
 		@JsonInclude(value = Include.NON_NULL)
 		@JsonPropertyOrder({ "fieldName", "scores", "color" })
 		@AllArgsConstructor
 		@JsonRootName("ReleaseAttrBoundary")
-		public class ReleaseAttrBoundary {
+		public static class ReleaseAttrBoundary {
 
 			@JsonProperty("fieldName")
 			private String fieldName;
 			@JsonProperty("scores")
 			private double scores;
 			@JsonProperty("color")
-			private Color color;
+			private CustomColor color;
 		}
 	}
 

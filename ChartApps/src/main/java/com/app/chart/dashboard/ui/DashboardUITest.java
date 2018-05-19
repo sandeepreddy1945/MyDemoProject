@@ -4,7 +4,9 @@
 package com.app.chart.dashboard.ui;
 
 import javafx.application.Application;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -13,12 +15,16 @@ import javafx.stage.Stage;
  */
 public class DashboardUITest extends Application {
 
+	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+	public static double WIDTH = visualBounds.getWidth() - 100;
+	public static double HEIGHT = visualBounds.getHeight() - 50;
+
 	@Override
 	public void start(Stage stage) throws Exception {
-		stage.setMinHeight(1000);
-		stage.setMinWidth(1400);
+		stage.setMinHeight(HEIGHT);
+		stage.setMinWidth(WIDTH);
 
-		Scene scene = new Scene(new ReleaseBoardDetails(), 1300, 900);
+		Scene scene = new Scene(new PerfomanceBoardDetails(), WIDTH, HEIGHT);
 		stage.setScene(scene);
 		stage.show();
 

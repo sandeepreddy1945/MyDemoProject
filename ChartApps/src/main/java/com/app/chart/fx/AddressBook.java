@@ -439,6 +439,7 @@ public class AddressBook extends Application {
 			this.onSaveActionPerfomed();
 
 			Dialog orgPreviewDialog = new Dialog<>();
+			orgPreviewDialog.setResizable(true);
 			List<EmployeeDetails> empList = new ArrayList<>();
 			data.stream().forEach(p -> {
 				EmployeeDetails emp = new EmployeeDetails();

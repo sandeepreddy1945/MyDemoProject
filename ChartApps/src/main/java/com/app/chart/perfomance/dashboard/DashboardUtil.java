@@ -13,6 +13,7 @@ import java.util.Optional;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
 import com.app.chart.perfomance.dashboard.ui.DashboardUI;
+import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.RequiredFieldValidator;
 
@@ -152,6 +153,37 @@ public class DashboardUtil {
 		});
 	}
 
+	public static void buildRequestValidator(JFXTextArea... fields) {
+		buildRequestValidatorTA(Arrays.asList(fields));
+	}
+
+	public static void buildRequestValidatorTA(List<JFXTextArea> fields) {
+		fields.stream().forEach(DashboardUtil::buildRequestValidator);
+	}
+
+	public static void buildRequestValidator(JFXTextArea field) {
+		buildRequestValidator(field, null);
+	}
+
+	/**
+	 * 
+	 * @param field
+	 * @param errText
+	 */
+	public static void buildRequestValidator(JFXTextArea field, String errText) {
+		RequiredFieldValidator validator = new RequiredFieldValidator();
+		validator.setMessage(errText == null || errText.length() == 0 ? "Input is Required!!" : errText);
+		validator.setIcon(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.WARNING).size(EM1)
+				.styleClass(ERROR).build());
+
+		field.getValidators().add(validator);
+		field.focusedProperty().addListener((o, oldVal, newVal) -> {
+			if (!newVal) {
+				field.validate();
+			}
+		});
+	}
+
 	public static boolean validateTextField(JFXTextField... fields) {
 		return validateTextField(Arrays.asList(fields));
 	}
@@ -163,6 +195,35 @@ public class DashboardUtil {
 
 	public static boolean validateTextField(JFXTextField field) {
 		return !(field.getText().length() == 0);
+	}
+
+	/**
+	 * Clears the given number of textfields.
+	 * 
+	 * @param fields
+	 */
+	public static void clearTextField(JFXTextField... fields) {
+		clearTextField(Arrays.asList(fields));
+	}
+
+	public static void clearTextField(List<JFXTextField> fields) {
+		fields.stream().forEach(DashboardUtil::clearTextField);
+	}
+
+	public static void clearTextField(JFXTextField field) {
+		field.clear();
+	}
+
+	public static void clearTextField(JFXTextArea... fields) {
+		clearTextFieldTA(Arrays.asList(fields));
+	}
+
+	public static void clearTextFieldTA(List<JFXTextArea> fields) {
+		fields.stream().forEach(DashboardUtil::clearTextField);
+	}
+
+	public static void clearTextField(JFXTextArea field) {
+		field.clear();
 	}
 
 	/**

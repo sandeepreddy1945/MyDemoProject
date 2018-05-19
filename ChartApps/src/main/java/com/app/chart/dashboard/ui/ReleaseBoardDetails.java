@@ -4,17 +4,20 @@
 package com.app.chart.dashboard.ui;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.app.chart.model.CustomColor;
 import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.SunburstBoundary.ReleaseBoundary;
 import com.app.chart.model.SunburstBoundary.ReleaseBoundary.ReleaseAttrBoundary;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
+import com.app.charts.utilities.JFXNumberField;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
@@ -23,6 +26,8 @@ import com.jfoenix.controls.JFXColorPicker;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTreeView;
+import com.jfoenix.controls.JFXTreeViewPath;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
@@ -36,11 +41,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 
@@ -53,28 +56,22 @@ public class ReleaseBoardDetails extends HBox {
 	private static final String SUNBURN_CHART = "Sunburn Chart";
 	private static final String RADIAL_CHART = "Radial Chart";
 	private static final String DONUT_CHART = "Donut Chart";
-	private TreeView<String> treeView = new TreeView<String>();
+	private JFXTreeView<String> treeView = new JFXTreeView<String>();
 	private JFXComboBox<String> pickBox = new JFXComboBox<>();
 	private ObservableList<String> comboBoxList = FXCollections.observableArrayList(SUNBURN_CHART, RADIAL_CHART,
 			DONUT_CHART);
 	private Tile sunburstTile;
-	private Tile radialPercentageTile;
-	private JFXColorPicker colorPicker = new JFXColorPicker();
 	private static final String EM1 = "1em";
 	private static final String ERROR = "error";
 
 	private List<ChartData> radialChart = new LinkedList<>();
 	private List<ChartData> donutData = new LinkedList<>();
 
-	private List<SunburstBoundary> sunburstBoundaries = new ArrayList<>();
-
 	private Map<String, SunburstBoundary> sunBurstMap = new HashMap<>();
 	private HBox editBox = new HBox();
 	private VBox vbox;
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private Tile donutChartTile;
-	private Tile radialChartTile;
 
 	public ReleaseBoardDetails() {
 		super(5);
@@ -104,7 +101,7 @@ public class ReleaseBoardDetails extends HBox {
 		editBox.setMinWidth(600);
 		setMinSize(1200, 800);
 		vbox = new VBox(20);
-		vbox.getChildren().add(pickBox);
+		vbox.getChildren().addAll(pickBox, new JFXTreeViewPath(treeView));
 		getChildren().addAll(treeView, vbox);
 	}
 
@@ -125,7 +122,7 @@ public class ReleaseBoardDetails extends HBox {
 			JFXTextField field = new JFXTextField();
 			field.setPromptText("Enter Release Name");
 
-			JFXTextField field2 = new JFXTextField();
+			JFXNumberField field2 = new JFXNumberField();
 			field2.setPromptText("Enter Release Points");
 
 			JFXColorPicker colorPicker = new JFXColorPicker();
@@ -138,7 +135,7 @@ public class ReleaseBoardDetails extends HBox {
 			JFXTextField field = new JFXTextField();
 			field.setPromptText("Enter Feature Name");
 
-			JFXTextField field2 = new JFXTextField();
+			JFXNumberField field2 = new JFXNumberField();
 			field2.setPromptText("Enter Feature Points");
 
 			JFXColorPicker colorPicker = new JFXColorPicker();
@@ -149,14 +146,15 @@ public class ReleaseBoardDetails extends HBox {
 		previewBtn.setOnAction(e -> {
 			if (previewBox.getChildren().size() > 0)
 				previewBox.getChildren().remove(0, previewBox.getChildren().size());
+			// code to rebuilf the chart from reterived data.
 			sunBurstMap.values().stream().forEach(b -> {
 				TreeNode rootNode = new TreeNode(new ChartData(b.getRootName()));
 				b.getSubBoundaries().stream().forEach(bs -> {
-					TreeNode node = new TreeNode(new ChartData(bs.getFieldName(), bs.getScores(), bs.getColor()),
-							rootNode);
+					TreeNode node = new TreeNode(
+							new ChartData(bs.getFieldName(), bs.getScores(), bs.getColor().fecthColor()), rootNode);
 					bs.getAttrBoundaries().stream().forEach(bsl -> {
 						TreeNode subNode = new TreeNode(
-								new ChartData(bsl.getFieldName(), bsl.getScores(), bsl.getColor()), node);
+								new ChartData(bsl.getFieldName(), bsl.getScores(), bsl.getColor().fecthColor()), node);
 					});
 				});
 				previewBox.getChildren().add(buildSunBurnTile(rootNode));
@@ -166,15 +164,55 @@ public class ReleaseBoardDetails extends HBox {
 		JFXButton removeNode = new JFXButton("Remove Node (-)");
 		removeNode.setOnAction(e -> {
 
+			if (treeView.getSelectionModel().getSelectedItem() == null
+					|| treeView.getSelectionModel().getSelectedItem().getParent() == null) {
+				popOutAlert("Please select a valid node to Remove !!");
+			} else {
+				String selectedItem = treeView.getSelectionModel().getSelectedItem().getValue();
+
+				// i.e the list select is the parent root item.
+				if (treeView.getSelectionModel().getSelectedItem().getParent().getParent() == null) {
+					sunBurstMap.remove(selectedItem);
+					treeView.getSelectionModel().getSelectedItem().getParent().getChildren()
+							.remove(treeView.getSelectionModel().getSelectedItem());
+
+				}
+				// check on the parents parent as hierarchy is treeview root -> chart root->
+				// release child -> feature childre.
+				else if (treeView.getSelectionModel().getSelectedItem().getParent().getParent().getParent() == null) {
+					sunBurstMap.values().parallelStream().forEach(b -> {
+						b.getSubBoundaries().removeIf(r -> r.getFieldName().equals(selectedItem));
+						treeView.getSelectionModel().getSelectedItem().getParent().getChildren()
+								.remove(treeView.getSelectionModel().getSelectedItem());
+					});
+				}
+				// it is the last child i.e feature
+				else {
+					sunBurstMap.values().parallelStream().forEach(b -> {
+						b.getSubBoundaries().parallelStream().forEach(g -> {
+							g.getAttrBoundaries().removeIf(r -> r.getFieldName().equals(selectedItem));
+							treeView.getSelectionModel().getSelectedItem().getParent().getChildren()
+									.remove(treeView.getSelectionModel().getSelectedItem());
+						});
+					});
+				}
+
+			}
 		});
 
 		JFXButton saveBtn = new JFXButton("Save ");
 		saveBtn.setOnAction(e -> {
 			sunBurstMap.values().stream().forEach(b -> {
 				try {
+
+					/*
+					 * mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+					 * mapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
+					 */
 					String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
 					System.out.println(str);
-
+					mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+					mapper.reader().forType(SunburstBoundary.class).readValue(str);
 					SunburstBoundary boundary = mapper.readValue(str, SunburstBoundary.class);
 					System.out.println(boundary.toString());
 				} catch (JsonProcessingException e1) {
@@ -219,8 +257,24 @@ public class ReleaseBoardDetails extends HBox {
 			previewBox.getChildren().add(radialChartBuilder());
 		});
 
+		JFXButton removeBtn = new JFXButton("Remove Node");
+		removeBtn.setOnAction(e -> {
+			if (treeView.getSelectionModel().getSelectedItem() == null
+					|| treeView.getSelectionModel().getSelectedItem().getParent() == null) {
+				popOutAlert("Please select a valid node to Remove !!");
+			} else {
+				String selectItemName = treeView.getSelectionModel().getSelectedItem().getValue();
+
+				// remove the element from chart list.
+				radialChart.removeIf(s -> s.getName().equals(selectItemName));
+
+				TreeItem<String> mainParent = treeView.getSelectionModel().getSelectedItem().getParent();
+				mainParent.getChildren().remove(treeView.getSelectionModel().getSelectedItem());
+			}
+		});
+
 		HBox box = new HBox(10);
-		box.getChildren().addAll(addRelease, previewButton);
+		box.getChildren().addAll(addRelease, previewButton, removeBtn);
 		vbox.getChildren().addAll(box, previewBox);
 
 		return new HBox();
@@ -228,8 +282,8 @@ public class ReleaseBoardDetails extends HBox {
 	}
 
 	private Tile radialChartBuilder() {
-		return radialChartTile = TileBuilder.create().skinType(SkinType.RADIAL_CHART).prefSize(500, 500)
-				.title("RadialChart").text("Some text").textVisible(false).chartData(radialChart).build();
+		return TileBuilder.create().skinType(SkinType.RADIAL_CHART).prefSize(500, 500).title("RadialChart")
+				.text("Some text").textVisible(false).chartData(radialChart).build();
 	}
 
 	private HBox donutChartEditor() {
@@ -256,8 +310,24 @@ public class ReleaseBoardDetails extends HBox {
 			previewBox.getChildren().add(donutChartBuilder());
 		});
 
+		JFXButton removeBtn = new JFXButton("Remove Node");
+		removeBtn.setOnAction(e -> {
+			if (treeView.getSelectionModel().getSelectedItem() == null
+					|| treeView.getSelectionModel().getSelectedItem().getParent() == null) {
+				popOutAlert("Please select a valid node to Remove !!");
+			} else {
+				String selectItemName = treeView.getSelectionModel().getSelectedItem().getValue();
+
+				// remove the element from chart list.
+				donutData.removeIf(s -> s.getName().equals(selectItemName));
+
+				TreeItem<String> mainParent = treeView.getSelectionModel().getSelectedItem().getParent();
+				mainParent.getChildren().remove(treeView.getSelectionModel().getSelectedItem());
+			}
+		});
+
 		HBox box = new HBox(10);
-		box.getChildren().addAll(addRelease, previewButton);
+		box.getChildren().addAll(addRelease, previewButton, removeBtn);
 		vbox.getChildren().addAll(box, previewBox);
 
 		return new HBox();
@@ -265,8 +335,8 @@ public class ReleaseBoardDetails extends HBox {
 	}
 
 	private Node donutChartBuilder() {
-		return donutChartTile = TileBuilder.create().skinType(SkinType.DONUT_CHART).prefSize(500, 500)
-				.title("DonutChart").text("Some text").textVisible(false).chartData(donutData).build();
+		return TileBuilder.create().skinType(SkinType.DONUT_CHART).prefSize(500, 500).title("DonutChart")
+				.text("Some text").textVisible(false).chartData(donutData).build();
 
 	}
 
@@ -288,9 +358,9 @@ public class ReleaseBoardDetails extends HBox {
 		}
 		layout.setBody(box);
 
-		JFXButton closeButton = new JFXButton("OK");
-		closeButton.getStyleClass().add("dialog-accept");
-		closeButton.setOnAction(event -> {
+		JFXButton okBtn = new JFXButton("OK");
+		okBtn.getStyleClass().add("dialog-accept");
+		okBtn.setOnAction(event -> {
 			// if all fields are validated then only hide the dialog.
 			if (DashboardUtil.validateTextField(fields)) {
 				if (chartType == 1) {
@@ -318,8 +388,9 @@ public class ReleaseBoardDetails extends HBox {
 							if (sunBurstMap.get(str).getSubBoundaries() == null)
 								sunBurstMap.get(str).setSubBoundaries(new LinkedList<>());
 							SunburstBoundary snb = sunBurstMap.get(str);
-							ReleaseBoundary boundary = snb.new ReleaseBoundary(fields[0].getText(),
-									Double.valueOf(fields[1].getText()), colorPicker.getValue(), new LinkedList<>());
+							ReleaseBoundary boundary = /* snb. */new ReleaseBoundary(fields[0].getText(),
+									Double.valueOf(fields[1].getText()), new CustomColor(colorPicker.getValue()),
+									new LinkedList<>());
 							sunBurstMap.get(str).getSubBoundaries().add(boundary);
 							treeView.getSelectionModel().getSelectedItem().getChildren()
 									.add(new TreeItem<>(boundary.getFieldName()));
@@ -346,8 +417,8 @@ public class ReleaseBoardDetails extends HBox {
 									.findFirst().get();
 							if (rb.getAttrBoundaries() == null)
 								rb.setAttrBoundaries(new LinkedList<>());
-							ReleaseAttrBoundary rab = rb.new ReleaseAttrBoundary(fields[0].getText(),
-									Double.valueOf(fields[1].getText()), colorPicker.getValue());
+							ReleaseAttrBoundary rab = /* rb. */new ReleaseAttrBoundary(fields[0].getText(),
+									Double.valueOf(fields[1].getText()), new CustomColor(colorPicker.getValue()));
 							rb.getAttrBoundaries().add(rab);
 							treeView.getSelectionModel().getSelectedItem().getChildren()
 									.add(new TreeItem<String>(rab.getFieldName()));
@@ -390,25 +461,25 @@ public class ReleaseBoardDetails extends HBox {
 			alert.hideWithAnimation();
 		});
 		// add enter button listener on the button
-		closeButton.setOnKeyPressed(e -> {
+		okBtn.setOnKeyPressed(e -> {
 			if (e.getCode() == KeyCode.ENTER) {
-				closeButton.fire();
+				okBtn.fire();
 			}
 		});
 
 		cancelBtn.setOnKeyPressed(e -> {
 			if (e.getCode() == KeyCode.ENTER) {
-				closeButton.fire();
+				okBtn.fire();
 			}
 		});
-		layout.setActions(closeButton, cancelBtn);
+		layout.setActions(okBtn, cancelBtn);
 		alert.setContent(layout);
 		alert.show();
 
 	}
 
 	private Tile buildSunBurnTile(TreeNode tree) {
-		sunburstTile = TileBuilder.create().skinType(SkinType.SUNBURST).prefSize(500, 500).title("SunburstTile")
+		sunburstTile = TileBuilder.create().skinType(SkinType.SUNBURST).prefSize(500, 500).title("Release Highlights")
 				.textVisible(false).sunburstTree(tree).sunburstBackgroundColor(Tile.BACKGROUND)
 				.sunburstTextColor(Tile.BACKGROUND).sunburstUseColorFromParent(true)
 				.sunburstTextOrientation(TextOrientation.ORTHOGONAL).sunburstAutoTextColor(true)

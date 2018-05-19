@@ -9,5 +9,5 @@ package com.app.chart.model;
  */
 public enum DisplayBoardConstants {
 
-	dashboard, image, chart
+	dashboard, image, chart, heading
 }
