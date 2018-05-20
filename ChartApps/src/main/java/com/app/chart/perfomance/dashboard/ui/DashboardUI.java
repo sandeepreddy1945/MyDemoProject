@@ -14,6 +14,7 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
+import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
 import com.app.chart.perfomance.dashboard.DashboardHeader;
@@ -37,6 +38,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -49,6 +51,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 /**
  * @author Sandeep<br>
@@ -74,19 +77,66 @@ public class DashboardUI extends Application {
 	private VBox vbox;
 	private DashboardSidePane dashboardSidePane;
 	private HBox hbox;
+	private final String headerTxt;
+	private final ManagerDetailBoundary managerDetailBoundary;
 
 	/**
 	 * @param teamMembers
+	 * @throws Exception
 	 */
-	public DashboardUI(List<TeamMember> teamMembers) {
+	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary)
+			throws Exception {
+		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
 		this.teamMembers = teamMembers;
+		this.headerTxt = headerTxt;
+		this.managerDetailBoundary = managerDetailBoundary;
+		// init the UI using the init method.
+		init();
+	}
+
+	/**
+	 * This is constructor used for preview of the board.
+	 * 
+	 * @param teamMembers
+	 * @param headerTxt
+	 * @param managerDetailBoundary
+	 * @param dialog
+	 * @throws Exception
+	 */
+	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary,
+			Dialog dialog) throws Exception {
+		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
+		this.teamMembers = teamMembers;
+		this.headerTxt = headerTxt;
+		this.managerDetailBoundary = managerDetailBoundary;
+		// init the UI using the init method.
+		init();
+
+		Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+		// set onclose request for the dialog.
+		Window window = dialog.getDialogPane().getScene().getWindow();
+		window.setOnCloseRequest(event -> window.hide());
+
+		// stage.setMaximized(true);
+		stage.setMinHeight(HEIGHT);
+		stage.setMinWidth(WIDTH);
+		// stage.setFullScreen(true);
+
+		Scene scene = new Scene(hbox, WIDTH - 10, HEIGHT - 10);
+		hbox.setBackground(DashboardUtil.BLACK_BACKGROUND);
+
+		stage.setScene(scene);
+		Platform.runLater(() -> stage.show());
 	}
 
 	/**
 	 * Default Constructor.
+	 * 
+	 * @throws Exception
 	 */
-	public DashboardUI() {
-		this.teamMembers = null;
+	public DashboardUI() throws Exception {
+		// some default title juzz for testing
+		this(null, "Sandeep Reddy", null);
 	}
 
 	/*
@@ -160,7 +210,7 @@ public class DashboardUI extends Application {
 			File logo1 = new File(url1.toURI().getPath());
 			File logo2 = new File(url2.toURI().getPath());
 
-			dashboardHeader = new DashboardHeader(logo1, logo2, "Sandeep Reddy Battula");
+			dashboardHeader = new DashboardHeader(logo1, logo2, headerTxt);
 			dashboardHeader.setMinSize(WIDTH - 160, 90);
 			dashboardHeader.setPrefSize(WIDTH, 90);
 
@@ -203,10 +253,11 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeLeaderBoard() {
-		List<TeamMember> list = teamMembers();
-		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
-		Collections.reverse(list);
-		DashboardTeamMemberScoreViewer scoreViewer = new DashboardTeamMemberScoreViewer(list);
+		/*
+		 * List<TeamMember> list = teamMembers(); Collections.sort(list,
+		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
+		 */
+		DashboardTeamMemberScoreViewer scoreViewer = new DashboardTeamMemberScoreViewer(/* list */teamMembers);
 		return scoreViewer;
 
 	}
@@ -220,10 +271,11 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializePieChart() {
-		List<TeamMember> list = teamMembers();
-		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
-		Collections.reverse(list);
-		DashboardPieChart pieChart = new DashboardPieChart(list);
+		/*
+		 * List<TeamMember> list = teamMembers(); Collections.sort(list,
+		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
+		 */
+		DashboardPieChart pieChart = new DashboardPieChart(/* list */teamMembers);
 		return pieChart;
 	}
 
@@ -236,10 +288,11 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeBarChart() {
-		List<TeamMember> list = teamMembers();
-		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
-		Collections.reverse(list);
-		DashboardBarChart barChart = new DashboardBarChart(list);
+		/*
+		 * List<TeamMember> list = teamMembers(); Collections.sort(list,
+		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
+		 */
+		DashboardBarChart barChart = new DashboardBarChart(/* list */ teamMembers);
 		return barChart;
 
 	}
@@ -266,10 +319,11 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeStackBarChart() {
-		List<TeamMember> list = teamMembers();
-		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
-		Collections.reverse(list);
-		DashboardStackedBarChart stackedBarChart = new DashboardStackedBarChart(list);
+		/*
+		 * List<TeamMember> list = teamMembers(); Collections.sort(list,
+		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
+		 */
+		DashboardStackedBarChart stackedBarChart = new DashboardStackedBarChart(/* list */teamMembers);
 		return stackedBarChart;
 	}
 
@@ -282,10 +336,11 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeIndividualStatsViewer() {
-		List<TeamMember> list = teamMembers();
-		Collections.sort(list, DashboardUtil.TeamMemberSorter.getInstance());
-		Collections.reverse(list);
-		DashboardIndividualStatsViewer statsViewer = new DashboardIndividualStatsViewer(list);
+		/*
+		 * List<TeamMember> list = teamMembers(); Collections.sort(list,
+		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
+		 */
+		DashboardIndividualStatsViewer statsViewer = new DashboardIndividualStatsViewer(/* list */teamMembers);
 		return statsViewer;
 	}
 
@@ -332,7 +387,7 @@ public class DashboardUI extends Application {
 		imageView.setPreserveRatio(true);
 
 		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(250, 250).title("Team Manager")
-				.text("Whatever text").graphic(imageView).roundedCorners(true).build();
+				.text(this.managerDetailBoundary.getName()).graphic(imageView).roundedCorners(true).build();
 
 		return tile;
 	}

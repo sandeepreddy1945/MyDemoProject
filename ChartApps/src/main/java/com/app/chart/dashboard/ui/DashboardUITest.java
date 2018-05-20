@@ -3,6 +3,10 @@
  */
 package com.app.chart.dashboard.ui;
 
+import java.io.File;
+
+import com.app.chart.fx.FilesUtil;
+
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -24,7 +28,7 @@ public class DashboardUITest extends Application {
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
 
-		Scene scene = new Scene(new PerfomanceBoardDetails(), WIDTH, HEIGHT);
+		Scene scene = new Scene(new PerfomanceBoardDetails(new File(FilesUtil.DASHBOARD_CONTENT_DATA)), WIDTH, HEIGHT);
 		stage.setScene(scene);
 		stage.show();
 

@@ -28,7 +28,7 @@ import lombok.Setter;
 public class ManagerDetailBoundary {
 
 	@JsonProperty("portalId")
-	private float portalId;
+	private int portalId;
 	@JsonProperty("name")
 	private String name;
 	@JsonProperty("designation")
@@ -45,7 +45,7 @@ public class ManagerDetailBoundary {
 	 */
 	@Override
 	public String toString() {
-		return name;
+		return folderName;
 	}
 
 }

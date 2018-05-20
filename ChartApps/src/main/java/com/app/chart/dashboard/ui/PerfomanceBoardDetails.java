@@ -3,22 +3,28 @@
  */
 package com.app.chart.dashboard.ui;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.sql.Date;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import org.assertj.core.util.Arrays;
+import org.apache.commons.io.FileUtils;
 
+import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
+import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 import com.app.charts.utilities.JFXNumberField;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
@@ -39,12 +45,15 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellEditEvent;
@@ -83,7 +92,7 @@ public class PerfomanceBoardDetails extends HBox {
 	private VBox mainBox = new VBox(10);
 	private JFXComboBox<ManagerDetailBoundary> managerCBX = new JFXComboBox<>();
 
-	private List<PerfomanceBoardBoundary> perfomanceBoardDetails = new LinkedList<>();
+	private List<PerfomanceBoardBoundary> perfomanceBoardDetails = null;
 	private JFXTextField boardHeader;
 
 	private ObservableList<TeamMemberTableBoundary> members = FXCollections
@@ -95,14 +104,46 @@ public class PerfomanceBoardDetails extends HBox {
 	private JFXDatePicker datePickerFX;
 
 	private ObjectMapper mapper = new ObjectMapper();
+	private String jsonDataContent;
+	private final File dataFile;
 
 	/**
 	 * 
 	 */
-	public PerfomanceBoardDetails() {
+	public PerfomanceBoardDetails(File dataFile) {
 		super(5);
+		this.dataFile = dataFile;
+		// before init of ui just read the file and save the data for usage.
+		readDataFromFile();
 
 		initUI();
+	}
+
+	private void readDataFromFile() {
+		try {
+			if (dataFile != null && dataFile.exists()
+					&& FileUtils.readFileToString(dataFile, Charset.defaultCharset()).length() > 0) {
+				String fileData = FileUtils.readFileToString(dataFile, Charset.defaultCharset());
+				System.out.println(fileData);
+				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+
+				List<PerfomanceBoardBoundary> dataList = mapper.readValue(fileData,
+						mapper.getTypeFactory().constructCollectionType(List.class, PerfomanceBoardBoundary.class));
+				dataList.forEach(System.out::println);
+
+				// set the list with details
+				this.jsonDataContent = fileData;
+				this.perfomanceBoardDetails = dataList;
+
+			} else {
+				// instntiate the perfomance list as not data is present.
+				perfomanceBoardDetails = new ArrayList<>();
+			}
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+
 	}
 
 	private void initUI() {
@@ -116,8 +157,55 @@ public class PerfomanceBoardDetails extends HBox {
 		mainBox.getChildren().addAll(constructTopBox(), constructMiddleBox(), constructTable(), tableView,
 				constructBottomBox());
 
+		// check and load the data from the file if exists
+		checkAndLoadData();
+
+		// listen to the changes on the combobox to change around the data.
+		managerCBX.setOnAction(this::listenToComboBoxChanges);
+
 		getChildren().add(mainBox);
 
+	}
+
+	private void checkAndLoadData() {
+		if (perfomanceBoardDetails.size() > 0) {
+			// just add the details to the manager and this listen for data on the combo
+			// box.
+			perfomanceBoardDetails.stream().forEach(p -> {
+				managerCBX.getItems().add(p.getManagerDetailBoundary());
+			});
+		} else {
+			// for now no implementation
+			System.out.println("Intial Start of creating data.");
+		}
+
+	}
+
+	private void listenToComboBoxChanges(ActionEvent e) {
+		if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+			// then do nothing
+		} else {
+			// make a check on the folder name as it is the only unique name available.
+			PerfomanceBoardBoundary p = perfomanceBoardDetails.stream().filter(
+					b -> b.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst().get();
+
+			boardHeader.setText(p.getHeaderTxt());
+			boardHeader.setTooltip(new Tooltip("Press \"alt+c\" to clear this field"));
+			boardHeader.setOnKeyPressed(b -> {
+				if (b.getCode().ordinal() == KeyCode.C.ordinal() && b.isAltDown()) {
+					boardHeader.clear();
+				}
+			});
+
+			// clear all the members available and then add
+			members.clear();
+
+			// add all the members to the table here.
+			members.addAll(constructTableMemberBoundary(p.getTeamMembers()));
+			// fire teh table with new data available.
+			tableView.fireEvent(e);
+		}
 	}
 
 	private HBox constructTopBox() {
@@ -126,18 +214,31 @@ public class PerfomanceBoardDetails extends HBox {
 		boardHeader.setPromptText("Enter the Team Name");
 		boardHeader.setMinSize(300, 10);
 		managerCBX.setMinSize(300, 15);
+		managerCBX.setPromptText("Dashboard List Available");
 		DashboardUtil.buildRequestValidator(boardHeader);
+
+		datePickerFX = new JFXDatePicker();
+		datePickerFX.setPromptText("Time Intreval");
+		datePickerFX.setMinSize(250, 15);
 
 		JFXButton addManager = new JFXButton("Add Manager");
 		addManager.setOnAction(e -> {
+			// TODO to add changes to files accordingly.
 			displayAddManagerDialog(boardHeader.getText());
 		});
+
+		addManager.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				addManager.fire();
+			}
+		});
+
 		addManager.setAlignment(Pos.CENTER_RIGHT);
 
-		box.getChildren().addAll(boardHeader, managerCBX, addManager);
+		box.getChildren().addAll(boardHeader, managerCBX, datePickerFX, addManager);
 
-		box.setMinSize(WIDTH, 70);
-		box.setPrefSize(WIDTH, 90);
+		box.setMinSize(WIDTH, 90);
+		box.setPrefSize(WIDTH, 110);
 		box.setPadding(new Insets(15));
 
 		return box;
@@ -149,6 +250,7 @@ public class PerfomanceBoardDetails extends HBox {
 		alert.setOverlayClose(false);
 		JFXDialogLayout layout = new JFXDialogLayout();
 		layout.setHeading(new Text("Add Manager Detail"));
+		layout.setMinSize(500, 200);
 
 		HBox box = new HBox(10);
 		JFXNumberField portalId = new JFXNumberField();
@@ -166,23 +268,7 @@ public class PerfomanceBoardDetails extends HBox {
 		JFXButton okBtn = new JFXButton("OK");
 		okBtn.getStyleClass().add("dialog-accept");
 
-		okBtn.setOnAction(e -> {
-			if (DashboardUtil.validateTextField(portalId, managerName, designation) && teamName != null
-					&& teamName.length() > 0) {
-				// build manager object
-				// for now the team folder name will the teamName given replaced without spaces.
-				ManagerDetailBoundary detailBoundary = new ManagerDetailBoundary(Float.valueOf(portalId.getText()),
-						managerName.getText(), designation.getText(), teamName.replaceAll(" ", ""), new ArrayList<>());
-				managerCBX.getItems().add(detailBoundary);
-				// hide window on successful call
-				alert.hideWithAnimation();
-			}
-
-			if (teamName.length() == 0) {
-				popOutAlert("Team Name is Required Before Adding a Manager. \n"
-						+ "Please Add the Team Name first to continue..", "Missing fields");
-			}
-		});
+		okBtn.setOnAction(e -> onDialogOkAction(teamName, alert, portalId, managerName, designation));
 
 		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
 				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
@@ -194,13 +280,13 @@ public class PerfomanceBoardDetails extends HBox {
 		});
 		// add enter button listener on the button
 		okBtn.setOnKeyPressed(e -> {
-			if (e.getCode() == KeyCode.ENTER) {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
 				okBtn.fire();
 			}
 		});
 
 		cancelBtn.setOnKeyPressed(e -> {
-			if (e.getCode() == KeyCode.ENTER) {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
 				okBtn.fire();
 			}
 		});
@@ -210,8 +296,60 @@ public class PerfomanceBoardDetails extends HBox {
 
 	}
 
+	private void onDialogOkAction(String teamName, JFXAlert<String> alert, JFXNumberField portalId,
+			JFXTextField managerName, JFXTextField designation) {
+		if (datePickerFX.getValue() == null) {
+			popOutAlert("Please Select a Valid Date from the Calendar to Continue ..", "Perfomance Board");
+			return;
+		}
+
+		if (DashboardUtil.validateTextField(portalId, managerName, designation) && teamName != null
+				&& teamName.length() > 0) {
+			// build manager object
+			// for now the team folder name will the teamName given replaced without spaces.
+			ManagerDetailBoundary detailBoundary = new ManagerDetailBoundary(Integer.valueOf(portalId.getText()),
+					managerName.getText(), designation.getText(), teamName.replaceAll(" ", ""), new ArrayList<>());
+			// main list checkng starts here.. check if the folder already exists.
+			Optional<String> isFolderExists = perfomanceBoardDetails.stream()
+					.map(PerfomanceBoardBoundary::getFolderName).filter(f -> f.equals(teamName.replaceAll(" ", "")))
+					.findFirst();
+
+			if (isFolderExists.isPresent()) {
+				popOutAlert("The Perfomance Board You are trying to Add already Exists. \n "
+						+ "Please select the Option from Team List To Continue..", "Perofomance Board");
+			} else {
+				// add to main list as it is a new entry.
+				PerfomanceBoardBoundary perfomanceBoardBoundary = new PerfomanceBoardBoundary();
+				perfomanceBoardBoundary.setFolderName(teamName.replaceAll(" ", ""));
+				perfomanceBoardBoundary.setHeaderTxt(teamName);
+				perfomanceBoardBoundary.setManagerDetailBoundary(detailBoundary);
+				perfomanceBoardBoundary
+						.setInitalDate(new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
+				perfomanceBoardBoundary.setTeamMembers(new ArrayList<>());
+				perfomanceBoardDetails.add(perfomanceBoardBoundary);
+				managerCBX.getItems().add(detailBoundary);
+				// dont clear it ..need to think on this hndling TODO
+				// datePickerFX.getEditor().clear();
+				// hide window on successful call
+				alert.hideWithAnimation();
+			}
+		}
+
+		if (teamName.length() == 0) {
+			popOutAlert("Team Name is Required Before Adding a Manager. \n"
+					+ "Please Add the Team Name first to continue..", "Missing fields");
+		}
+	}
+
 	private void popOutAlert(String text, String title) {
 		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle(title);
+		alert.setContentText(text);
+		alert.showAndWait();
+	}
+
+	private void popOutAlert(String text, String title, AlertType alertType) {
+		Alert alert = new Alert(alertType);
 		alert.setTitle(title);
 		alert.setContentText(text);
 		alert.showAndWait();
@@ -226,8 +364,6 @@ public class PerfomanceBoardDetails extends HBox {
 		name.setPromptText("Enter Name");
 		JFXTextField designation = new JFXTextField();
 		designation.setPromptText("Enter Designation");
-		datePickerFX = new JFXDatePicker();
-		datePickerFX.setPromptText("Time Intreval");
 
 		JFXNumberField month1Score = new JFXNumberField();
 		month1Score.setPromptText("Enter 1st Month Points");
@@ -253,66 +389,18 @@ public class PerfomanceBoardDetails extends HBox {
 
 		setBoundsForTxtFields(portalID, name, designation, month1Score, month2Score, month3Score, valueAddTF, qualityTF,
 				onTimeTF);
-		datePickerFX.setMinSize(250, 15);
 
 		DashboardUtil.buildRequestValidator(descriptionTA);
 
 		JFXButton saveMember = new JFXButton("Add Member");
-		saveMember.setOnAction(e -> {
-
-			if (DashboardUtil.validateTextField(portalID, name, designation, month1Score, month2Score, month3Score,
-					valueAddTF, qualityTF, onTimeTF) && datePickerFX.getValue() != null) {
-
-				Optional<StringProperty> checkOptional = members.stream().map(TeamMemberTableBoundary::getPortalId)
-						.filter(f -> f.get().equals(portalID.getText())).findFirst();
-
-				if (checkOptional.isPresent()) {
-					popOutAlert("The Member you are trying to add Already Exits in the List. \n "
-							+ "Please Add a new employee .\n" + "Tip: If Required use the search filter on Table to \n "
-							+ "search for alread added Employee", "Member Alread Added !!");
-				} else {
-
-					int currentMonthDetails = datePickerFX.getValue().getMonthValue();
-					TeamMember member = new TeamMember();
-					member.setPortalId(portalID.getText());
-					member.setName(name.getText());
-					member.setDescription(designation.getText());
-					member.setScore1(Integer.valueOf(month1Score.getText()));
-					member.setScore2(Integer.valueOf(month2Score.getText()));
-					member.setScore3(Integer.valueOf(month3Score.getText()));
-					member.setQuality(Integer.valueOf(qualityTF.getText()));
-					member.setValueAdd(Integer.valueOf(valueAddTF.getText()));
-					member.setOnTime(Integer.valueOf(onTimeTF.getText()));
-					member.setLink("http://localhost:8020/" + portalID.getText());
-					// adding 3 months data here - For now Date is rules out.
-					member.setIntreval1(
-							datePickerFX.getValue().getMonth().name() + " - " + datePickerFX.getValue().getYear());
-					member.setIntreval2(
-							Month.of(currentMonthDetails + 1).name() + " - " + datePickerFX.getValue().getYear());
-					member.setIntreval3(
-							Month.of(currentMonthDetails + 2).name() + " - " + datePickerFX.getValue().getYear());
-
-					// add it to the table view List
-					members.add(constructTableMemberBoundary(member));
-
-					if (managerCBX.getSelectionModel().getSelectedItem().getTeamMembers() == null)
-						managerCBX.getSelectionModel().getSelectedItem().setTeamMembers(new ArrayList<>());
-					managerCBX.getSelectionModel().getSelectedItem().getTeamMembers().add(member);
-
-					// clear all the text fields once the data is added to the table .
-					DashboardUtil.clearTextField(portalID, name, designation, month1Score, month2Score, month3Score,
-							valueAddTF, qualityTF, onTimeTF);
-					// fire table view change.
-					tableView.fireEvent(e);
-				}
-			}
-		});
+		saveMember.setOnAction(e -> addTeamMemberDataToTable(portalID, name, designation, month1Score, month2Score,
+				month3Score, valueAddTF, qualityTF, onTimeTF, e));
 
 		// set some right padding to align it little bit near the box.
 		saveMember.setPadding(new Insets(0, 45, 0, 0));
 
 		HBox box1 = new HBox(10);
-		box1.getChildren().addAll(portalID, name, designation, datePickerFX);
+		box1.getChildren().addAll(portalID, name, designation);
 
 		HBox box2 = new HBox(10);
 		box2.getChildren().addAll(month1Score, month2Score, month3Score);
@@ -344,9 +432,70 @@ public class PerfomanceBoardDetails extends HBox {
 
 	}
 
+	private void addTeamMemberDataToTable(JFXNumberField portalID, JFXTextField name, JFXTextField designation,
+			JFXNumberField month1Score, JFXNumberField month2Score, JFXNumberField month3Score,
+			JFXNumberField valueAddTF, JFXNumberField qualityTF, JFXNumberField onTimeTF, ActionEvent e) {
+		if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+			popOutAlert("Please select a Valid Dashboard Name from the Dashboard List Box to Continue...",
+					"Select Team Name");
+			return;
+		}
+		if (DashboardUtil.validateTextField(portalID, name, designation, month1Score, month2Score, month3Score,
+				valueAddTF, qualityTF, onTimeTF) && datePickerFX.getValue() != null) {
+
+			Optional<StringProperty> checkOptional = members.stream().map(TeamMemberTableBoundary::getPortalId)
+					.filter(f -> f.get().equals(portalID.getText())).findFirst();
+
+			if (checkOptional.isPresent()) {
+				popOutAlert("The Member you are trying to add Already Exits in the List. \n "
+						+ "Please Add a new employee .\n" + "Tip: If Required use the search filter on Table to \n "
+						+ "search for already added Employee", "Member Alread Added !!");
+			} else {
+
+				int currentMonthDetails = datePickerFX.getValue().getMonthValue();
+				TeamMember member = new TeamMember();
+				member.setPortalId(portalID.getText());
+				member.setName(name.getText());
+				member.setDescription(designation.getText());
+				member.setScore1(Integer.valueOf(month1Score.getText()));
+				member.setScore2(Integer.valueOf(month2Score.getText()));
+				member.setScore3(Integer.valueOf(month3Score.getText()));
+				member.setQuality(Integer.valueOf(qualityTF.getText()));
+				member.setValueAdd(Integer.valueOf(valueAddTF.getText()));
+				member.setOnTime(Integer.valueOf(onTimeTF.getText()));
+				member.setLink("http://localhost:8020/" + portalID.getText());
+				// adding 3 months data here - For now Date is rules out.
+				member.setIntreval1(
+						datePickerFX.getValue().getMonth().name() + " - " + datePickerFX.getValue().getYear());
+				member.setIntreval2(
+						Month.of(currentMonthDetails + 1).name() + " - " + datePickerFX.getValue().getYear());
+				member.setIntreval3(
+						Month.of(currentMonthDetails + 2).name() + " - " + datePickerFX.getValue().getYear());
+
+				// add it to the table view List
+				members.add(constructTableMemberBoundary(member));
+
+				// not to do this here .. would be wrong TODO to check this later.
+				/*
+				 * if (managerCBX.getSelectionModel().getSelectedItem().getTeamMembers() ==
+				 * null) managerCBX.getSelectionModel().getSelectedItem().setTeamMembers(new
+				 * ArrayList<>());
+				 * managerCBX.getSelectionModel().getSelectedItem().getTeamMembers().add(member)
+				 * ;
+				 */
+
+				// clear all the text fields once the data is added to the table .
+				DashboardUtil.clearTextField(portalID, name, designation, month1Score, month2Score, month3Score,
+						valueAddTF, qualityTF, onTimeTF);
+				// fire table view change.
+				tableView.fireEvent(e);
+			}
+		}
+	}
+
 	private void setBoundsForTxtFields(JFXTextField... fields) {
 		Arrays.asList(fields).stream().forEach(f -> {
-			((JFXTextField) f).setMinSize(350, 10);
+			((JFXTextField) f).setMinSize(400, 10);
 		});
 	}
 
@@ -359,59 +508,51 @@ public class PerfomanceBoardDetails extends HBox {
 		JFXButton saveBtn = new JFXButton("Save");
 		JFXButton delBtn = new JFXButton("Delete");
 		JFXButton previewBtn = new JFXButton("Preview");
+		// display manager and board details after reload
+		JFXButton displayDetails = new JFXButton("Overview Board Details");
 
-		saveBtn.setOnAction(e -> {
-
-			members.stream().forEach(m -> {
-
-				PerfomanceBoardBoundary boardBoundary = new PerfomanceBoardBoundary();
-				boardBoundary.setHeaderTxt(boardHeader.getText());
-				boardBoundary.setManagerDetailBoundary(managerCBX.getSelectionModel().getSelectedItem());
-				if (boardBoundary.getTeamMembers() == null)
-					boardBoundary.setTeamMembers(new LinkedList<>());
-				int currentMonthDetails = datePickerFX.getValue().getMonthValue();
-				TeamMember member = constructTeamMemberBoundary(m);
-
-				member.setIntreval1(
-						datePickerFX.getValue().getMonth().name() + " - " + datePickerFX.getValue().getYear());
-				member.setIntreval2(
-						Month.of(currentMonthDetails + 1).name() + " - " + datePickerFX.getValue().getYear());
-				member.setIntreval3(
-						Month.of(currentMonthDetails + 2).name() + " - " + datePickerFX.getValue().getYear());
-				member.setLink("http://localhost:8020/" + member.getPortalId());
-				boardBoundary.getTeamMembers().add(member);
-
-				// do this as local date is immutable and difficult for parsing it.
-				boardBoundary.setInitalDate(new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
-
-				if (managerCBX.getSelectionModel().getSelectedItem().getTeamMembers() == null)
-					managerCBX.getSelectionModel().getSelectedItem().setTeamMembers(new ArrayList<>());
-				managerCBX.getSelectionModel().getSelectedItem().getTeamMembers().add(member);
-				perfomanceBoardDetails.add(boardBoundary);
-
-				try {
-					String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(perfomanceBoardDetails);
-					System.out.println(str);
-				} catch (JsonProcessingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				// TODO need to add JSON Model for this table list.
-			});
-
-		});
+		saveBtn.setOnAction(this::saveAllTheDetails);
 
 		delBtn.setOnAction(e -> {
-			members.remove(tableView.getSelectionModel().getSelectedItem());
+			members.remove(tableView.getSelectionModel().getSelectedIndex());
 			tableView.fireEvent(e);
 		});
 
 		previewBtn.setOnAction(e -> {
-			// TODO need to add Implementation for this.
+			Dialog dashboardUIPreview = new Dialog<>();
+			dashboardUIPreview.setResizable(true);
+
+			if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+				popOutAlert("Not a Valid Team Selected for Preview .Please select a Valid Team To Display",
+						"Perfomance Charts");
+				return;
+			}
+
+			Optional<PerfomanceBoardBoundary> details = perfomanceBoardDetails.parallelStream().filter(
+					p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst();
+			if (details.isPresent()) {
+				PerfomanceBoardBoundary p = details.get();
+				try {
+					DashboardUI dashboardUI = new DashboardUI(p.getTeamMembers(), p.getHeaderTxt(),
+							p.getManagerDetailBoundary(), dashboardUIPreview);
+					//dashboardUIPreview.show();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			} else {
+				popOutAlert("Not a Valid Team Selected for Preview .Please select a Valid Team To Display",
+						"Perfomance Charts");
+			}
+
 		});
 
-		container.getChildren().addAll(saveBtn, delBtn, previewBtn);
-		container.setAlignment(Pos.BOTTOM_RIGHT);
+		displayDetails.setOnAction(this::displayOverViewDetails);
+
+		container.getChildren().addAll(displayDetails, saveBtn, delBtn, previewBtn);
+
+		// container.setAlignment(Pos.BOTTOM_RIGHT);
 
 		box.getChildren().add(container);
 
@@ -421,6 +562,139 @@ public class PerfomanceBoardDetails extends HBox {
 
 		box.setPadding(new Insets(5, 30, 30, 0));
 		return box;
+	}
+
+	private void saveAllTheDetails(ActionEvent e) {
+		// clear all the employee fields before adding them again.
+		Optional<PerfomanceBoardBoundary> details = perfomanceBoardDetails.parallelStream()
+				.filter(p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+				.findFirst();
+		if (details.isPresent()) {
+			if (details.get().getTeamMembers() != null) {
+				details.get().getTeamMembers().clear();
+			} else {
+				details.get().setTeamMembers(new ArrayList<>());
+			}
+		}
+
+		members.stream().forEach(this::loopOnTableData);
+
+		// TODO need to add JSON Model for this table list.
+		try {
+			String contentData = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(perfomanceBoardDetails);
+			System.out.println(contentData);
+
+			// never append the file always overwrite it as we are stroing all the details
+			// in one single file.
+			FileUtils.writeStringToFile(new File(FilesUtil.DASHBOARD_CONTENT_DATA), contentData,
+					Charset.defaultCharset(), false);
+			mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+
+			List<PerfomanceBoardBoundary> list1 = mapper.readValue(contentData,
+					mapper.getTypeFactory().constructCollectionType(List.class, PerfomanceBoardBoundary.class));
+			list1.forEach(System.out::println);
+			// can be used as alternative to the above method to read json back.
+			/*
+			 * 
+			 * List<PerfomanceBoardBoundary> myObjects = mapper.readValue(str, new
+			 * TypeReference<List<PerfomanceBoardBoundary>>() { });
+			 * myObjects.forEach(System.out::println);
+			 * 
+			 * PerfomanceBoardBoundary[] list =
+			 * mapper.reader().forType(PerfomanceBoardBoundary[].class) .readValue(str);
+			 * Arrays.stream(list).forEach(System.out::println);
+			 */
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+
+	private void loopOnTableData(TeamMemberTableBoundary m) {
+		int currentMonthDetails = datePickerFX.getValue().getMonthValue();
+		TeamMember member = constructTeamMemberBoundary(m);
+
+		member.setIntreval1(datePickerFX.getValue().getMonth().name() + " - " + datePickerFX.getValue().getYear());
+		member.setIntreval2(Month.of(currentMonthDetails + 1).name() + " - " + datePickerFX.getValue().getYear());
+		member.setIntreval3(Month.of(currentMonthDetails + 2).name() + " - " + datePickerFX.getValue().getYear());
+		member.setLink("http://localhost:8020/" + member.getPortalId());
+
+		if (managerCBX.getSelectionModel().getSelectedItem().getTeamMembers() == null)
+			managerCBX.getSelectionModel().getSelectedItem().setTeamMembers(new ArrayList<>());
+		managerCBX.getSelectionModel().getSelectedItem().getTeamMembers().add(member);
+		// this is wrong need to work on this.
+		Optional<PerfomanceBoardBoundary> o = perfomanceBoardDetails.stream()
+				.filter(p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+				.findFirst();
+
+		if (o.isPresent()) {
+
+			if (perfomanceBoardDetails.stream().filter(p -> {
+				String folderName = managerCBX.getSelectionModel().getSelectedItem().getFolderName();
+				return p.getFolderName().equals(folderName);
+			}).findFirst().get().getTeamMembers() == null)
+				// check if the list of team members is instantiated or not.
+				perfomanceBoardDetails.parallelStream()
+						.filter(p -> p.getFolderName()
+								.equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+						.findFirst().get().setTeamMembers(new ArrayList<>());
+
+			perfomanceBoardDetails.parallelStream()
+					.filter(p -> p.getFolderName()
+							.equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst().get().getTeamMembers().add(member);
+			perfomanceBoardDetails.parallelStream()
+					.filter(p -> p.getFolderName()
+							.equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst().get()
+					.setInitalDate(new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
+		} else {
+			// add to main list as it is a new entry.
+			PerfomanceBoardBoundary perfomanceBoardBoundary = new PerfomanceBoardBoundary();
+			perfomanceBoardBoundary.setFolderName(boardHeader.getText().replaceAll(" ", ""));
+			perfomanceBoardBoundary.setHeaderTxt(boardHeader.getText());
+			perfomanceBoardBoundary.setManagerDetailBoundary(managerCBX.getSelectionModel().getSelectedItem());
+			perfomanceBoardBoundary.setInitalDate(new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
+			perfomanceBoardBoundary.setTeamMembers(new ArrayList<>());
+			perfomanceBoardDetails.add(perfomanceBoardBoundary);
+		}
+		// perfomanceBoardDetails.add(boardBoundary);
+	}
+
+	private void displayOverViewDetails(ActionEvent e) {
+		if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+			popOutAlert("No Valid Team Selected to display Detais. \n "
+					+ "Select the Team Name in the Combo Box Available at the top .", "Not Valid Choice");
+		} else {
+			Optional<String> isFileDetailsExist = perfomanceBoardDetails.stream()
+					.map(PerfomanceBoardBoundary::getFolderName)
+					.filter(f -> f.equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst();
+
+			if (isFileDetailsExist.isPresent()) {
+				// get the details of board
+				PerfomanceBoardBoundary p = perfomanceBoardDetails.stream().filter(
+						f -> f.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+						.findFirst().get();
+				StringBuilder displayText = new StringBuilder();
+				displayText.append("Board Name : " + p.getHeaderTxt());
+				displayText.append("\n");
+				displayText.append("Folder Name : " + p.getFolderName());
+				displayText.append("\n");
+				displayText.append("Manager Name : " + p.getManagerDetailBoundary().getName());
+				displayText.append("\n");
+				displayText.append("Manager Portal Id : " + p.getManagerDetailBoundary().getPortalId());
+				displayText.append("\n");
+				displayText.append("Initial Date Added : " + p.getInitalDate().toString());
+
+				popOutAlert(displayText.toString(), "Team Overview Information", AlertType.INFORMATION);
+			} else {
+				popOutAlert(
+						"The Details for this folder doesn't exist . \n "
+								+ "Please add the details and save them to display the details overview.",
+						"MPS Perfomance Board");
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -598,6 +872,15 @@ public class PerfomanceBoardDetails extends HBox {
 		box.setPadding(new Insets(15));
 
 		return box;
+	}
+
+	private List<TeamMemberTableBoundary> constructTableMemberBoundary(List<TeamMember> members) {
+		List<TeamMemberTableBoundary> mtb = new ArrayList<>();
+		// construct the table readle list .
+		members.stream().forEach(m -> {
+			mtb.add(constructTableMemberBoundary(m));
+		});
+		return mtb;
 	}
 
 	private TeamMemberTableBoundary constructTableMemberBoundary(TeamMember member) {
