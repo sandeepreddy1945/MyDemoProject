@@ -48,10 +48,10 @@ public class DashboardTeamBarChart extends HBox {
 		final NumberAxis xAxis = new NumberAxis();
 		final CategoryAxis yAxis = new CategoryAxis();
 		bc = new BarChart<Number, String>(xAxis, yAxis);
-		bc.setTitle("Points Scored by Team");
+		bc.setTitle("Current Sprint Activities");
 		xAxis.setLabel("Points Achieved");
 		xAxis.setTickLabelRotation(90);
-		yAxis.setLabel("Progress");
+		yAxis.setLabel("In Progress");
 
 		bc.setBarGap(1);
 		bc.setCategoryGap(0);
@@ -59,13 +59,13 @@ public class DashboardTeamBarChart extends HBox {
 		XYChart.Series<Number, String> series1 = new Series<>();
 		XYChart.Series<Number, String> series2 = new Series<>();
 		XYChart.Series<Number, String> series3 = new Series<>();
-		series1.setName("Pending Progress");
-		series2.setName("Current Progress");
-		series3.setName("Total Progress");
+		series1.setName("Total Points");
+		series2.setName("Commited Points");
+		series3.setName("Pending Points");
 		// currently set the data to 0 and later animate it using animater,
-		series3.getData().add(new XYChart.Data<Number, String>(0, "Total Progress"));
-		series2.getData().add(new XYChart.Data<Number, String>(0, "Current Progress"));
-		series1.getData().add(new XYChart.Data<Number, String>(0, "Pending Progress"));
+		series3.getData().add(new XYChart.Data<Number, String>(0, "Total Points"));
+		series2.getData().add(new XYChart.Data<Number, String>(0, "Commited Points"));
+		series1.getData().add(new XYChart.Data<Number, String>(0, "Pending Points"));
 
 		bc.getData().addAll(series1, series2, series3);
 

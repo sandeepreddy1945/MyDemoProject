@@ -102,7 +102,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		// member details .
 		Tile memberTextTile = TileBuilder.create().skinType(SkinType.TEXT).prefSize(240, 200).title(member.getName())
 				.text("Team Member")
-				.description(member.getPortalId() + "\n" + member.getName() + "\n" + member.getDescription())
+				.description("Portal Id: "+ member.getPortalId() + "\n" + member.getName() + "\n" + member.getDescription())
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
 		// member perfomance score tile

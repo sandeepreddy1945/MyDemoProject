@@ -7,13 +7,12 @@ import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.Gauge.NeedleShape;
 import eu.hansolo.medusa.Gauge.NeedleSize;
 import eu.hansolo.medusa.Gauge.SkinType;
-import eu.hansolo.tilesfx.Tile;
-import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.TickMarkType;
+import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.TileBuilder;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -128,19 +127,19 @@ public class DashboardTeamProgressViewer extends HBox {
 
 		private void initGraphics() {
 			rpmGauge = GaugeBuilder.create().borderPaint(Color.WHITE).foregroundBaseColor(Color.WHITE)
-					.prefSize(400, 250).startAngle(290).angleRange(220).minValue(0).maxValue(4000).valueVisible(true)
+					.prefSize(400, 250).startAngle(290).angleRange(220).minValue(0).maxValue(1000).valueVisible(true)
 					.minorTickMarksVisible(false).majorTickMarkType(TickMarkType.BOX)
-					.mediumTickMarkType(TickMarkType.BOX).title("Perfomance %").needleShape(NeedleShape.ROUND)
+					.mediumTickMarkType(TickMarkType.BOX).title("Perfomance").needleShape(NeedleShape.ROUND)
 					.needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38)).knobColor(Gauge.DARK_COLOR)
 					.customTickLabelsEnabled(true).customTickLabelFontSize(40)
-					.customTickLabels("0", "", "20", "", "40", "", "60", "", "80", "", "100").animated(true).build();
+					.customTickLabels("0", "", "200", "", "400", "", "600", "", "800", "", "1000").animated(true).build();
 
 			currentProgress = GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170, 170)
-					.foregroundBaseColor(Color.WHITE).title("CURRENT").valueVisible(false).angleRange(90).maxValue(2000)
+					.foregroundBaseColor(Color.WHITE).title("CURRENT").valueVisible(false).angleRange(90).maxValue(600)
 					.needleShape(NeedleShape.ROUND).needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38))
 					.minorTickMarksVisible(false).mediumTickMarksVisible(false).majorTickMarkType(TickMarkType.BOX)
 					.knobColor(Gauge.DARK_COLOR).customTickLabelsEnabled(true).customTickLabelFontSize(36)
-					.customTickLabels("0", "", "", "", "", "1000", "", "", "", "", "2000").animated(true).build();
+					.customTickLabels("0", "", "", "", "", "400", "", "", "", "", "800").animated(true).build();
 
 			pendingProgress = GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170, 170).valueVisible(true)
 					.foregroundBaseColor(Color.WHITE).title("PENDING").valueVisible(false).angleRange(90)

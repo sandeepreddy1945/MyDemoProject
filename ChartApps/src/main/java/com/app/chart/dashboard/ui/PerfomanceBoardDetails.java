@@ -17,8 +17,10 @@ import java.util.Random;
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.FilesUtil;
+import com.app.chart.model.CurrentSprintBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
+import com.app.chart.model.PerfomanceMeterBoundary;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.ui.DashboardUI;
@@ -256,15 +258,188 @@ public class PerfomanceBoardDetails extends HBox {
 			}
 		});
 
+		JFXButton teamPerfomanceMeter = new JFXButton("Team Perfomance Meter");
+		teamPerfomanceMeter.setOnAction(e -> {
+			if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+				popOutAlert("Not a Valid Team Name Selected To Add The Graph . \n "
+						+ "Select a Valid Team Name and then proceed.", "Perfomance Chart");
+			} else {
+				displayAddPerfomanceMeter(managerCBX.getSelectionModel().getSelectedItem().getFolderName());
+			}
+		});
+
+		teamPerfomanceMeter.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				addManager.fire();
+			}
+		});
+
+		JFXButton currentSprintACBtn = new JFXButton("Add Current Sprint Details");
+		currentSprintACBtn.setOnAction(e -> {
+			if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+				popOutAlert("Not a Valid Team Name Selected To Add The Graph . \n "
+						+ "Select a Valid Team Name and then proceed.", "Perfomance Chart");
+			} else {
+				displayAddSprintData(managerCBX.getSelectionModel().getSelectedItem().getFolderName());
+			}
+		});
 		addManager.setAlignment(Pos.CENTER_RIGHT);
 
-		box.getChildren().addAll(boardHeader, managerCBX, datePickerFX, addManager, addSunburstChart);
+		box.getChildren().addAll(boardHeader, managerCBX, datePickerFX, addManager, addSunburstChart,
+				teamPerfomanceMeter, currentSprintACBtn);
 
 		box.setMinSize(WIDTH, 90);
 		box.setPrefSize(WIDTH, 110);
 		box.setPadding(new Insets(15));
 
 		return box;
+	}
+
+	private void displayAddSprintData(String teamName) {
+
+		JFXAlert<String> alert = new JFXAlert<>();
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setOverlayClose(false);
+		JFXDialogLayout layout = new JFXDialogLayout();
+		layout.setHeading(new Text("Add Perfomance Meter Stats"));
+		layout.setMinSize(500, 200);
+
+		HBox box = new HBox(10);
+		JFXNumberField totalPoints = new JFXNumberField();
+		totalPoints.setPromptText("Total Sprint Points");
+		JFXNumberField currentPoints = new JFXNumberField();
+		currentPoints.setPromptText("Current Sprint Points");
+		JFXNumberField backlogPoints = new JFXNumberField();
+		backlogPoints.setPromptText("Backlog Sprint Points");
+
+		// adding validator for all these fields
+		DashboardUtil.buildRequestValidator(totalPoints, currentPoints, backlogPoints);
+		box.getChildren().addAll(totalPoints, currentPoints, backlogPoints);
+		layout.setBody(box);
+
+		JFXButton okBtn = new JFXButton("OK");
+		okBtn.getStyleClass().add("dialog-accept");
+
+		okBtn.setOnAction(e -> onSprintDatAddOk(teamName, alert, totalPoints, currentPoints, backlogPoints));
+
+		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+				+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+				+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+		JFXButton cancelBtn = new JFXButton("Cancel");
+		cancelBtn.setOnAction(e -> {
+			alert.hideWithAnimation();
+		});
+		// add enter button listener on the button
+		okBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+
+		cancelBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+		layout.setActions(okBtn, cancelBtn);
+		alert.setContent(layout);
+		alert.show();
+
+	}
+
+	private void onSprintDatAddOk(String teamName, JFXAlert<String> alert, JFXNumberField totalPoints,
+			JFXNumberField currentPoints, JFXNumberField backlogPoints) {
+
+		if (DashboardUtil.validateTextField(totalPoints, currentPoints, backlogPoints) && teamName != null
+				&& teamName.length() > 0) {
+			CurrentSprintBoundary sprintBoundary = new CurrentSprintBoundary();
+			sprintBoundary.setTotalSprintPoints(Double.valueOf(totalPoints.getText()));
+			sprintBoundary.setCurrentSprintPoints(Double.valueOf(currentPoints.getText()));
+			sprintBoundary.setBacklogSprintPoints(Double.valueOf(backlogPoints.getText()));
+
+			Optional<PerfomanceBoardBoundary> details = perfomanceBoardDetails.parallelStream().filter(
+					p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst();
+			if (details.isPresent()) {
+				details.get().setCurrentSprintBoundary(sprintBoundary);
+			}
+			alert.hideWithAnimation();
+		}
+
+	}
+
+	private void displayAddPerfomanceMeter(String teamName) {
+
+		JFXAlert<String> alert = new JFXAlert<>();
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setOverlayClose(false);
+		JFXDialogLayout layout = new JFXDialogLayout();
+		layout.setHeading(new Text("Add Perfomance Meter Stats"));
+		layout.setMinSize(500, 200);
+
+		HBox box = new HBox(10);
+		JFXNumberField totalPoints = new JFXNumberField();
+		totalPoints.setPromptText("Total Points");
+		JFXNumberField currentPoints = new JFXNumberField();
+		currentPoints.setPromptText("Current Points");
+		JFXNumberField backlogPoints = new JFXNumberField();
+		backlogPoints.setPromptText("Backlog Points");
+
+		// adding validator for all these fields
+		DashboardUtil.buildRequestValidator(totalPoints, currentPoints, backlogPoints);
+		box.getChildren().addAll(totalPoints, currentPoints, backlogPoints);
+		layout.setBody(box);
+
+		JFXButton okBtn = new JFXButton("OK");
+		okBtn.getStyleClass().add("dialog-accept");
+
+		okBtn.setOnAction(e -> onPerfomanceMeterOkAction(teamName, alert, totalPoints, currentPoints, backlogPoints));
+
+		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+				+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+				+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+		JFXButton cancelBtn = new JFXButton("Cancel");
+		cancelBtn.setOnAction(e -> {
+			alert.hideWithAnimation();
+		});
+		// add enter button listener on the button
+		okBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+
+		cancelBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+		layout.setActions(okBtn, cancelBtn);
+		alert.setContent(layout);
+		alert.show();
+
+	}
+
+	private void onPerfomanceMeterOkAction(String teamName, JFXAlert<String> alert, JFXNumberField totalPoints,
+			JFXNumberField currentPoints, JFXNumberField backlogPoints) {
+
+		if (DashboardUtil.validateTextField(totalPoints, currentPoints, backlogPoints) && teamName != null
+				&& teamName.length() > 0) {
+			PerfomanceMeterBoundary meterBoundary = new PerfomanceMeterBoundary();
+			meterBoundary.setTotalPoints(Double.valueOf(totalPoints.getText()));
+			meterBoundary.setCurrentPoints(Double.valueOf(currentPoints.getText()));
+			meterBoundary.setBacklogPoints(Double.valueOf(backlogPoints.getText()));
+
+			Optional<PerfomanceBoardBoundary> details = perfomanceBoardDetails.parallelStream().filter(
+					p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst();
+			if (details.isPresent()) {
+				details.get().setPerfomanceMeterBoundary(meterBoundary);
+			}
+			alert.hideWithAnimation();
+		}
 	}
 
 	private void displayAddManagerDialog(String teamName) {
@@ -558,7 +733,8 @@ public class PerfomanceBoardDetails extends HBox {
 				PerfomanceBoardBoundary p = details.get();
 				try {
 					DashboardUI dashboardUI = new DashboardUI(p.getTeamMembers(), p.getHeaderTxt(),
-							p.getManagerDetailBoundary(), p.getSunburstBoundary(), dashboardUIPreview);
+							p.getManagerDetailBoundary(), p.getSunburstBoundary(), p.getPerfomanceMeterBoundary(),
+							p.getCurrentSprintBoundary(), dashboardUIPreview);
 					// dashboardUIPreview.show();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block

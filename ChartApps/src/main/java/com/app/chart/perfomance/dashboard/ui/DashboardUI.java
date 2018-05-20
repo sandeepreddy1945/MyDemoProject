@@ -15,7 +15,9 @@ import java.util.Random;
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.FilesUtil;
+import com.app.chart.model.CurrentSprintBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
+import com.app.chart.model.PerfomanceMeterBoundary;
 import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
@@ -84,6 +86,8 @@ public class DashboardUI extends Application {
 	static ManagerDetailBoundary testBoundary = new ManagerDetailBoundary();
 	private final SunburstBoundary sunburstBoundary;
 	private DashboardSunburnChart sunburnChart;
+	private final PerfomanceMeterBoundary perfomanceMeterBoundary;
+	private final CurrentSprintBoundary currentSprintBoundary;
 
 	/**
 	 * @param teamMembers
@@ -96,6 +100,8 @@ public class DashboardUI extends Application {
 		this.headerTxt = headerTxt;
 		this.managerDetailBoundary = managerDetailBoundary;
 		this.sunburstBoundary = null;
+		this.perfomanceMeterBoundary = null;
+		this.currentSprintBoundary = null;
 		// init the UI using the init method.
 		init();
 	}
@@ -110,12 +116,15 @@ public class DashboardUI extends Application {
 	 * @throws Exception
 	 */
 	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary,
-			SunburstBoundary sunburstBoundary, Dialog dialog) throws Exception {
+			SunburstBoundary sunburstBoundary, PerfomanceMeterBoundary perfomanceMeterBoundary,
+			CurrentSprintBoundary currentSprintBoundary, Dialog dialog) throws Exception {
 		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
 		this.teamMembers = teamMembers;
 		this.headerTxt = headerTxt;
 		this.managerDetailBoundary = managerDetailBoundary;
 		this.sunburstBoundary = sunburstBoundary;
+		this.perfomanceMeterBoundary = perfomanceMeterBoundary;
+		this.currentSprintBoundary = currentSprintBoundary;
 		// init the UI using the init method.
 		init();
 
@@ -340,7 +349,14 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeTeamProgressViewer() {
-		DashboardTeamProgressViewer progressViewer = new DashboardTeamProgressViewer(2400, 1210, 90);
+		DashboardTeamProgressViewer progressViewer = null;
+		if (perfomanceMeterBoundary != null) {
+			progressViewer = new DashboardTeamProgressViewer(perfomanceMeterBoundary.getTotalPoints(),
+					perfomanceMeterBoundary.getCurrentPoints(), perfomanceMeterBoundary.getBacklogPoints());
+		} else {
+			// by default set the values to 0
+			progressViewer = new DashboardTeamProgressViewer(0, 0, 0);
+		}
 		return progressViewer;
 	}
 
@@ -387,7 +403,14 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeHeaderTeamPointsViewer() {
-		DashboardTeamBarChart dashboardTeamBarChart = new DashboardTeamBarChart(100, 90, 10);
+		DashboardTeamBarChart dashboardTeamBarChart = null;
+		if (currentSprintBoundary != null) {
+			dashboardTeamBarChart = new DashboardTeamBarChart(currentSprintBoundary.getTotalSprintPoints(),
+					currentSprintBoundary.getCurrentSprintPoints(), currentSprintBoundary.getBacklogSprintPoints());
+		} else {
+			dashboardTeamBarChart = new DashboardTeamBarChart(100, 90, 10);
+		}
+
 		return dashboardTeamBarChart;
 	}
 
