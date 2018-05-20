@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,8 +53,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
@@ -819,6 +820,12 @@ public class PerfomanceBoardDetails extends HBox {
 			member.setIntreval1(datePickerFX.getValue().getMonth().name() + " - " + datePickerFX.getValue().getYear());
 			member.setIntreval2(Month.of(currentMonthDetails + 1).name() + " - " + datePickerFX.getValue().getYear());
 			member.setIntreval3(Month.of(currentMonthDetails + 2).name() + " - " + datePickerFX.getValue().getYear());
+		} else {
+			LocalDate localDate = LocalDate.now();
+			int currentMonthDetails = localDate.getMonthValue();
+			member.setIntreval1(LocalDate.now().getMonth().name() + " - " + localDate.getYear());
+			member.setIntreval2(Month.of(currentMonthDetails + 1).name() + " - " + localDate.getYear());
+			member.setIntreval3(Month.of(currentMonthDetails + 2).name() + " - " + localDate.getYear());
 		}
 		member.setLink("http://localhost:8020/" + member.getPortalId());
 

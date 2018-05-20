@@ -100,7 +100,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		ImageView memberImage = fetchMemberImage(member);
 
 		// member details .
-		Tile memberTextTile = TileBuilder.create().skinType(SkinType.TEXT).prefSize(240, 200).title(member.getName())
+		Tile memberTextTile = TileBuilder.create().skinType(SkinType.TEXT).prefSize(230, 200).title(member.getName())
 				.text("Team Member")
 				.description("Portal Id: "+ member.getPortalId() + "\n" + member.getName() + "\n" + member.getDescription())
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
@@ -151,7 +151,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 				.foregroundBaseColor(Color.WHITE).animated(true).build();
 
 		thirdGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION)
-				.title(member.getIntreval3() == null ? "JAN" : member.getIntreval3()).prefSize(200, 200).unit("Points")
+				.title(member.getIntreval3() == null ? "MAR" : member.getIntreval3()).prefSize(200, 200).unit("Points")
 				.titleColor(Color.WHITE).unitColor(Color.WHITE).valueColor(Color.WHITE)
 				.sections(new Section(0, 33, Color.LIME), new Section(33, 66, Color.YELLOW),
 						new Section(66, 100, Color.CRIMSON))
@@ -159,6 +159,9 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 		flipTile = TileBuilder.create().skinType(SkinType.FLIP).prefSize(200, 200).characters(Helper.TIME_00_TO_59)
 				.flipTimeInMS(500).flipText(" ").title("Timer ").build();
+		
+		Tile memberImageDP = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(200, 200).title("")
+				.text("").graphic(memberImage).roundedCorners(true).build();
 
 		// stop and start the animation timer once the page is reloaded.
 		// This consevers the threads as well.
@@ -168,7 +171,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		}
 
 		// add all componets in order
-		indBox.getChildren().addAll(memberImage, memberTextTile, funBox, memberGaugeTile, modernGuage, secondGuage,
+		indBox.getChildren().addAll(memberImageDP, memberTextTile, funBox, memberGaugeTile, modernGuage, secondGuage,
 				thirdGuage, flipTile);
 		HBox.setHgrow(indBox, Priority.ALWAYS);
 
@@ -208,8 +211,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 			}
 		}
 		ImageView imageView = new ImageView();
-		imageView.setFitHeight(200);
-		imageView.setFitWidth(250);
+		imageView.setFitHeight(190);
+		imageView.setFitWidth(190);
 		imageView.setPreserveRatio(true);
 		try {
 			imageView.setImage(new Image(FileUtils.openInputStream(imgFile)));
