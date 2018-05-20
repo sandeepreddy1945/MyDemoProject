@@ -233,9 +233,32 @@ public class PerfomanceBoardDetails extends HBox {
 			}
 		});
 
+		JFXButton addSunburstChart = new JFXButton("Add Release Graph");
+		addSunburstChart.setOnAction(e -> {
+			if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+				popOutAlert("Not a Valid Team Name Selected To Add The Graph . \n "
+						+ "Select a Valid Team Name and then proceed.", "Perfomance Chart");
+			} else {
+				PerfomanceBoardBoundary pbb = perfomanceBoardDetails.parallelStream().filter(
+						p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+						.findFirst().get();
+				Dialog sunBurstEditor = new Dialog<>();
+				sunBurstEditor.setResizable(true);
+				ReleaseBoardDetails boardDetails = new ReleaseBoardDetails(pbb.getFolderName(), pbb, sunBurstEditor);
+
+				sunBurstEditor.show();
+			}
+		});
+
+		addSunburstChart.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				addManager.fire();
+			}
+		});
+
 		addManager.setAlignment(Pos.CENTER_RIGHT);
 
-		box.getChildren().addAll(boardHeader, managerCBX, datePickerFX, addManager);
+		box.getChildren().addAll(boardHeader, managerCBX, datePickerFX, addManager, addSunburstChart);
 
 		box.setMinSize(WIDTH, 90);
 		box.setPrefSize(WIDTH, 110);
@@ -535,8 +558,8 @@ public class PerfomanceBoardDetails extends HBox {
 				PerfomanceBoardBoundary p = details.get();
 				try {
 					DashboardUI dashboardUI = new DashboardUI(p.getTeamMembers(), p.getHeaderTxt(),
-							p.getManagerDetailBoundary(), dashboardUIPreview);
-					//dashboardUIPreview.show();
+							p.getManagerDetailBoundary(), p.getSunburstBoundary(), dashboardUIPreview);
+					// dashboardUIPreview.show();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -611,12 +634,16 @@ public class PerfomanceBoardDetails extends HBox {
 	}
 
 	private void loopOnTableData(TeamMemberTableBoundary m) {
-		int currentMonthDetails = datePickerFX.getValue().getMonthValue();
-		TeamMember member = constructTeamMemberBoundary(m);
 
-		member.setIntreval1(datePickerFX.getValue().getMonth().name() + " - " + datePickerFX.getValue().getYear());
-		member.setIntreval2(Month.of(currentMonthDetails + 1).name() + " - " + datePickerFX.getValue().getYear());
-		member.setIntreval3(Month.of(currentMonthDetails + 2).name() + " - " + datePickerFX.getValue().getYear());
+		TeamMember member = constructTeamMemberBoundary(m);
+		// if time not set just leave it alone with old date.
+		if (datePickerFX.getValue() != null) {
+			int currentMonthDetails = datePickerFX.getValue().getMonthValue();
+
+			member.setIntreval1(datePickerFX.getValue().getMonth().name() + " - " + datePickerFX.getValue().getYear());
+			member.setIntreval2(Month.of(currentMonthDetails + 1).name() + " - " + datePickerFX.getValue().getYear());
+			member.setIntreval3(Month.of(currentMonthDetails + 2).name() + " - " + datePickerFX.getValue().getYear());
+		}
 		member.setLink("http://localhost:8020/" + member.getPortalId());
 
 		if (managerCBX.getSelectionModel().getSelectedItem().getTeamMembers() == null)
@@ -643,18 +670,22 @@ public class PerfomanceBoardDetails extends HBox {
 					.filter(p -> p.getFolderName()
 							.equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
 					.findFirst().get().getTeamMembers().add(member);
+
+			// set the system date time if not specified.
 			perfomanceBoardDetails.parallelStream()
 					.filter(p -> p.getFolderName()
 							.equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
-					.findFirst().get()
-					.setInitalDate(new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
+					.findFirst().get().setInitalDate(datePickerFX.getValue() == null ? new java.util.Date()
+							: new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
+
 		} else {
 			// add to main list as it is a new entry.
 			PerfomanceBoardBoundary perfomanceBoardBoundary = new PerfomanceBoardBoundary();
 			perfomanceBoardBoundary.setFolderName(boardHeader.getText().replaceAll(" ", ""));
 			perfomanceBoardBoundary.setHeaderTxt(boardHeader.getText());
 			perfomanceBoardBoundary.setManagerDetailBoundary(managerCBX.getSelectionModel().getSelectedItem());
-			perfomanceBoardBoundary.setInitalDate(new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
+			perfomanceBoardBoundary.setInitalDate(datePickerFX.getValue() == null ? new java.util.Date()
+					: new java.util.Date(Date.valueOf(datePickerFX.getValue()).getTime()));
 			perfomanceBoardBoundary.setTeamMembers(new ArrayList<>());
 			perfomanceBoardDetails.add(perfomanceBoardBoundary);
 		}

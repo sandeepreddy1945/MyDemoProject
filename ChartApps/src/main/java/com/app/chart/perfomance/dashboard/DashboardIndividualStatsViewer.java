@@ -7,13 +7,13 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
+import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.TeamMember;
 
 import eu.hansolo.FunLevelGauge;
@@ -22,8 +22,8 @@ import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
-import eu.hansolo.tilesfx.tools.Helper;
 import eu.hansolo.tilesfx.TileBuilder;
+import eu.hansolo.tilesfx.tools.Helper;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -58,7 +58,6 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	private Gauge thirdGuage;
 	private Gauge secondGuage;
 	private Tile flipTile;
-	private Random rd;
 
 	public DashboardIndividualStatsViewer(List<TeamMember> teamMembers) {
 		super(teamMembers);
@@ -102,7 +101,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 		// member details .
 		Tile memberTextTile = TileBuilder.create().skinType(SkinType.TEXT).prefSize(240, 200).title(member.getName())
-				.text("Team Member").description(member.getDescription() + "\n" + member.getExtraDescription())
+				.text("Team Member")
+				.description(member.getPortalId() + "\n" + member.getName() + "\n" + member.getDescription())
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
 		// member perfomance score tile
@@ -135,8 +135,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 				.sections(new Section(85, 90, "", Color.rgb(204, 0, 0, 0.5)),
 						new Section(90, 95, "", Color.rgb(204, 0, 0, 0.75)),
 						new Section(95, 100, "", Color.rgb(204, 0, 0)))
-				.sectionTextVisible(true).title("Sept").unit("Points").threshold(85).thresholdVisible(true)
-				.animated(true).build();
+				.sectionTextVisible(true).title(member.getIntreval1() == null ? "JAN" : member.getIntreval1())
+				.unit("Points").threshold(85).thresholdVisible(true).animated(true).build();
 
 		// alternative guage here for second one
 		// TODO select one of them both.
@@ -145,12 +145,15 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		 * .foregroundBaseColor(Color.rgb(0, 249, 222)) .barColor(Color.rgb(0, 249,
 		 * 222)) .unit("KPH") .animated(true) .build();
 		 */
-		secondGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.FLAT).title("Flat").unit("Points")
-				.prefSize(200, 200).foregroundBaseColor(Color.WHITE).animated(true).build();
+		// imp to exempt from null pointers, which stop the display itself.
+		secondGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.FLAT)
+				.title(member.getIntreval2() == null ? "FEB" : member.getIntreval2()).unit("Points").prefSize(200, 200)
+				.foregroundBaseColor(Color.WHITE).animated(true).build();
 
-		thirdGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION).title("Title")
-				.prefSize(200, 200).unit("Points").titleColor(Color.WHITE).unitColor(Color.WHITE)
-				.valueColor(Color.WHITE).sections(new Section(0, 33, Color.LIME), new Section(33, 66, Color.YELLOW),
+		thirdGuage = GaugeBuilder.create().skinType(eu.hansolo.medusa.Gauge.SkinType.SIMPLE_SECTION)
+				.title(member.getIntreval3() == null ? "JAN" : member.getIntreval3()).prefSize(200, 200).unit("Points")
+				.titleColor(Color.WHITE).unitColor(Color.WHITE).valueColor(Color.WHITE)
+				.sections(new Section(0, 33, Color.LIME), new Section(33, 66, Color.YELLOW),
 						new Section(66, 100, Color.CRIMSON))
 				.build();
 
@@ -186,14 +189,23 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 	public ImageView fetchMemberImage(TeamMember member) {
 		// for now hard coded for dev purpose
 		// TODO to change the hard coded value to get the image by portal ID.
-		rd = new Random();
-		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/" + 1 + ".jpg");
+
 		File imgFile = null;
 		try {
+			URL url1 = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + member.getPortalId() + ".png").toURI()
+					.toURL();
 			imgFile = new File(url1.toURI().getPath());
-		} catch (URISyntaxException e1) {
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			// image not found assign default image.
+			try {
+				imgFile = new File(
+						ClassLoader.getSystemResource("com/app/chart/images/default.png").toURI().toURL().getPath());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		ImageView imageView = new ImageView();
 		imageView.setFitHeight(200);

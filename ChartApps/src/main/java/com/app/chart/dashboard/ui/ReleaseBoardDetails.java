@@ -3,21 +3,25 @@
  */
 package com.app.chart.dashboard.ui;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.io.FileUtils;
+
+import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CustomColor;
+import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.SunburstBoundary.ReleaseBoundary;
 import com.app.chart.model.SunburstBoundary.ReleaseBoundary.ReleaseAttrBoundary;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.charts.utilities.JFXNumberField;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
@@ -35,23 +39,34 @@ import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.chart.ChartData;
 import eu.hansolo.tilesfx.chart.SunburstChart.TextOrientation;
 import eu.hansolo.tilesfx.tools.TreeNode;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 /**
  * @author Sandeep
  *
  */
-public class ReleaseBoardDetails extends HBox {
+public class ReleaseBoardDetails {
+	
+	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+	public static double WIDTH = visualBounds.getWidth() - 200;
+	public static double HEIGHT = visualBounds.getHeight() - 200;
 
 	private static final String SUNBURN_CHART = "Sunburn Chart";
 	private static final String RADIAL_CHART = "Radial Chart";
@@ -72,11 +87,37 @@ public class ReleaseBoardDetails extends HBox {
 	private VBox vbox;
 
 	private ObjectMapper mapper = new ObjectMapper();
+	private final String teamNameHdr;
+	private final PerfomanceBoardBoundary perfomanceBoardBoundary;
+	private HBox releaseBoardBox = new HBox(5);
 
-	public ReleaseBoardDetails() {
-		super(5);
+	public ReleaseBoardDetails(String teamHeader, PerfomanceBoardBoundary perfomanceBoardBoundary, Dialog dialog) {
+		
+		this.teamNameHdr = teamHeader;
+		this.perfomanceBoardBoundary = perfomanceBoardBoundary;
+		// if the teamheader Name is not proper then donot dispay it only
+		if (teamHeader != null && teamHeader.length() > 0 && perfomanceBoardBoundary != null) {
+			initUI();
+			Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+			// set onclose request for the dialog.
+			Window window = dialog.getDialogPane().getScene().getWindow();
+			window.setOnCloseRequest(event -> window.hide());
 
-		initUI();
+			// stage.setMaximized(true);
+			stage.setMinHeight(HEIGHT);
+			stage.setMinWidth(WIDTH);
+			// stage.setFullScreen(true);
+
+			Scene scene = new Scene(releaseBoardBox, WIDTH - 10, HEIGHT - 10);
+			stage.setScene(scene);
+
+			Platform.runLater(() -> stage.show());
+
+		} else {
+			popOutAlert("Not Valid Selection Made So cannot edit the Sunburst Release Chart");
+			return;
+		}
+
 	}
 
 	private void initUI() {
@@ -99,10 +140,12 @@ public class ReleaseBoardDetails extends HBox {
 		});
 
 		editBox.setMinWidth(600);
-		setMinSize(1200, 800);
+		releaseBoardBox.setMinSize(1200, 800);
 		vbox = new VBox(20);
 		vbox.getChildren().addAll(pickBox, new JFXTreeViewPath(treeView));
-		getChildren().addAll(treeView, vbox);
+		// getChildren().addAll(treeView, vbox);
+
+		releaseBoardBox.getChildren().addAll(treeView, vbox);
 	}
 
 	private HBox sunBurnChartEditor() {
@@ -209,12 +252,24 @@ public class ReleaseBoardDetails extends HBox {
 					 * mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 					 * mapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
 					 */
-					String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
-					System.out.println(str);
-					mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-					mapper.reader().forType(SunburstBoundary.class).readValue(str);
-					SunburstBoundary boundary = mapper.readValue(str, SunburstBoundary.class);
-					System.out.println(boundary.toString());
+					String sunBurstData = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
+					System.out.println(sunBurstData);
+					/*
+					 * mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+					 * mapper.reader().forType(SunburstBoundary.class).readValue(sunBurstData);
+					 * SunburstBoundary boundary = mapper.readValue(sunBurstData,
+					 * SunburstBoundary.class); System.out.println(boundary.toString());
+					 */
+
+					// set the sunburst boundary to the main boundary.
+					perfomanceBoardBoundary.setSunburstBoundary(b);
+
+					// create a file with the sunburst bounday json
+					// append the file with different things filled for log review purpose in order
+					// not to lose data later.
+					FileUtils.writeStringToFile(new File(
+							FilesUtil.DASHBOARD_CONTENT_PATH + FilesUtil.SLASH + teamNameHdr + "_" + "sunburst.json"),
+							sunBurstData, Charset.defaultCharset(), true);
 				} catch (JsonProcessingException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

@@ -28,7 +28,7 @@ public class DashboardUITest extends Application {
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
 
-		Scene scene = new Scene(new PerfomanceBoardDetails(new File(FilesUtil.DASHBOARD_CONTENT_DATA)), WIDTH, HEIGHT);
+		Scene scene = new Scene(/*new ReleaseBoardDetails("", null)*/new PerfomanceBoardDetails(new File(FilesUtil.DASHBOARD_CONTENT_DATA)), WIDTH, HEIGHT);
 		stage.setScene(scene);
 		stage.show();
 

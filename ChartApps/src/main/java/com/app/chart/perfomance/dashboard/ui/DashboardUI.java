@@ -14,7 +14,9 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
+import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.ManagerDetailBoundary;
+import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
 import com.app.chart.perfomance.dashboard.DashboardHeader;
@@ -79,6 +81,9 @@ public class DashboardUI extends Application {
 	private HBox hbox;
 	private final String headerTxt;
 	private final ManagerDetailBoundary managerDetailBoundary;
+	static ManagerDetailBoundary testBoundary = new ManagerDetailBoundary();
+	private final SunburstBoundary sunburstBoundary;
+	private DashboardSunburnChart sunburnChart;
 
 	/**
 	 * @param teamMembers
@@ -90,6 +95,7 @@ public class DashboardUI extends Application {
 		this.teamMembers = teamMembers;
 		this.headerTxt = headerTxt;
 		this.managerDetailBoundary = managerDetailBoundary;
+		this.sunburstBoundary = null;
 		// init the UI using the init method.
 		init();
 	}
@@ -104,11 +110,12 @@ public class DashboardUI extends Application {
 	 * @throws Exception
 	 */
 	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary,
-			Dialog dialog) throws Exception {
+			SunburstBoundary sunburstBoundary, Dialog dialog) throws Exception {
 		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
 		this.teamMembers = teamMembers;
 		this.headerTxt = headerTxt;
 		this.managerDetailBoundary = managerDetailBoundary;
+		this.sunburstBoundary = sunburstBoundary;
 		// init the UI using the init method.
 		init();
 
@@ -126,7 +133,9 @@ public class DashboardUI extends Application {
 		hbox.setBackground(DashboardUtil.BLACK_BACKGROUND);
 
 		stage.setScene(scene);
+
 		Platform.runLater(() -> stage.show());
+
 	}
 
 	/**
@@ -136,7 +145,8 @@ public class DashboardUI extends Application {
 	 */
 	public DashboardUI() throws Exception {
 		// some default title juzz for testing
-		this(null, "Sandeep Reddy", null);
+		this(teamMembers(), "Sandeep Reddy", testBoundary);
+		testBoundary.setName("Sandeep Reddy");
 	}
 
 	/*
@@ -180,7 +190,12 @@ public class DashboardUI extends Application {
 
 		// Either of The barchart or the stack can be used by uncommenting
 		// TODO to decide on which chart to use.
-		thirdLayer.getChildren().addAll(barChart /* sunbutnChart */, pieChart, stackBarChart);
+		// display on sunburst when dispayable //else display barchart instead of it.
+		if (sunburnChart.isSunburstChartDisplayable()) {
+			thirdLayer.getChildren().addAll(/* barChart */ sunbutnChart, pieChart, stackBarChart);
+		} else {
+			thirdLayer.getChildren().addAll(barChart /* sunbutnChart */, pieChart, stackBarChart);
+		}
 
 		HBox fourthLayer = initializeIndividualStatsViewer();
 
@@ -230,15 +245,34 @@ public class DashboardUI extends Application {
 		try {
 			// TODO to change this to dynamic
 			// Kept Juzz for testing.
-			URL url1 = ClassLoader.getSystemResource("com/app/chart/images/10.jpg");
-			URL url2 = ClassLoader.getSystemResource("com/app/chart/images/11.jpg");
+			URL url1 = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + teamMembers.get(0).getPortalId() + ".png")
+					.toURI().toURL();
+			URL url2 = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + teamMembers.get(1).getPortalId() + ".png")
+					.toURI().toURL();
 			File logo1 = new File(url1.toURI().getPath());
-			File logo2 = new File(url1.toURI().getPath());
+			File logo2 = new File(url2.toURI().getPath());
 
-			dashboardImageViewer = new DashboardImageViewer(logo1, logo2, null);
+			dashboardImageViewer = new DashboardImageViewer(logo1, logo2, teamMembers);
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			// when file not found
+			URL url3 = ClassLoader.getSystemResource("com/app/chart/images/default.png");
+
+			File logo1;
+			try {
+				logo1 = new File(url3.toURI().getPath());
+				File logo2 = new File(url3.toURI().getPath());
+
+				dashboardImageViewer = new DashboardImageViewer(logo1, logo2, teamMembers);
+			} catch (URISyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 		return dashboardImageViewer;
 
@@ -365,20 +399,29 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeSunburnChart() {
-		DashboardSunburnChart sunburnChart = new DashboardSunburnChart();
+		sunburnChart = new DashboardSunburnChart(sunburstBoundary);
 		return sunburnChart;
 	}
 
 	private Tile initializeManagerPicture() {
-		URL url1 = ClassLoader.getSystemResource("com/app/chart/images/1.jpg");
+
 		File logo1;
 		Image image = null;
 		try {
+			URL url1 = new File(
+					FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + managerDetailBoundary.getPortalId() + ".png").toURI()
+							.toURL();
 			logo1 = new File(url1.toURI().getPath());
 			image = new Image(FileUtils.openInputStream(logo1));
-		} catch (URISyntaxException | IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			try {
+				image = new Image(ClassLoader.getSystemResource("com/app/chart/images/default.png").openStream());
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 		ImageView imageView = new ImageView(image);
@@ -444,7 +487,7 @@ public class DashboardUI extends Application {
 		member.setIntreval2(randomString());
 		member.setIntreval3(randomString());
 		member.setLink(randomString());
-		member.setPortalId(randomString());
+		member.setPortalId(String.valueOf(randomNumber()));
 		member.setScore1(randomNumber());
 		member.setScore2(randomNumber());
 		member.setScore3(randomNumber());

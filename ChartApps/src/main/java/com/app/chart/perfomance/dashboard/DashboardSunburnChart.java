@@ -3,6 +3,8 @@
  */
 package com.app.chart.perfomance.dashboard;
 
+import com.app.chart.model.SunburstBoundary;
+
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.Tile.SkinType;
@@ -20,37 +22,30 @@ import javafx.scene.layout.StackPane;
 public class DashboardSunburnChart extends HBox {
 
 	private Tile sunburstTile;
+	private final SunburstBoundary sunburstBoundary;
 
 	/**
 	 * @param spacing
 	 */
-	public DashboardSunburnChart() {
+	public DashboardSunburnChart(SunburstBoundary sunburstBoundary) {
 		super(5);
+		this.sunburstBoundary = sunburstBoundary;
 		initUI();
 	}
 
 	private void initUI() {
-		TreeNode tree = new TreeNode(new ChartData("ROOT"));
-		TreeNode first = new TreeNode(new ChartData("1st", 8.3, Tile.BLUE), tree);
-		TreeNode second = new TreeNode(new ChartData("2nd", 2.2, Tile.ORANGE), tree);
-		TreeNode third = new TreeNode(new ChartData("3rd", 1.4, Tile.PINK), tree);
-		TreeNode fourth = new TreeNode(new ChartData("4th", 1.2, Tile.LIGHT_GREEN), tree);
+		TreeNode rootNode = new TreeNode(new ChartData(sunburstBoundary.getRootName()));
+		sunburstBoundary.getSubBoundaries().stream().forEach(bs -> {
+			TreeNode node = new TreeNode(new ChartData(bs.getFieldName(), bs.getScores(), bs.getColor().fecthColor()),
+					rootNode);
+			bs.getAttrBoundaries().stream().forEach(bsl -> {
+				TreeNode subNode = new TreeNode(
+						new ChartData(bsl.getFieldName(), bsl.getScores(), bsl.getColor().fecthColor()), node);
+			});
 
-		TreeNode jan = new TreeNode(new ChartData("Jan", 3.5), first);
-		TreeNode feb = new TreeNode(new ChartData("Feb", 3.1), first);
-		TreeNode mar = new TreeNode(new ChartData("Mar", 1.7), first);
-		TreeNode apr = new TreeNode(new ChartData("Apr", 1.1), second);
-		TreeNode may = new TreeNode(new ChartData("May", 0.8), second);
-		TreeNode jun = new TreeNode(new ChartData("Jun", 0.3), second);
-		TreeNode jul = new TreeNode(new ChartData("Jul", 0.7), third);
-		TreeNode aug = new TreeNode(new ChartData("Aug", 0.6), third);
-		TreeNode sep = new TreeNode(new ChartData("Sep", 0.1), third);
-		TreeNode oct = new TreeNode(new ChartData("Oct", 0.5), fourth);
-		TreeNode nov = new TreeNode(new ChartData("Nov", 0.4), fourth);
-		TreeNode dec = new TreeNode(new ChartData("Dec", 0.3), fourth);
-
+		});
 		sunburstTile = TileBuilder.create().skinType(SkinType.SUNBURST).prefSize(440, 490).title("").textVisible(false)
-				.sunburstTree(tree).sunburstBackgroundColor(Tile.BACKGROUND).sunburstTextColor(Tile.BACKGROUND)
+				.sunburstTree(rootNode).sunburstBackgroundColor(Tile.BACKGROUND).sunburstTextColor(Tile.BACKGROUND)
 				.sunburstUseColorFromParent(true).sunburstTextOrientation(TextOrientation.ORTHOGONAL)
 				.sunburstAutoTextColor(true).sunburstUseChartDataTextColor(true).sunburstInteractive(true).build();
 
@@ -74,6 +69,12 @@ public class DashboardSunburnChart extends HBox {
 		// TODO think of a name for this text .
 				text(btmText).graphic(node).roundedCorners(true).build();
 		return tile;
+	}
+
+	public boolean isSunburstChartDisplayable() {
+		return sunburstBoundary == null ? Boolean.FALSE
+				: sunburstBoundary.getRootName() == null ? Boolean.FALSE
+						: sunburstBoundary.getSubBoundaries().size() > 0 ? Boolean.TRUE : Boolean.FALSE;
 	}
 
 }

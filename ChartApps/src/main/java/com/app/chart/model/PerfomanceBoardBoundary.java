@@ -25,7 +25,8 @@ import lombok.ToString;
 @ToString(includeFieldNames = true)
 @JsonInclude(value = Include.NON_NULL)
 @NoArgsConstructor
-@JsonPropertyOrder({ "headerTxt", "managerDetailBoundary", "teamMembers", "initalDate", "folderName" })
+@JsonPropertyOrder({ "headerTxt", "managerDetailBoundary", "teamMembers", "initalDate", "folderName",
+		"sunburstBoundary" })
 public class PerfomanceBoardBoundary {
 
 	@JsonProperty("headerTxt")
@@ -38,5 +39,7 @@ public class PerfomanceBoardBoundary {
 	private Date initalDate;
 	@JsonProperty("folderName")
 	private String folderName;
+	@JsonProperty("sunburstBoundary")
+	private SunburstBoundary sunburstBoundary;
 
 }
