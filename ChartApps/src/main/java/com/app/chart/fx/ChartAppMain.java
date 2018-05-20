@@ -47,7 +47,8 @@ public class ChartAppMain extends Application {
 
 		HBox box = new HBox();
 		VBox mainBox = new VBox(5);
-		mainBox.getChildren().add(DashboardUtil.HeaderSegment(box));
+		// TODO some how add the header name here dynamically.
+		mainBox.getChildren().add(DashboardUtil.HeaderSegment(box, ""));
 		chartWebEngine.getWebView().setPrefSize(DashboardUI.WIDTH, DashboardUI.HEIGHT - 60);
 		chartWebEngine.getWebView().setMinSize(DashboardUI.WIDTH - 160, DashboardUI.HEIGHT - 110);
 		chartWebEngine.getWebView().setTranslateZ(10);

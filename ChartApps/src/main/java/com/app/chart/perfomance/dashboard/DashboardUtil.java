@@ -61,7 +61,7 @@ public class DashboardUtil {
 	/**
 	 * Header Initialization.
 	 */
-	public static HBox HeaderSegment(HBox hbox) {
+	public static HBox HeaderSegment(HBox hbox, String headerName) {
 
 		DashboardHeader dashboardHeader = null;
 		try {
@@ -70,7 +70,7 @@ public class DashboardUtil {
 			File logo1 = new File(url1.toURI().getPath());
 			File logo2 = new File(url2.toURI().getPath());
 
-			dashboardHeader = new DashboardHeader(logo1, logo2, "Sandeep Reddy Battula");
+			dashboardHeader = new DashboardHeader(logo1, logo2, headerName == null ? "" : headerName);
 			dashboardHeader.setMinSize(DashboardUI.WIDTH - 160, 90);
 			dashboardHeader.setPrefSize(DashboardUI.WIDTH, 90);
 
