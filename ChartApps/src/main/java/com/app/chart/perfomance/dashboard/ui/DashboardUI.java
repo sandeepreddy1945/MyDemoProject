@@ -118,7 +118,10 @@ public class DashboardUI extends Application {
 	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary,
 			SunburstBoundary sunburstBoundary, PerfomanceMeterBoundary perfomanceMeterBoundary,
 			CurrentSprintBoundary currentSprintBoundary, Dialog dialog) throws Exception {
+		// compare the elements using the sort available.
 		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
+		// sort it by descending order now.
+		Collections.reverse(teamMembers);
 		this.teamMembers = teamMembers;
 		this.headerTxt = headerTxt;
 		this.managerDetailBoundary = managerDetailBoundary;
@@ -408,7 +411,7 @@ public class DashboardUI extends Application {
 			dashboardTeamBarChart = new DashboardTeamBarChart(currentSprintBoundary.getTotalSprintPoints(),
 					currentSprintBoundary.getCurrentSprintPoints(), currentSprintBoundary.getBacklogSprintPoints());
 		} else {
-			dashboardTeamBarChart = new DashboardTeamBarChart(100, 90, 10);
+			dashboardTeamBarChart = new DashboardTeamBarChart(0, 0, 0);
 		}
 
 		return dashboardTeamBarChart;

@@ -893,7 +893,7 @@ public class PerfomanceBoardDetails extends HBox {
 				StringBuilder displayText = new StringBuilder();
 				displayText.append("Board Name : " + p.getHeaderTxt());
 				displayText.append("\n");
-				displayText.append("Folder Name : " + p.getFolderName());
+				displayText.append("Identifier Name : " + p.getFolderName());
 				displayText.append("\n");
 				displayText.append("Manager Name : " + p.getManagerDetailBoundary().getName());
 				displayText.append("\n");

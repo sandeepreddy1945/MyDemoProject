@@ -30,7 +30,8 @@ public class DashboardSunburnChart extends HBox {
 	public DashboardSunburnChart(SunburstBoundary sunburstBoundary) {
 		super(5);
 		this.sunburstBoundary = sunburstBoundary;
-		initUI();
+		if (sunburstBoundary != null)
+			initUI();
 	}
 
 	private void initUI() {
