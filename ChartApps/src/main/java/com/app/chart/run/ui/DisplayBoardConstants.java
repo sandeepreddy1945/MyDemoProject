@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.app.chart.model;
+package com.app.chart.run.ui;
 
 /**
  * @author Sandeep Reddy Battula
@@ -9,5 +9,5 @@ package com.app.chart.model;
  */
 public enum DisplayBoardConstants {
 
-	dashboard, image, chart, heading
+	dashboard, image, chart, customer
 }

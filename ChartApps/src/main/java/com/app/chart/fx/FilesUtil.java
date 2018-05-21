@@ -36,7 +36,8 @@ public class FilesUtil {
 	public static final String MANAGER_PROPS_PATH = PROPS_DIR_PATH + SLASH + "manager.properties";
 	public static final String DASHBOARD_PROPS_PATH = PROPS_DIR_PATH + SLASH + "dashboard.json";
 	public static final String DASHBOARD_CONTENT_PATH = MAIN_APP_PATH + SLASH + "dashboard";
-	public static final String DASHBOARD_CONTENT_DATA = DASHBOARD_CONTENT_PATH + SLASH + "dashboardContent.json";
+	public static final String DASHBOARD_CONTENT_DATA_FILE = "dashboardContent.json";
+	public static final String DASHBOARD_CONTENT_DATA = DASHBOARD_CONTENT_PATH + SLASH + DASHBOARD_CONTENT_DATA_FILE;
 
 	/**
 	 * 

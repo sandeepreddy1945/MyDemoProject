@@ -23,7 +23,7 @@ public class DisplayImageTestUI extends Application {
 	public void start(Stage stage) throws Exception {
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
-		stage.setFullScreen(true);
+		// stage.setFullScreen(true);
 
 		Scene scene = new Scene(new DisplayImage("sample.png", true, "Sandeep Reddy Battula"), WIDTH, HEIGHT);
 		stage.setScene(scene);

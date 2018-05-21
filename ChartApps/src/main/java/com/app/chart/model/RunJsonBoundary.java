@@ -4,8 +4,9 @@
 package com.app.chart.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,13 +20,17 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonPropertyOrder({})
+@JsonPropertyOrder({ "type", "type", "isHeaderApplicable", "displayTxt" })
 @ToString(includeFieldNames = true)
 @JsonInclude(value = Include.NON_NULL)
 public class RunJsonBoundary {
 
-	private String displayName;
+	@JsonProperty("type")
 	private String type;
+	@JsonProperty("type")
 	private String path;
+	@JsonProperty("isHeaderApplicable")
 	private boolean isHeaderApplicable;
+	@JsonProperty("displayTxt")
+	private String displayTxt;
 }
