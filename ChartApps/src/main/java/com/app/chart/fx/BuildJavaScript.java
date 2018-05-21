@@ -77,16 +77,31 @@ public class BuildJavaScript {
 	}
 
 	public String buildHeadMemberJsString(EmployeeDetails headerEmployee) throws IOException {
-		File file = File.createTempFile("headMember", "json");
-		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("headMember.json"), file);
+
+		// if header is pseudo to build multi parent chart.
+		if (headerEmployee.isPseudo()) {
+			return buildPseudoHeaderJsString(headerEmployee);
+		} else {
+			File file = File.createTempFile("headMember", "json");
+			FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("headMember.json"), file);
+			String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
+			String headerMemberStr = String.format(fileStr, "light-gray", headerEmployee.getName(),
+					headerEmployee.getDescription(), headerEmployee.getTeam(), headerEmployee.getLink(),
+					headerEmployee.getPortalId() + ".png");
+			// header Employee Template with Values filled.
+			headerMemberStr = String.format(jsTemplate, headerEmployee.getName() + "_" + headerEmployee.getPortalId(),
+					headerMemberStr);
+			file.delete();
+			return headerMemberStr;
+		}
+	}
+
+	private String buildPseudoHeaderJsString(EmployeeDetails headerEmployee) throws IOException {
+		File file = File.createTempFile("pseudoHeader", "json");
+		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("pseudoHeader.json"), file);
 		String fileStr = FileUtils.readFileToString(file, Charset.defaultCharset());
-		String headerMemberStr = String.format(fileStr, "light-gray", headerEmployee.getName(),
-				headerEmployee.getDescription(), headerEmployee.getTeam(), headerEmployee.getLink(),
-				headerEmployee.getPortalId() + ".png");
-		// header Employee Template with Values filled.
-		headerMemberStr = String.format(jsTemplate, headerEmployee.getName() + "_" + headerEmployee.getPortalId(),
-				headerMemberStr);
-		file.delete();
+		String headerMemberStr = String.format(jsTemplate,
+				headerEmployee.getName() + "_" + headerEmployee.getPortalId(), fileStr);
 		return headerMemberStr;
 	}
 
@@ -103,6 +118,14 @@ public class BuildJavaScript {
 	public String buildChartConfigJsString() throws IOException {
 		File file = File.createTempFile("chartConfig", "json");
 		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("chartConfig.json"), file);
+		String chartJsStr = FileUtils.readFileToString(file, Charset.defaultCharset());
+		return String.format(jsTemplate, "var config", chartJsStr);
+
+	}
+	
+	public String buildPseudoParentChartConfigJsString() throws IOException {
+		File file = File.createTempFile("pseudoParentChartConfig", "json");
+		FileUtils.copyInputStreamToFile(getClass().getClassLoader().getResourceAsStream("pseudoParentChartConfig.json"), file);
 		String chartJsStr = FileUtils.readFileToString(file, Charset.defaultCharset());
 		return String.format(jsTemplate, "var config", chartJsStr);
 

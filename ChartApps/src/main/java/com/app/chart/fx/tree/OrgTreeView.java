@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -457,7 +458,14 @@ public class OrgTreeView<T> extends Application {
 			configOrderBuilder.append(COMMA);
 
 			BuildJavaScript bjs = new BuildJavaScript(employeeList);
-			sb.append(bjs.buildChartConfigJsString());
+			if (treeView.getRoot().getValue().isPseudo()) {
+				// if the parent node is psuedo set is the hiddenparent attr to true.
+				// TODO test this properly.
+				sb.append(bjs.buildPseudoParentChartConfigJsString());
+			} else {
+				sb.append(bjs.buildChartConfigJsString());
+			}
+
 			sb.append(COMMA);
 			// add the header member
 			sb.append(bjs.buildHeadMemberJsString(treeView.getRoot().getValue()));
@@ -595,7 +603,20 @@ public class OrgTreeView<T> extends Application {
 	}
 
 	private EmployeeDetails fetchHeaderEmployee() {
-		return employeeList.stream().filter(e -> e.getParent().equals(HEADER_MEMBER)).findFirst().get();
+		Optional<EmployeeDetails> oEmployee = employeeList.stream().filter(e -> e.getParent().equals(HEADER_MEMBER))
+				.findFirst();
+		if (oEmployee.isPresent()) {
+			return oEmployee.get();
+		} else {
+			// if the parent is not present then add pseudo node .
+			// availble for making multiple charts in a single Tab
+			EmployeeDetails e = new EmployeeDetails();
+			e.setPortalId(String.valueOf(random.nextInt(999999)));
+			e.setName("PseudoParent");
+			e.setPseudo(true);
+			return e;
+		}
+
 	}
 
 	/**

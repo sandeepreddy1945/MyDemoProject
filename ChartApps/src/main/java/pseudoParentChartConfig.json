@@ -1,0 +1,25 @@
+/*"animateOnInit": true,*/ /*Removed due inconsistency due to parent collapsable item throwing js error*/
+
+{
+	"container": "#custom-colored",
+	"nodeAlign": "BOTTOM",
+	"hideRootNode": true,
+	"animateOnInitDelay": 6500,
+	"connectors": {
+		"type": "step",
+		"style": {
+			"stroke-width": 3
+		}
+	},
+	"levelSeparation": 80,
+	"animation": {
+		"nodeSpeed": 1500,
+		"connectorsAnimation": "linear",
+		"nodeAnimation": "linear",
+		"connectorsSpeed": 1500
+	},
+	"node": {
+		"HTMLclass": "customColored",
+		"collapsable": true
+	}
+}
