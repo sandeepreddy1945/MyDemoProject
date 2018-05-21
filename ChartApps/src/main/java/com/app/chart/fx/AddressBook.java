@@ -122,7 +122,7 @@ public class AddressBook extends Application {
 
 		JFXTextField chartNameTF = new JFXTextField();
 
-		chartNameTF.setPromptText("Enter Chart Name Here..");
+		chartNameTF.setPromptText("Enter Chart Header Name Here..");
 		RequiredFieldValidator validator = new RequiredFieldValidator();
 		validator.setMessage("This is a Required Field. Please Enter the Chart Name");
 		validator.setIcon(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.WARNING).size(EM1)
@@ -361,6 +361,13 @@ public class AddressBook extends Application {
 		} else {
 
 			try {
+
+				if (!(chartNameTF.getText().length() > 0)) {
+					popOutAlert("The Header Name of the Chart Cannot be Empty . \n "
+							+ "Please add the Title Header to be displayed in the Chart Header Name field \n "
+							+ "and then click on Add Manager button.", "MPS Charts");
+					return;
+				}
 				// add an entry to manager.properties file for loading.
 				if (!new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText()).exists()) {
 					FileUtils.write(new File(FilesUtil.MANAGER_PROPS_PATH),
@@ -395,6 +402,13 @@ public class AddressBook extends Application {
 			teamCombo.getItems().add(addManagerField.getText());
 			addManagerField.clear();
 		}
+	}
+
+	private void popOutAlert(String text, String title) {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle(title);
+		alert.setContentText(text);
+		alert.showAndWait();
 	}
 
 	private void onSaveActionPerfomed() {

@@ -169,9 +169,9 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 
 		if (series1.getData().get(count) != null && series2.getData().get(count) != null
 				&& series3.getData().get(count) != null) {
-			series1.getData().get(count).setYValue(teamMembers.get(i).getScore1());
-			series2.getData().get(count).setYValue(teamMembers.get(i).getScore2());
-			series3.getData().get(count).setYValue(teamMembers.get(i).getScore3());
+			series1.getData().get(count).setYValue(teamMembers.get(i).getValueAdd());
+			series2.getData().get(count).setYValue(teamMembers.get(i).getQuality());
+			series3.getData().get(count).setYValue(teamMembers.get(i).getOnTime());
 		}
 
 	}
@@ -190,7 +190,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		// getStylesheets().add(STYLESHEET_PATH);
 
 		// add the appgination to UI
-		getChildren().add(generateCustomTile(pagination, "Stack Team Perfomance", 450, 500, "Team Perfomance"));
+		getChildren().add(generateCustomTile(pagination, "Employee- Quarterly Index Trend", 450, 500, "Individual Stats"));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());

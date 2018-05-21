@@ -191,7 +191,7 @@ public class DashboardBarChart extends DashboardAbstract {
 
 		// add the appgination to UI using Tile
 		// TODO change the naming here if wanted
-		getChildren().add(generateCustomTile(pagination, "Team Perfomance Bar", 450, 500, "Team Perfomance"));
+		getChildren().add(generateCustomTile(pagination, "Monthly Trend Analysis", 450, 500, "Stats"));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());

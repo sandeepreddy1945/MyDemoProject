@@ -54,7 +54,9 @@ public class DashboardPieChart extends DashboardAbstract {
 	}
 
 	private double calculateScore(TeamMember tm) {
-		return Double.valueOf(tm.getScore1() + tm.getScore2() + tm.getScore3()) / 3;
+		return Double.valueOf(
+				tm.getScore1() + tm.getScore2() + tm.getScore3() + tm.getValueAdd() + tm.getQuality() + tm.getOnTime())
+				/ 3;
 	}
 
 	private void addListenersForNodes() {
@@ -129,7 +131,7 @@ public class DashboardPieChart extends DashboardAbstract {
 		chart.setLabelsVisible(true);
 		chart.getStylesheets().add(getClass().getResource("teammeberstylesheet.css").toExternalForm());
 
-		Tile tile = generateCustomTile(chart, "Pie Chart", 450, 470);
+		Tile tile = generateCustomTile(chart, "Quarterly Trend Analysis", 450, 470);
 
 		setAlignment(Pos.CENTER);
 
@@ -137,7 +139,8 @@ public class DashboardPieChart extends DashboardAbstract {
 
 		// total score
 		teamMembers.stream().forEach(tm -> {
-			double score = Double.valueOf((tm.getScore1() + tm.getScore2() + tm.getScore3())) / 3;
+			double score = Double.valueOf((tm.getScore1() + tm.getScore2() + tm.getScore3() + tm.getValueAdd()
+					+ tm.getQuality() + tm.getOnTime())) / 3;
 			totalScore += score;
 		});
 		System.out.println("Total Score : " + totalScore);

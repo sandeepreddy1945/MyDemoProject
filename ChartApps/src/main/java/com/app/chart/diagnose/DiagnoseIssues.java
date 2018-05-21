@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.FilesUtil;
+import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -150,6 +151,8 @@ public class DiagnoseIssues extends HBox {
 	 * 
 	 * @param e
 	 */
+	// TODO implement this one for Chart Boundaries as well the required image
+	// libraries.
 	private void diagnoseProblemsAndSolutions(ActionEvent e) {
 		// do a search for the images required on performance board.
 		if (perfomanceBoardBoundaries != null && perfomanceBoardBoundaries.size() > 0) {
@@ -168,6 +171,18 @@ public class DiagnoseIssues extends HBox {
 					 * path.forEach(p -> { Files.exists(p); });
 					 */
 				});
+			});
+
+			perfomanceBoardBoundaries.stream().forEach(p -> {
+				ManagerDetailBoundary b = p.getManagerDetailBoundary();
+				Path path = Paths.get(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + b.getPortalId() + ".png");
+				if (!Files.exists(path)) {
+					System.out.println("Image Doesnot exist for Portal Id: " + b.getPortalId() + " - " + b.getName());
+					members.add(constructTableMemberBoundary(b.getPortalId() + " - " + b.getName(),
+							"Image -> " + b.getPortalId() + ".png" + "  " + "Missing!!",
+							"Image Doesnot Exist In Req Folder",
+							"Copy The PNG Image to folder: " + FilesUtil.IMAGES_DIR_PATH));
+				}
 			});
 
 			// fire table with changes.
