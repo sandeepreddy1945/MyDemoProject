@@ -110,6 +110,9 @@ public class AddressBook extends Application {
 		launch(args);
 	}
 
+	// TODO to replace the save employee boundary with the ChartBoardBiundary for
+	// saving purpose.
+
 	@Override
 	public void start(Stage stage) throws IOException {
 		// create the files for fetching before start.
