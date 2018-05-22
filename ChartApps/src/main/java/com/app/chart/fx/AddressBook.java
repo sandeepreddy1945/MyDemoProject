@@ -12,49 +12,71 @@ import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.tree.OrgTreeView;
 import com.app.chart.model.EmployeeDetails;
+import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTreeTableColumn;
+import com.jfoenix.controls.JFXTreeTableView;
+import com.jfoenix.controls.RecursiveTreeItem;
+import com.jfoenix.controls.cells.editors.TextFieldEditorBuilder;
+import com.jfoenix.controls.cells.editors.base.GenericEditableTreeTableCell;
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import com.jfoenix.validation.RequiredFieldValidator;
 
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableColumn.CellEditEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 public class AddressBook extends Application {
+
+	/**
+	 * Visual Bounds of the Screen.
+	 */
+	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+	public static double MIN_X = visualBounds.getMinX();
+	public static double MIN_Y = visualBounds.getMinY();
+	public static double MAX_X = visualBounds.getMaxX();
+	public static double MAX_Y = visualBounds.getMaxY();
+	public static double WIDTH = visualBounds.getWidth() - 100;
+	public static double HEIGHT = visualBounds.getHeight() - 100;
 
 	public static final String TEMP_JS = "temp.js";
 	public static final String PREVIEW_JSON = "preview.json";
@@ -64,8 +86,9 @@ public class AddressBook extends Application {
 	public static final String APP_JS = "app.js";
 	private static final String EM1 = "1em";
 	private static final String ERROR = "error";
-	private TableView<Person> table = new TableView<Person>();
-	private final ObservableList<Person> data = FXCollections
+	// build tree
+
+	private final ObservableList<AddressBookTableBoundary> data = FXCollections
 			.observableArrayList(/*
 									 * new Person("1", "Jacob", "Smith", "jacob.smith@example.com", "s"), new
 									 * Person("1", "Isabella", "Johnson", "isabella.johnson@example.com", "s"), new
@@ -73,6 +96,9 @@ public class AddressBook extends Application {
 									 * Person("1", "Emma", "Jones", "emma.jones@example.com", "s"), new Person("1",
 									 * "Michael", "Brown", "michael.brown@example.com", "s")
 									 */);
+	final TreeItem<AddressBookTableBoundary> root = new RecursiveTreeItem<>(data, RecursiveTreeObject::getChildren);
+
+	JFXTreeTableView<AddressBookTableBoundary> tableView = new JFXTreeTableView<>(root);
 	final HBox hb = new HBox();
 	final HBox headerHb = new HBox();
 	JFXComboBox<String> teamCombo;
@@ -94,8 +120,14 @@ public class AddressBook extends Application {
 	private void initUI(Stage stage) throws IOException {
 		Scene scene = new Scene(new Group());
 		stage.setTitle("Add Members Here");
-		stage.setWidth(1600);
-		stage.setHeight(1000);
+		stage.setWidth(WIDTH);
+		stage.setHeight(HEIGHT);
+
+		tableView.setMinSize(WIDTH, HEIGHT - 450);
+		tableView.setPrefSize(WIDTH, HEIGHT - 450);
+		tableView.setShowRoot(false);
+		tableView.setEditable(true);
+		tableView.setPadding(new Insets(15));
 
 		final Label label = new Label("Chart Address Book");
 		label.setFont(new Font("Arial", 20));
@@ -134,97 +166,27 @@ public class AddressBook extends Application {
 			}
 		});
 
-		table.setEditable(true);
-		Callback<TableColumn, TableCell> cellFactory = new Callback<TableColumn, TableCell>() {
-			public TableCell call(TableColumn p) {
-				return new EditingCell();
-			}
-		};
-
-		table.setPrefWidth(stage.getWidth() - 50);
-		table.setPrefHeight(stage.getHeight() - 330);
-
-		TableColumn portalCol = new TableColumn("Portal Id");
-		portalCol.setMinWidth(230);
-		portalCol.setCellValueFactory(new PropertyValueFactory<Person, String>("portal"));
-		portalCol.setCellFactory(cellFactory);
-		portalCol.setOnEditCommit(new EventHandler<CellEditEvent<Person, String>>() {
-			@Override
-			public void handle(CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setPortal(t.getNewValue());
-			}
-		});
-
-		TableColumn name = new TableColumn("Name");
-		name.setMinWidth(230);
-		name.setCellValueFactory(new PropertyValueFactory<Person, String>("name"));
-		name.setCellFactory(cellFactory);
-		name.setOnEditCommit(new EventHandler<CellEditEvent<Person, String>>() {
-			@Override
-			public void handle(CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setName(t.getNewValue());
-			}
-		});
-
-		TableColumn designation = new TableColumn("Designation");
-		designation.setMinWidth(230);
-		designation.setCellValueFactory(new PropertyValueFactory<Person, String>("designation"));
-		designation.setCellFactory(cellFactory);
-		designation.setOnEditCommit(new EventHandler<CellEditEvent<Person, String>>() {
-			@Override
-			public void handle(CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow()))
-						.setDesignation(t.getNewValue());
-			}
-		});
-
-		TableColumn teamName = new TableColumn("Team Name");
-		teamName.setMinWidth(240);
-		teamName.setCellValueFactory(new PropertyValueFactory<Person, String>("Team"));
-		teamName.setCellFactory(cellFactory);
-		teamName.setOnEditCommit(new EventHandler<CellEditEvent<Person, String>>() {
-			@Override
-			public void handle(CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setTeam(t.getNewValue());
-			}
-		});
-
-		TableColumn parentName = new TableColumn("Parent Member");
-		parentName.setMinWidth(240);
-		parentName.setCellValueFactory(new PropertyValueFactory<Person, String>("Parent"));
-		parentName.setCellFactory(cellFactory);
-		parentName.setOnEditCommit(new EventHandler<CellEditEvent<Person, String>>() {
-			@Override
-			public void handle(CellEditEvent<Person, String> t) {
-				((Person) t.getTableView().getItems().get(t.getTablePosition().getRow())).setParent(t.getNewValue());
-			}
-		});
-
-		table.setStyle(" -fx-alignment: CENTER-RIGHT;\r\n" + "     /* The rest is from caspian.css */\r\n" + "\r\n"
-				+ "    -fx-padding: 0.166667em; /* 2px, plus border adds 1px */\r\n" + "\r\n"
-				+ "    -fx-background-color: transparent;\r\n"
-				+ "    -fx-border-color: transparent -fx-table-cell-border-color transparent transparent;\r\n"
-				+ "    -fx-border-width: 0.083333em; /* 1 */\r\n" + "    -fx-cell-size: 2.0em; /* 24 */\r\n"
-				+ "    -fx-text-fill: -fx-text-inner-color;");
-		table.setItems(data);
-		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		table.getColumns().addAll(portalCol, name, designation, teamName, parentName);
+		chartNameTF.setMinSize(600, 30);
+		chartNameTF.setPrefSize(500, 40);
 
 		final JFXTextField portalTF = new JFXTextField();
 		portalTF.setPromptText("Portal Id");
-		portalTF.setMaxWidth(name.getPrefWidth());
+		portalTF.setMaxWidth(230);
 		final JFXTextField nameTF = new JFXTextField();
 		nameTF.setPromptText("Name");
-		nameTF.setMaxWidth(name.getPrefWidth());
+		nameTF.setMaxWidth(230);
 		final JFXTextField designationTF = new JFXTextField();
-		designationTF.setMaxWidth(designation.getPrefWidth());
+		designationTF.setMaxWidth(230);
 		designationTF.setPromptText("Designation");
 		final JFXTextField teamTF = new JFXTextField();
-		teamTF.setMaxWidth(teamName.getPrefWidth());
+		teamTF.setMaxWidth(230);
 		teamTF.setPromptText("Team");
 		final JFXTextField parentTF = new JFXTextField();
-		parentTF.setMaxWidth(teamName.getPrefWidth());
+		parentTF.setMaxWidth(230);
 		parentTF.setPromptText("Parent");
+
+		// add validations to the txt fields
+		DashboardUtil.buildRequestValidator(portalTF, nameTF, designationTF, teamTF, parentTF);
 
 		final JFXButton addButton = new JFXButton("Add");
 		addButton.setOnAction(e -> {
@@ -233,8 +195,8 @@ public class AddressBook extends Application {
 
 		final JFXButton delButton = new JFXButton("Delete");
 		delButton.setOnAction(e -> {
-			data.remove(table.getSelectionModel().getFocusedIndex());
-			table.fireEvent(e);
+			data.remove(tableView.getSelectionModel().getFocusedIndex());
+			tableView.fireEvent(e);
 		});
 
 		final JFXButton saveBtn = new JFXButton("Save");
@@ -266,12 +228,24 @@ public class AddressBook extends Application {
 		hb.getChildren().addAll(portalTF, nameTF, designationTF, teamTF, parentTF, addButton, delButton, saveBtn);
 		hb.setSpacing(3);
 
-		chartNameTF.setPadding(new Insets(5, 5, 15, 5));
+		chartNameTF.setPadding(new Insets(0, 0, 5, 10));
+		// tool tip for shortcut and clearing
+		chartNameTF.setTooltip(new Tooltip("Press \"alt+c\" to clear this field"));
+		chartNameTF.setOnKeyPressed(b -> {
+			if (b.getCode().ordinal() == KeyCode.C.ordinal() && b.isAltDown()) {
+				chartNameTF.clear();
+			}
+		});
+
+		StackPane pane = new StackPane(chartNameTF);
+		chartNameTF.setMaxSize(600, 40);
+		pane.setMinSize(600, 40);
+		pane.setAlignment(Pos.CENTER_LEFT);
 
 		final VBox vbox = new VBox();
-		vbox.setSpacing(30);
+		vbox.setSpacing(25);
 		vbox.setPadding(new Insets(10, 0, 0, 10));
-		vbox.getChildren().addAll(label, headerHb, chartNameTF, table, hb);
+		vbox.getChildren().addAll(label, headerHb, pane, buildDefaultTableRows(), /* table */ tableView, hb);
 
 		((Group) scene.getRoot()).getChildren().addAll(vbox);
 
@@ -279,17 +253,133 @@ public class AddressBook extends Application {
 		stage.show();
 	}
 
+	/**
+	 * Build the table model and instantiate it to the table.
+	 * 
+	 * @return
+	 */
+	private HBox buildDefaultTableRows() {
+		JFXTreeTableColumn<AddressBookTableBoundary, String> portalId = new JFXTreeTableColumn<>("Portal ID");
+		portalId.setPrefWidth(250);
+		portalId.setCellValueFactory((TreeTableColumn.CellDataFeatures<AddressBookTableBoundary, String> param) -> {
+			if (portalId.validateValue(param)) {
+				return param.getValue().getValue().getPortal();
+			} else {
+				return portalId.getComputedValue(param);
+			}
+		});
+
+		JFXTreeTableColumn<AddressBookTableBoundary, String> name = new JFXTreeTableColumn<>("Name");
+		name.setPrefWidth(450);
+		name.setCellValueFactory((TreeTableColumn.CellDataFeatures<AddressBookTableBoundary, String> param) -> {
+			if (name.validateValue(param)) {
+				return param.getValue().getValue().getName();
+			} else {
+				return name.getComputedValue(param);
+			}
+		});
+
+		JFXTreeTableColumn<AddressBookTableBoundary, String> designation = new JFXTreeTableColumn<>("Designation");
+		designation.setPrefWidth(450);
+		designation.setCellValueFactory((TreeTableColumn.CellDataFeatures<AddressBookTableBoundary, String> param) -> {
+			if (designation.validateValue(param)) {
+				return param.getValue().getValue().getDesignation();
+			} else {
+				return designation.getComputedValue(param);
+			}
+		});
+
+		JFXTreeTableColumn<AddressBookTableBoundary, String> score1 = new JFXTreeTableColumn<>("Team Name");
+		score1.setPrefWidth(350);
+		score1.setCellValueFactory((TreeTableColumn.CellDataFeatures<AddressBookTableBoundary, String> param) -> {
+			if (score1.validateValue(param)) {
+				return param.getValue().getValue().getTeam();
+			} else {
+				return score1.getComputedValue(param);
+			}
+		});
+
+		JFXTreeTableColumn<AddressBookTableBoundary, String> score2 = new JFXTreeTableColumn<>("Parent Member");
+		score2.setPrefWidth(250);
+		score2.setCellValueFactory((TreeTableColumn.CellDataFeatures<AddressBookTableBoundary, String> param) -> {
+			if (score2.validateValue(param)) {
+				return param.getValue().getValue().getParent();
+			} else {
+				return score2.getComputedValue(param);
+			}
+		});
+
+		// column cell factories
+		portalId.setCellFactory(
+				(TreeTableColumn<AddressBookTableBoundary, String> param) -> new GenericEditableTreeTableCell<>(
+						new TextFieldEditorBuilder()));
+
+		portalId.setOnEditCommit((CellEditEvent<AddressBookTableBoundary, String> t) -> t.getTreeTableView()
+				.getTreeItem(t.getTreeTablePosition().getRow()).getValue().getPortal().set(t.getNewValue()));
+		name.setCellFactory(
+				(TreeTableColumn<AddressBookTableBoundary, String> param) -> new GenericEditableTreeTableCell<>(
+						new TextFieldEditorBuilder()));
+		name.setOnEditCommit((CellEditEvent<AddressBookTableBoundary, String> t) -> t.getTreeTableView()
+				.getTreeItem(t.getTreeTablePosition().getRow()).getValue().getName().set(t.getNewValue()));
+
+		designation.setCellFactory(
+				(TreeTableColumn<AddressBookTableBoundary, String> param) -> new GenericEditableTreeTableCell<>(
+						new TextFieldEditorBuilder()));
+		designation.setOnEditCommit((CellEditEvent<AddressBookTableBoundary, String> t) -> t.getTreeTableView()
+				.getTreeItem(t.getTreeTablePosition().getRow()).getValue().getDesignation().set(t.getNewValue()));
+
+		score1.setCellFactory(
+				(TreeTableColumn<AddressBookTableBoundary, String> param) -> new GenericEditableTreeTableCell<>(
+						new TextFieldEditorBuilder()));
+		score1.setOnEditCommit((CellEditEvent<AddressBookTableBoundary, String> t) -> t.getTreeTableView()
+				.getTreeItem(t.getTreeTablePosition().getRow()).getValue().getTeam().set(t.getNewValue()));
+
+		score2.setCellFactory(
+				(TreeTableColumn<AddressBookTableBoundary, String> param) -> new GenericEditableTreeTableCell<>(
+						new TextFieldEditorBuilder()));
+		score2.setOnEditCommit((CellEditEvent<AddressBookTableBoundary, String> t) -> t.getTreeTableView()
+				.getTreeItem(t.getTreeTablePosition().getRow()).getValue().getParent().set(t.getNewValue()));
+
+		// set colums to table
+		tableView.getColumns().addAll(portalId, name, designation, score1, score2);
+
+		HBox box = new HBox(20);
+		Label sizeLbl = new Label("Table Size: ");
+		Label tableSize = new Label();
+		JFXTextField searchTF = new JFXTextField();
+		searchTF.setPromptText("Search Text Here!!!");
+		tableSize.textProperty().bind(Bindings.createStringBinding(
+				() -> String.valueOf(tableView.getCurrentItemsCount()), tableView.currentItemsCountProperty()));
+
+		searchTF.textProperty().addListener((o, oldVal, newVal) -> {
+			tableView.setPredicate(userProp -> {
+				final AddressBookTableBoundary user = userProp.getValue();
+				return user.portal.get().contains(newVal) || user.name.get().contains(newVal)
+						|| user.designation.get().contains(newVal) || user.team.get().contains(newVal)
+						|| user.parent.get().contains(newVal);
+			});
+		});
+		searchTF.setAlignment(Pos.CENTER_LEFT);
+		searchTF.setMinSize(450, 25);
+		box.getChildren().addAll(searchTF, sizeLbl, tableSize);
+		box.setPrefSize(WIDTH, 25);
+		box.setPadding(new Insets(5));
+
+		return box;
+	}
+
 	private void addBtnAction(final JFXTextField portalTF, final JFXTextField nameTF, final JFXTextField designationTF,
 			final JFXTextField teamTF, final JFXTextField parentTF) {
-		if (nameTF.getText().length() > 0 && designationTF.getText().length() > 0 && teamTF.getText().length() > 0
-				&& parentTF.getText().length() > 0 && portalTF.getText().length() > 0) {
-			data.add(new Person(portalTF.getText(), nameTF.getText(), designationTF.getText(), teamTF.getText(),
-					parentTF.getText()));
-			nameTF.clear();
-			designationTF.clear();
-			teamTF.clear();
-			portalTF.clear();
-			parentTF.clear();
+		if (DashboardUtil.validateTextField(portalTF, nameTF, designationTF, teamTF, parentTF)) {
+			// construct employee table add it to the table boundary.
+			EmployeeDetails e = new EmployeeDetails();
+			e.setPortalId(portalTF.getText());
+			e.setName(nameTF.getText());
+			e.setDescription(designationTF.getText());
+			e.setTeam(teamTF.getText());
+			e.setParent(parentTF.getText());
+			data.add(constructAddressBookTableMemberBoundary(e));
+			DashboardUtil.clearTextField(portalTF, nameTF, designationTF, teamTF, parentTF);
 		} else {
 			JFXAlert<String> alert = new JFXAlert<>();
 			alert.initModality(Modality.APPLICATION_MODAL);
@@ -328,10 +418,8 @@ public class AddressBook extends Application {
 				EmployeeDetails[] empList = objectMapper.readValue(jsonStr, EmployeeDetails[].class);
 
 				Arrays.stream(empList).forEach(emp -> {
-					Person person = new Person(emp.getPortalId(), emp.getName(), emp.getDescription(), emp.getTeam(),
-							emp.getParent());
-					data.add(person);
-					table.fireEvent(e);
+					data.add(constructAddressBookTableMemberBoundary(emp));
+					tableView.fireEvent(e);
 				});
 			}
 		} catch (IOException e1) {
@@ -418,11 +506,11 @@ public class AddressBook extends Application {
 			List<EmployeeDetails> empList = new ArrayList<>();
 			data.stream().forEach(p -> {
 				EmployeeDetails emp = new EmployeeDetails();
-				emp.setName(p.getName());
-				emp.setParent(p.getParent());
-				emp.setPortalId(p.getPortal());
-				emp.setTeam(p.getTeam());
-				emp.setDescription(p.getDesignation());
+				emp.setName(p.getName().get());
+				emp.setParent(p.getParent().get());
+				emp.setPortalId(p.getPortal().get());
+				emp.setTeam(p.getTeam().get());
+				emp.setDescription(p.getDesignation().get());
 				emp.setLink("http://localhost:8020/" + emp.getPortalId());
 				empList.add(emp);
 			});
@@ -457,11 +545,11 @@ public class AddressBook extends Application {
 			List<EmployeeDetails> empList = new ArrayList<>();
 			data.stream().forEach(p -> {
 				EmployeeDetails emp = new EmployeeDetails();
-				emp.setName(p.getName());
-				emp.setParent(p.getParent());
-				emp.setPortalId(p.getPortal());
-				emp.setTeam(p.getTeam());
-				emp.setDescription(p.getDesignation());
+				emp.setName(p.getName().get());
+				emp.setParent(p.getParent().get());
+				emp.setPortalId(p.getPortal().get());
+				emp.setTeam(p.getTeam().get());
+				emp.setDescription(p.getDesignation().get());
 				emp.setLink("http://localhost:8020/" + emp.getPortalId());
 				empList.add(emp);
 			});
@@ -476,80 +564,47 @@ public class AddressBook extends Application {
 
 	}
 
-	@Getter
-	@Setter
-	@AllArgsConstructor
-	public static class Person {
+	private AddressBookTableBoundary constructAddressBookTableMemberBoundary(EmployeeDetails member) {
+		AddressBookTableBoundary m = new AddressBookTableBoundary();
+		// instantiate fields
+		m.setPortal(new SimpleStringProperty());
+		m.setName(new SimpleStringProperty());
+		m.setDesignation(new SimpleStringProperty());
+		m.setParent(new SimpleStringProperty());
+		m.setTeam(new SimpleStringProperty());
 
-		private String portal;
-		private String name;
-		private String designation;
-		private String team;
-		private String parent;
+		// add the setters now
+
+		m.getPortal().set(member.getPortalId());
+		m.getName().set(member.getName());
+		m.getDesignation().set(member.getDescription());
+		m.getParent().set(String.valueOf(member.getParent()));
+		m.getTeam().set(String.valueOf(member.getTeam()));
+		return m;
 	}
 
-	class EditingCell extends TableCell<Person, String> {
+	private EmployeeDetails constructEmployeeDetailsBoundary(AddressBookTableBoundary member) {
+		EmployeeDetails m = new EmployeeDetails();
+		m.setPortalId(member.getPortal().get());
+		m.setName(member.getName().get());
+		m.setDescription(member.getDesignation().get());
+		m.setParent(member.getParent().get());
+		m.setTeam(member.getTeam().get());
+		return m;
+	}
 
-		private TextField textField;
+	@Getter
+	@Setter
+	@ToString
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class AddressBookTableBoundary extends RecursiveTreeObject<AddressBookTableBoundary> {
 
-		public EditingCell() {
-		}
-
-		@Override
-		public void startEdit() {
-			if (!isEmpty()) {
-				super.startEdit();
-				createTextField();
-				setText(null);
-				setGraphic(textField);
-				textField.selectAll();
-			}
-		}
-
-		@Override
-		public void cancelEdit() {
-			super.cancelEdit();
-
-			setText((String) getItem());
-			setGraphic(null);
-		}
-
-		@Override
-		public void updateItem(String item, boolean empty) {
-			super.updateItem(item, empty);
-
-			if (empty) {
-				setText(null);
-				setGraphic(null);
-			} else {
-				if (isEditing()) {
-					if (textField != null) {
-						textField.setText(getString());
-					}
-					setText(null);
-					setGraphic(textField);
-				} else {
-					setText(getString());
-					setGraphic(null);
-				}
-			}
-		}
-
-		private void createTextField() {
-			textField = new TextField(getString());
-			textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-			textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-				@Override
-				public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-					if (!arg2) {
-						commitEdit(textField.getText());
-					}
-				}
-			});
-		}
-
-		private String getString() {
-			return getItem() == null ? "" : getItem().toString();
-		}
+		StringProperty portal;
+		StringProperty name;
+		StringProperty designation;
+		StringProperty team;
+		StringProperty parent;
+		// TODO add score getters and calendar events.
 	}
 }

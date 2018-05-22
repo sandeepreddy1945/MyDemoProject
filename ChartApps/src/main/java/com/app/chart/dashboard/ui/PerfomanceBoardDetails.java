@@ -194,12 +194,6 @@ public class PerfomanceBoardDetails extends HBox {
 					.findFirst().get();
 
 			boardHeader.setText(p.getHeaderTxt());
-			boardHeader.setTooltip(new Tooltip("Press \"alt+c\" to clear this field"));
-			boardHeader.setOnKeyPressed(b -> {
-				if (b.getCode().ordinal() == KeyCode.C.ordinal() && b.isAltDown()) {
-					boardHeader.clear();
-				}
-			});
 
 			// clear all the members available and then add
 			members.clear();
@@ -219,6 +213,12 @@ public class PerfomanceBoardDetails extends HBox {
 		managerCBX.setMinSize(300, 15);
 		managerCBX.setPromptText("Dashboard List Available");
 		DashboardUtil.buildRequestValidator(boardHeader);
+		boardHeader.setTooltip(new Tooltip("Press \"alt+c\" to clear this field"));
+		boardHeader.setOnKeyPressed(b -> {
+			if (b.getCode().ordinal() == KeyCode.C.ordinal() && b.isAltDown()) {
+				boardHeader.clear();
+			}
+		});
 
 		datePickerFX = new JFXDatePicker();
 		datePickerFX.setPromptText("Time Intreval");
@@ -710,6 +710,9 @@ public class PerfomanceBoardDetails extends HBox {
 		// display manager and board details after reload
 		JFXButton displayDetails = new JFXButton("Overview Board Details");
 
+		JFXButton editManager = new JFXButton("Edit Manager/Header Details");
+		editManager.setOnAction(this::editManagerHeaderDetails);
+
 		saveBtn.setOnAction(this::saveAllTheDetails);
 
 		delBtn.setOnAction(e -> {
@@ -750,7 +753,7 @@ public class PerfomanceBoardDetails extends HBox {
 
 		displayDetails.setOnAction(this::displayOverViewDetails);
 
-		container.getChildren().addAll(displayDetails, saveBtn, delBtn, previewBtn);
+		container.getChildren().addAll(editManager, displayDetails, saveBtn, delBtn, previewBtn);
 
 		// container.setAlignment(Pos.BOTTOM_RIGHT);
 
@@ -762,6 +765,149 @@ public class PerfomanceBoardDetails extends HBox {
 
 		box.setPadding(new Insets(5, 30, 30, 0));
 		return box;
+	}
+
+	private void editManagerHeaderDetails(ActionEvent ae) {
+
+		if (managerCBX.getSelectionModel().getSelectedItem() == null) {
+			popOutAlert("Please select a Manager to Edit the Details. \n"
+					+ "After Selecting the manager continue to edit the details.", "Edit Manager");
+			return;
+		} else {
+
+			JFXAlert<String> alert = new JFXAlert<>();
+			alert.initModality(Modality.APPLICATION_MODAL);
+			alert.setOverlayClose(false);
+			JFXDialogLayout layout = new JFXDialogLayout();
+			layout.setHeading(new Text("Edit Manager Detail"));
+			layout.setMinSize(1000, 200);
+
+			HBox box = new HBox(10);
+			JFXNumberField portalId = new JFXNumberField();
+			portalId.setPromptText("Enter Portal Id");
+			JFXTextField managerName = new JFXTextField();
+			managerName.setPromptText("Enter Name");
+			managerName.setMinWidth(250);
+			JFXTextField designation = new JFXTextField();
+			designation.setPromptText("Enter Designation");
+			designation.setMinWidth(200);
+			JFXTextField headerTF = new JFXTextField();
+			headerTF.setPromptText("Enter The New Header Name");
+			headerTF.setMinWidth(300);
+			;
+
+			// pre populate the data for this scenario as it is edit.
+			ManagerDetailBoundary m = managerCBX.getSelectionModel().getSelectedItem();
+			portalId.setText(String.valueOf(m.getPortalId()));
+			managerName.setText(m.getName());
+			designation.setText(m.getDesignation());
+			// pre-populate the data from the board header text field
+			headerTF.setText(boardHeader.getText());
+
+			// adding validator for all these fields
+			DashboardUtil.buildRequestValidator(portalId, managerName, designation, headerTF);
+			box.getChildren().addAll(portalId, managerName, designation, headerTF);
+			layout.setBody(box);
+
+			JFXButton okBtn = new JFXButton("Save Changes");
+			okBtn.getStyleClass().add("dialog-accept");
+
+			okBtn.setOnAction(b -> onEditManagerSaveAction(boardHeader.getText(), alert, portalId, managerName,
+					designation, headerTF));
+
+			layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+					+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+					+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+					+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+			JFXButton cancelBtn = new JFXButton("Cancel");
+			cancelBtn.setOnAction(e -> {
+				alert.hideWithAnimation();
+			});
+			// add enter button listener on the button
+			okBtn.setOnKeyPressed(e -> {
+				if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+					okBtn.fire();
+				}
+			});
+
+			cancelBtn.setOnKeyPressed(e -> {
+				if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+					okBtn.fire();
+				}
+			});
+
+			JFXButton deleteManagerBtn = new JFXButton("Delete Manager");
+			deleteManagerBtn.setOnAction(this::deleteManagerAction);
+			layout.setActions(okBtn, deleteManagerBtn, cancelBtn);
+			alert.setContent(layout);
+			alert.show();
+
+		}
+	}
+
+	private void deleteManagerAction(ActionEvent e) {
+		// TODO add confirmation dialog here.
+
+		ManagerDetailBoundary m = managerCBX.getSelectionModel().getSelectedItem();
+		Optional<PerfomanceBoardBoundary> opbb = perfomanceBoardDetails.parallelStream()
+				.filter(p -> p.getManagerDetailBoundary().getFolderName().equals(m.getFolderName())).findFirst();
+
+		int size = perfomanceBoardDetails.size();
+		if (opbb.isPresent()) {
+			perfomanceBoardDetails.remove(opbb);
+			managerCBX.getItems().remove(managerCBX.getSelectionModel().getSelectedItem());
+			managerCBX.getSelectionModel().clearSelection();
+			managerCBX.fireEvent(e);
+			boardHeader.clear();
+			if (size > 1) {
+				managerCBX.getSelectionModel().select(0);
+			} else {
+				// no more entries present.
+				members.clear();
+				tableView.fireEvent(e);
+			}
+		}
+	}
+
+	private void onEditManagerSaveAction(String text, JFXAlert<String> alert, JFXNumberField portalId,
+			JFXTextField managerName, JFXTextField designation, JFXTextField headerTF) {
+		if (DashboardUtil.validateTextField(portalId, managerName, designation, headerTF)) {
+			// let them edit the changes they wanted..
+			ManagerDetailBoundary m = managerCBX.getSelectionModel().getSelectedItem();
+			// prior to edit fetch board boundary to re-edit it.
+			// now edit the performance board list with the updated manager.
+			Optional<PerfomanceBoardBoundary> opbb = perfomanceBoardDetails.parallelStream()
+					.filter(p -> p.getManagerDetailBoundary().getFolderName().equals(m.getFolderName())).findFirst();
+			// edit the details
+			m.setPortalId(Integer.valueOf(portalId.getText()));
+			m.setName(managerName.getText());
+			m.setDesignation(designation.getText());
+			// rechange the header name and folder name.
+			boardHeader.setText(headerTF.getText());
+			m.setFolderName(headerTF.getText().replaceAll(" ", ""));
+			// adjust the manager with the new changes.
+			managerCBX.getItems().remove(managerCBX.getSelectionModel().getSelectedIndex());
+			managerCBX.getSelectionModel().clearSelection();
+			managerCBX.getItems().add(m);
+
+			// just to be null safe
+			if (opbb.isPresent()) {
+				PerfomanceBoardBoundary pbb = opbb.get();
+				pbb.setManagerDetailBoundary(m);
+				pbb.setFolderName(m.getFolderName());
+				pbb.setHeaderTxt(headerTF.getText());
+			}
+
+			// after adding it to the list re-change the selection model of combo box.
+			managerCBX.getSelectionModel().select(m);
+
+			// just save all the details as we have the manager changed.
+			// save so that we will not have any issues further.
+			saveAllTheDetails(null);
+
+		}
+		// hide the dialog animation once done.
+		alert.hideWithAnimation();
 	}
 
 	private void saveAllTheDetails(ActionEvent e) {
