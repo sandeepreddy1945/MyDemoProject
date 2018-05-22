@@ -54,6 +54,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
@@ -547,11 +548,13 @@ public class PerfomanceBoardDetails extends HBox {
 		alert.showAndWait();
 	}
 
-	private void popOutAlert(String text, String title, AlertType alertType) {
+	private Alert popOutAlert(String text, String title, AlertType alertType) {
 		Alert alert = new Alert(alertType);
 		alert.setTitle(title);
 		alert.setContentText(text);
 		alert.showAndWait();
+
+		return alert;
 	}
 
 	private VBox constructMiddleBox() {
@@ -716,8 +719,14 @@ public class PerfomanceBoardDetails extends HBox {
 		saveBtn.setOnAction(this::saveAllTheDetails);
 
 		delBtn.setOnAction(e -> {
-			members.remove(tableView.getSelectionModel().getSelectedIndex());
-			tableView.fireEvent(e);
+			if (tableView.getSelectionModel().getSelectedItem() == null) {
+				popOutAlert(
+						"No a Valid Table Row Selected to Delete ." + "Pleae Select a Row from the Table to delete.",
+						"Performance Board");
+			} else {
+				members.remove(tableView.getSelectionModel().getSelectedIndex());
+				tableView.fireEvent(e);
+			}
 		});
 
 		previewBtn.setOnAction(e -> {
@@ -794,7 +803,6 @@ public class PerfomanceBoardDetails extends HBox {
 			JFXTextField headerTF = new JFXTextField();
 			headerTF.setPromptText("Enter The New Header Name");
 			headerTF.setMinWidth(300);
-			;
 
 			// pre populate the data for this scenario as it is edit.
 			ManagerDetailBoundary m = managerCBX.getSelectionModel().getSelectedItem();
@@ -837,7 +845,8 @@ public class PerfomanceBoardDetails extends HBox {
 			});
 
 			JFXButton deleteManagerBtn = new JFXButton("Delete Manager");
-			deleteManagerBtn.setOnAction(this::deleteManagerAction);
+			deleteManagerBtn.setOnAction(event -> deleteManagerAction(event, alert));
+
 			layout.setActions(okBtn, deleteManagerBtn, cancelBtn);
 			alert.setContent(layout);
 			alert.show();
@@ -845,27 +854,46 @@ public class PerfomanceBoardDetails extends HBox {
 		}
 	}
 
-	private void deleteManagerAction(ActionEvent e) {
+	/**
+	 * Delete a manager / board details completely.
+	 * 
+	 * @param e
+	 */
+	private void deleteManagerAction(ActionEvent e, JFXAlert jfxAlert) {
 		// TODO add confirmation dialog here.
+		Alert alert = popOutAlert("Are you sure you want to delete the Manager ? \n "
+				+ "Deleting the manager would delete the enitre manager's data \n "
+				+ "and also the members associated with them permanently . \n "
+				+ "Action once done the data will be deleted and cannot be reterived back . \n"
+				+ "This Action will performa an Auto Save.", "Delete Manager/Board", AlertType.CONFIRMATION);
 
-		ManagerDetailBoundary m = managerCBX.getSelectionModel().getSelectedItem();
-		Optional<PerfomanceBoardBoundary> opbb = perfomanceBoardDetails.parallelStream()
-				.filter(p -> p.getManagerDetailBoundary().getFolderName().equals(m.getFolderName())).findFirst();
+		if (alert.getResult() == ButtonType.OK) {
+			ManagerDetailBoundary m = managerCBX.getSelectionModel().getSelectedItem();
+			Optional<PerfomanceBoardBoundary> opbb = perfomanceBoardDetails.parallelStream()
+					.filter(p -> p.getManagerDetailBoundary().getFolderName().equals(m.getFolderName())).findFirst();
 
-		int size = perfomanceBoardDetails.size();
-		if (opbb.isPresent()) {
-			perfomanceBoardDetails.remove(opbb);
-			managerCBX.getItems().remove(managerCBX.getSelectionModel().getSelectedItem());
-			managerCBX.getSelectionModel().clearSelection();
-			managerCBX.fireEvent(e);
-			boardHeader.clear();
-			if (size > 1) {
-				managerCBX.getSelectionModel().select(0);
-			} else {
-				// no more entries present.
-				members.clear();
-				tableView.fireEvent(e);
+			int size = perfomanceBoardDetails.size();
+			if (opbb.isPresent()) {
+				// remove the detail from main boundary.
+				perfomanceBoardDetails.remove(opbb.get());
+				managerCBX.getItems().remove(managerCBX.getSelectionModel().getSelectedItem());
+				managerCBX.getSelectionModel().clearSelection();
+				managerCBX.fireEvent(e);
+				boardHeader.clear();
+				if (size > 1) {
+					managerCBX.getSelectionModel().select(0);
+				} else {
+					// no more entries present.
+					members.clear();
+					tableView.fireEvent(e);
+				}
+
+				// auto save the details.
+				saveAllTheDetails(null);
+				jfxAlert.hideWithAnimation();
 			}
+		} else {
+			// do nothing for now.
 		}
 	}
 
