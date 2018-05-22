@@ -4,13 +4,20 @@
 package com.app.chart.run.ui;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.RunJsonBoundary;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
-import com.app.charts.utilities.JFXNumberField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
@@ -31,7 +38,10 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
@@ -103,6 +113,7 @@ public class AppSequencerUI extends HBox {
 		tableView.setEditable(true);
 		tableView.setPadding(new Insets(15));
 
+		// add drag and drop listener on the table
 		addTableDragDropListener();
 
 		HBox bottomPanel = buildBottomPanel();
@@ -126,13 +137,16 @@ public class AppSequencerUI extends HBox {
 		deleteRow.setOnAction(this::deleteRowEntryAction);
 		saveBtn.setOnAction(this::saveDetailsAction);
 
+		// set position to right
+		box.setAlignment(Pos.BOTTOM_RIGHT);
+		box.setPadding(new Insets(0, 40, 0, 0));
 		// add all the buttons to box
 		box.getChildren().addAll(addEntry, editEntry, deleteRow, saveBtn);
 		return box;
 	}
 
 	private void addEntryAction(ActionEvent e) {
-
+		displayAddEntryBox();
 	}
 
 	private void editEntryAction(ActionEvent e) {
@@ -163,18 +177,25 @@ public class AppSequencerUI extends HBox {
 		alert.setOverlayClose(false);
 		JFXDialogLayout layout = new JFXDialogLayout();
 		layout.setHeading(new Text("Add Perfomance Meter Stats"));
-		layout.setMinSize(500, 200);
+		layout.setMinSize(1200, 200);
 
 		HBox box = new HBox(10);
-		JFXNumberField pathTF = new JFXNumberField();
+		JFXTextField pathTF = new JFXTextField();
 		pathTF.setPromptText("Path");
-		JFXNumberField headerTxt = new JFXNumberField();
+		JFXTextField headerTxt = new JFXTextField();
 		headerTxt.setPromptText("Enter Header Txt");
+
+		// dimension settings
+		optionsBox.setMinWidth(200);
+		headerCBX.setMinWidth(250);
+
+		pathTF.setMinWidth(300);
+		headerTxt.setMinWidth(300);
 
 		box.getChildren().addAll(optionsBox, pathTF, headerCBX, headerTxt);
 		layout.setBody(box);
 
-		JFXButton okBtn = new JFXButton("OK");
+		JFXButton okBtn = new JFXButton("Add Record To Table");
 		okBtn.getStyleClass().add("dialog-accept");
 
 		optionsBox.setOnAction(e -> {
@@ -189,10 +210,21 @@ public class AppSequencerUI extends HBox {
 				DashboardUtil.buildRequestValidator(pathTF, headerTxt);
 				headerCBX.getSelectionModel().select(0);
 				headerCBX.setDisable(true);
+				headerTxt.setDisable(false);
+				pathTF.clear();
+				pathTF.setDisable(false);
 			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.image.name())) {
 				DashboardUtil.buildRequestValidator(pathTF, headerTxt);
+				headerCBX.setDisable(false);
+				headerTxt.setDisable(false);
+				pathTF.clear();
+				pathTF.setDisable(false);
 			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.customer.name())) {
 				DashboardUtil.buildRequestValidator(pathTF, headerTxt);
+				headerCBX.setDisable(false);
+				headerTxt.setDisable(false);
+				pathTF.clear();
+				pathTF.setDisable(false);
 			}
 		});
 
@@ -223,11 +255,169 @@ public class AppSequencerUI extends HBox {
 		});
 
 		JFXButton searchBtn = new JFXButton("Search Option");
+		searchBtn.setOnAction(e -> {
+
+		});
 
 		layout.setActions(searchBtn, okBtn, cancelBtn);
 		alert.setContent(layout);
 		alert.show();
 
+	}
+
+	private void buildSearchOptionDialog(String typeSelected) throws IOException {
+
+		ObservableList<SearchOptionTableBoundary> searchOptionMembers = FXCollections.observableArrayList();
+
+		if (typeSelected.equals(DisplayBoardConstants.dashboard.name())) {
+			// just refer that the search is not applicable to it . it just needs to be
+			// added lyk wise.
+
+			popOutAlert("The Searh Option is Not Applicable to dashboard type. \n "
+					+ "Just select this option and add this to the table , the application will run the dashboard items in sequence added. ",
+					"App Sequencer", AlertType.INFORMATION);
+
+		} else if (typeSelected.equals(DisplayBoardConstants.chart.name())) {
+			Properties chartManagerProps = new Properties();
+			String type = DisplayBoardConstants.chart.name();
+			String propsPath = FilesUtil.PROPS_DIR_PATH;
+			// load the properties from the manager file
+			chartManagerProps.load(FileUtils.openInputStream(new File(FilesUtil.MANAGER_PROPS_PATH)));
+
+			// loop on the properties applicable.
+			chartManagerProps.forEach((key, value) -> {
+				searchOptionMembers.add(
+						constructSearchOptionTabBoundary(type, propsPath, String.valueOf(key), String.valueOf(value)));
+			});
+		} else if (typeSelected.equals(DisplayBoardConstants.image.name())) {
+			// just display all the entries in the image folder that are available
+			String type = DisplayBoardConstants.chart.name();
+			String propsPath = FilesUtil.IMAGES_DIR_PATH;
+			// String[] imageFormats = { "JPEG", "PNG", "BMP", "WBMP", "GIF" };
+			// a predicate with suppoted image formats for filtering.
+			Predicate<File> filePredicate = e -> {
+				String fileName = e.getName().toLowerCase();
+				return (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png")
+						|| fileName.endsWith(".bmp") || fileName.endsWith(".wbmp") || fileName.endsWith(".gif"));
+			};
+			List<File> filesList = new ArrayList<>();
+			File imagesDir = new File(FilesUtil.IMAGES_DIR_PATH);
+			// juzz to make sure it is a directory --> obvio its a directory
+			if (imagesDir.isDirectory()) {
+				File[] files = imagesDir.listFiles();
+				filesList = Arrays.stream(files).filter(filePredicate).collect(Collectors.toList());
+				filesList.stream().forEach(f -> {
+					searchOptionMembers
+							.add(constructSearchOptionTabBoundary(type, propsPath, f.getName(), "To Be Added"));
+				});
+			}
+		} else if (typeSelected.equals(DisplayBoardConstants.customer.name())) {
+			// this is yet to be implemented ..Coding in Process.
+			popOutAlert("Improvement In Progress .For Now this Feature is Not Available", "MPS Charts",
+					AlertType.INFORMATION);
+		}
+
+		buildSearchOptionTableView(searchOptionMembers);
+
+	}
+
+	private VBox buildSearchOptionTableView(ObservableList<SearchOptionTableBoundary> searchOptionMembers) {
+
+		VBox searchVBox = new VBox(10);
+		// initialize the table view for options show dialog
+
+		// build tree
+		TreeItem<SearchOptionTableBoundary> searchOptionRoot = new RecursiveTreeItem<>(searchOptionMembers,
+				RecursiveTreeObject::getChildren);
+
+		JFXTreeTableView<SearchOptionTableBoundary> searchOptionTabView = new JFXTreeTableView<>(searchOptionRoot);
+
+		// prior settings
+		searchOptionTabView.setMinSize(WIDTH, HEIGHT - 180);
+		searchOptionTabView.setPrefSize(WIDTH, HEIGHT - 180);
+		searchOptionTabView.setShowRoot(false);
+		searchOptionTabView.setEditable(true);
+		searchOptionTabView.setPadding(new Insets(15));
+
+		JFXTreeTableColumn<SearchOptionTableBoundary, String> componentType = new JFXTreeTableColumn<>("Type");
+		componentType.setPrefWidth(200);
+		componentType
+				.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
+					if (componentType.validateValue(param)) {
+						return param.getValue().getValue().getType();
+					} else {
+						return componentType.getComputedValue(param);
+					}
+				});
+
+		JFXTreeTableColumn<SearchOptionTableBoundary, String> componentRefPath = new JFXTreeTableColumn<>("File Name");
+		componentRefPath.setPrefWidth(300);
+		componentRefPath
+				.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
+					if (componentRefPath.validateValue(param)) {
+						return param.getValue().getValue().getFileName();
+					} else {
+						return componentRefPath.getComputedValue(param);
+					}
+				});
+
+		JFXTreeTableColumn<SearchOptionTableBoundary, String> isHdrApplicable = new JFXTreeTableColumn<>("Folder Name");
+		isHdrApplicable.setPrefWidth(350);
+		isHdrApplicable
+				.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
+					if (isHdrApplicable.validateValue(param)) {
+						return param.getValue().getValue().getFolderName();
+					} else {
+						return isHdrApplicable.getComputedValue(param);
+					}
+				});
+
+		JFXTreeTableColumn<SearchOptionTableBoundary, String> hdrTxt = new JFXTreeTableColumn<>(
+				"Header Text If Applicable");
+		hdrTxt.setPrefWidth(450);
+		hdrTxt.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
+			if (hdrTxt.validateValue(param)) {
+				return param.getValue().getValue().getHeaderText();
+			} else {
+				return hdrTxt.getComputedValue(param);
+			}
+		});
+
+		// allow multi row selection here for the table
+		searchOptionTabView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+		// set colums to table
+		searchOptionTabView.getColumns().addAll(componentType, componentRefPath, isHdrApplicable, hdrTxt);
+
+		HBox box = new HBox(20);
+		Label sizeLbl = new Label("Table Size: ");
+		Label size = new Label();
+		JFXTextField searchTF = new JFXTextField();
+		searchTF.setPromptText("Search Text Here!!!");
+		size.textProperty()
+				.bind(Bindings.createStringBinding(() -> String.valueOf(searchOptionTabView.getCurrentItemsCount()),
+						searchOptionTabView.currentItemsCountProperty()));
+
+		searchTF.textProperty().addListener((o, oldVal, newVal) -> {
+			searchOptionTabView.setPredicate(userProp -> {
+				final SearchOptionTableBoundary user = userProp.getValue();
+				return user.type.get().toLowerCase().contains(newVal.toLowerCase())
+						|| user.fileName.get().contains(newVal) || user.folderName.get().contains(newVal)
+						|| user.headerText.get().contains(newVal);
+			});
+		});
+		searchTF.setAlignment(Pos.CENTER_LEFT);
+		searchTF.setMinSize(450, 15);
+		box.getChildren().addAll(searchTF, sizeLbl, size);
+		box.setPrefSize(600, 20);
+		box.setPadding(new Insets(15));
+
+		JFXButton addSelectedBtn = new JFXButton("Add Selected Item(s)");
+
+		// add the components to search box
+		searchVBox.getChildren().addAll(box, searchOptionTabView);
+
+		return searchVBox;
 	}
 
 	private void addTableDragDropListener() {
@@ -371,6 +561,23 @@ public class AppSequencerUI extends HBox {
 		return m;
 	}
 
+	private SearchOptionTableBoundary constructSearchOptionTabBoundary(String type, String folderName, String fileName,
+			String headerTxt) {
+		SearchOptionTableBoundary m = new SearchOptionTableBoundary();
+		// instantiate fields
+		m.setType(new SimpleStringProperty());
+		m.setFolderName(new SimpleStringProperty());
+		m.setFileName(new SimpleStringProperty());
+		m.setHeaderText(new SimpleStringProperty());
+
+		m.getType().set(type);
+		m.getFolderName().set(folderName);
+		m.getFileName().set(fileName);
+		m.getHeaderText().set(headerTxt);
+
+		return m;
+	}
+
 	@Getter
 	@Setter
 	@ToString
@@ -385,12 +592,35 @@ public class AppSequencerUI extends HBox {
 		// TODO add score getters and calendar events.
 	}
 
+	@Getter
+	@Setter
+	@ToString
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class SearchOptionTableBoundary extends RecursiveTreeObject<SearchOptionTableBoundary> {
+
+		StringProperty type;
+		StringProperty folderName;
+		StringProperty fileName;
+		StringProperty headerText;
+		// TODO add score getters and calendar events.
+	}
+
 	private static boolean stringToBoolean(String s) {
 		return s == null ? Boolean.FALSE : s.length() > 0 ? s.equalsIgnoreCase("Y") : Boolean.FALSE;
 	}
 
 	private static String booleanToString(boolean b) {
 		return b ? "Y" : "N";
+	}
+
+	private Alert popOutAlert(String text, String title, AlertType alertType) {
+		Alert alert = new Alert(alertType);
+		alert.setTitle(title);
+		alert.setContentText(text);
+		alert.showAndWait();
+
+		return alert;
 	}
 
 }
