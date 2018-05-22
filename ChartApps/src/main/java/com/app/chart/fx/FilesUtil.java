@@ -38,6 +38,8 @@ public class FilesUtil {
 	public static final String DASHBOARD_CONTENT_PATH = MAIN_APP_PATH + SLASH + "dashboard";
 	public static final String DASHBOARD_CONTENT_DATA_FILE = "dashboardContent.json";
 	public static final String DASHBOARD_CONTENT_DATA = DASHBOARD_CONTENT_PATH + SLASH + DASHBOARD_CONTENT_DATA_FILE;
+	public static final String DASHBOARD_PROPS_PATH_BCK = PROPS_DIR_PATH + SLASH + "managerpropsbck";
+	public static final String DASHBOARD_CONTENT_PATH_BCK = DASHBOARD_CONTENT_PATH + SLASH + "dashboardbck";
 
 	/**
 	 * 
@@ -61,7 +63,7 @@ public class FilesUtil {
 	 */
 	public static void initializeFileSettings() throws IOException {
 		checkAndCreateDir(MAIN_APP_PATH, IMAGES_DIR_PATH, HTML_DIR_PATH, PROPS_DIR_PATH, JSON_MSGS_PATH, JS_DIR_PATH,
-				CSS_DIR_PATH, DASHBOARD_CONTENT_PATH);
+				CSS_DIR_PATH, DASHBOARD_CONTENT_PATH, DASHBOARD_PROPS_PATH_BCK, DASHBOARD_CONTENT_PATH_BCK);
 
 		copyJsAndCssFilesToFolders();
 

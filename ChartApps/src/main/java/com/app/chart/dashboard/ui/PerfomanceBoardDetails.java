@@ -874,6 +874,26 @@ public class PerfomanceBoardDetails extends HBox {
 
 			int size = perfomanceBoardDetails.size();
 			if (opbb.isPresent()) {
+
+				// create a back file of the data and then delete the entries .
+				// to make sure we donot lose any data that is important to us.
+				try {
+					String contentData = mapper.writerWithDefaultPrettyPrinter()
+							.writeValueAsString(perfomanceBoardDetails);
+					System.out.println(contentData);
+
+					// never append the file always overwrite it as we are storing all the details
+					// in one single file.
+
+					// back up all the data that is going to be delted for safe purpose,.
+					FileUtils.writeStringToFile(
+							new File(FilesUtil.DASHBOARD_CONTENT_PATH_BCK + FilesUtil.SLASH + "DashboardBackup-"
+									+ System.currentTimeMillis() + ".json"),
+							contentData, Charset.defaultCharset(), false);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+
 				// remove the detail from main boundary.
 				perfomanceBoardDetails.remove(opbb.get());
 				managerCBX.getItems().remove(managerCBX.getSelectionModel().getSelectedItem());

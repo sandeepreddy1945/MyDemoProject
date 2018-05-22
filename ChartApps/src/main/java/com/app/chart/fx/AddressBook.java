@@ -2,15 +2,18 @@ package com.app.chart.fx;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.tree.OrgTreeView;
+import com.app.chart.model.ChartBoardBoundary;
 import com.app.chart.model.EmployeeDetails;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -105,12 +108,15 @@ public class AddressBook extends Application {
 	Properties props = new Properties();
 	ObjectMapper objectMapper = new ObjectMapper();
 	private JFXTextField addManagerField;
+	private JFXTextField chartNameTF;
+
+	private ChartBoardBoundary chartBoardBoundary;
 
 	public static void main(String[] args) {
 		launch(args);
 	}
 
-	// TODO to replace the save employee boundary with the ChartBoardBiundary for
+	// TODO to replace the save employee boundary with the ChartBoardBoundary for
 	// saving purpose.
 
 	@Override
@@ -125,6 +131,7 @@ public class AddressBook extends Application {
 		stage.setTitle("Add Members Here");
 		stage.setWidth(WIDTH);
 		stage.setHeight(HEIGHT);
+		chartBoardBoundary = new ChartBoardBoundary();
 
 		tableView.setMinSize(WIDTH, HEIGHT - 450);
 		tableView.setPrefSize(WIDTH, HEIGHT - 450);
@@ -150,12 +157,15 @@ public class AddressBook extends Application {
 		final JFXButton previewBtn = new JFXButton("Create Preview Order");
 		addManagerField.setMinSize(450, 20);
 
+		// make it a required filed for entering data.
+		DashboardUtil.buildRequestValidator(addManagerField);
+
 		JFXButton addChart = new JFXButton("Add Chart To List");
 		headerHb.setMinWidth(1000);
 		headerHb.setSpacing(10);
 		headerHb.getChildren().addAll(teamCombo, addManagerField, addChart, previewBtn);
 
-		JFXTextField chartNameTF = new JFXTextField();
+		chartNameTF = new JFXTextField();
 
 		chartNameTF.setPromptText("Enter Chart Header Name Here..");
 		RequiredFieldValidator validator = new RequiredFieldValidator();
@@ -418,9 +428,12 @@ public class AddressBook extends Application {
 				// TypeReference<List<MyClass>>(){});
 				// List<MyClass> myObjects = mapper.readValue(jsonInput,
 				// mapper.getTypeFactory().constructCollectionType(List.class, MyClass.class));
-				EmployeeDetails[] empList = objectMapper.readValue(jsonStr, EmployeeDetails[].class);
+				chartBoardBoundary = objectMapper.readValue(jsonStr, ChartBoardBoundary.class);
+				List<EmployeeDetails> empList = chartBoardBoundary.getEmployeeDetails();
+				// auto populate the header text as well.
+				chartNameTF.setText(chartBoardBoundary.getHeaderTxt());
 
-				Arrays.stream(empList).forEach(emp -> {
+				empList.forEach(emp -> {
 					data.add(constructAddressBookTableMemberBoundary(emp));
 					tableView.fireEvent(e);
 				});
@@ -431,14 +444,15 @@ public class AddressBook extends Application {
 	}
 
 	private void onAddChartAction(final JFXTextField addManagerField, final JFXTextField chartNameTF) {
-		if (addManagerField.getText().length() < 1) {
+		// check if any spaces are present and report it.
+		if (addManagerField.getText().length() < 1 || addManagerField.getText().contains(" ")) {
 			JFXAlert<String> alert = new JFXAlert<>();
 			alert.initModality(Modality.APPLICATION_MODAL);
 			alert.setOverlayClose(false);
 			JFXDialogLayout layout = new JFXDialogLayout();
 			layout.setHeading(new Label("Missing Fields"));
-			layout.setBody(new Label(
-					"Chart Name cannot be empty !! \n" + "Please Enter Values In all The Fields To Continue ..."));
+			layout.setBody(new Label("Chart Name cannot be empty (Or) Cannot contain Spaces in the Name \n"
+					+ "Please Enter Values as per standards in all The Fields To Continue ..."));
 			JFXButton closeButton = new JFXButton("OK");
 			closeButton.getStyleClass().add("dialog-accept");
 			closeButton.setOnAction(event -> alert.hideWithAnimation());
@@ -449,49 +463,72 @@ public class AddressBook extends Application {
 			layout.setActions(closeButton);
 			alert.setContent(layout);
 			alert.show();
-		} else {
+		}
 
-			try {
+		else {
 
-				if (!(chartNameTF.getText().length() > 0)) {
-					popOutAlert("The Header Name of the Chart Cannot be Empty . \n "
-							+ "Please add the Title Header to be displayed in the Chart Header Name field \n "
-							+ "and then click on Add Manager button.", "MPS Charts");
-					return;
+			// check for duplicate entries on the combo box by checking on equals ignore
+			// case
+			// as files will not be case sensitive.
+			Optional<String> isItemAlreadyExists = teamCombo.getItems().stream()
+					.filter(s -> s.equalsIgnoreCase(addManagerField.getText())).findFirst();
+
+			if (isItemAlreadyExists.isPresent()) {
+				popOutAlert("The Folder / Manager Name you are trying to add already exists. /n "
+						+ "Please Try adding a different name . The name is just for saving purpose "
+						+ " and will not be displayed any where else . \n"
+						+ "Fox Example : If you have sandeep name aleready give and wanted to use the similar name for identification ."
+						+ "Please use something like this sandeep1 and save.", "MPS Charts");
+				return;
+			} else {
+
+				try {
+
+					if (!(chartNameTF.getText().length() > 0)) {
+						popOutAlert("The Header Name of the Chart Cannot be Empty . \n "
+								+ "Please add the Title Header to be displayed in the Chart Header Name field \n "
+								+ "and then click on Add Manager button.", "MPS Charts");
+						return;
+					}
+					// add an entry to manager.properties file for loading.
+					if (!new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText()).exists()) {
+						props.put(addManagerField.getText(), chartNameTF.getText());
+						FileUtils.write(new File(FilesUtil.MANAGER_PROPS_PATH),
+								addManagerField.getText() + "=" + chartNameTF.getText() + "\n",
+								Charset.defaultCharset(), true);
+					}
+					FilesUtil.checkAndCreateDir(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText());
+					FilesUtil.checkAndCreateFile(
+							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+									+ APP_JS,
+							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+									+ APP_JSON,
+							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+									+ INDEX_HTML,
+							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+									+ TEMP_HTML,
+							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+									+ PREVIEW_JSON,
+							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
+									+ TEMP_JS);
+
+					FileUtils.copyToFile(
+							getClass().getClassLoader().getResourceAsStream("com/app/chart/html/index.html"),
+							new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText()
+									+ FilesUtil.SLASH + INDEX_HTML));
+
+					FileUtils.copyToFile(
+							getClass().getClassLoader().getResourceAsStream("com/app/chart/html/temp.html"),
+							new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText()
+									+ FilesUtil.SLASH + TEMP_HTML));
+
+					teamCombo.getItems().add(addManagerField.getText());
+					addManagerField.clear();
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
-				// add an entry to manager.properties file for loading.
-				if (!new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText()).exists()) {
-					FileUtils.write(new File(FilesUtil.MANAGER_PROPS_PATH),
-							addManagerField.getText() + "=" + chartNameTF.getText() + "\n", true);
-				}
-				FilesUtil.checkAndCreateDir(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText());
-				FilesUtil.checkAndCreateFile(
-						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ APP_JS,
-						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ APP_JSON,
-						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ INDEX_HTML,
-						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ TEMP_HTML,
-						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ PREVIEW_JSON,
-						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ TEMP_JS);
-
-				FileUtils.copyToFile(getClass().getClassLoader().getResourceAsStream("com/app/chart/html/index.html"),
-						new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ INDEX_HTML));
-
-				FileUtils.copyToFile(getClass().getClassLoader().getResourceAsStream("com/app/chart/html/temp.html"),
-						new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + addManagerField.getText() + FilesUtil.SLASH
-								+ TEMP_HTML));
-			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
 
-			teamCombo.getItems().add(addManagerField.getText());
-			addManagerField.clear();
 		}
 	}
 
@@ -502,67 +539,144 @@ public class AddressBook extends Application {
 		alert.showAndWait();
 	}
 
+	private Alert popOutAlert(String text, AlertType alertType) {
+		Alert alert = new Alert(alertType);
+		alert.setTitle("MPS Charts");
+		alert.setContentText(text);
+		alert.showAndWait();
+
+		return alert;
+	}
+
 	private void onSaveActionPerfomed() {
 		// save action
 		if (teamCombo.getSelectionModel().getSelectedIndex() != -1) {
 
-			List<EmployeeDetails> empList = new ArrayList<>();
-			data.stream().forEach(p -> {
-				EmployeeDetails emp = new EmployeeDetails();
-				emp.setName(p.getName().get());
-				emp.setParent(p.getParent().get());
-				emp.setPortalId(p.getPortal().get());
-				emp.setTeam(p.getTeam().get());
-				emp.setDescription(p.getDesignation().get());
-				emp.setLink("http://localhost:8020/" + emp.getPortalId());
-				empList.add(emp);
-			});
+			if (chartNameTF.getText().length() > 0) {
 
-			try {
-				FileUtils.write(
-						new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH
-								+ teamCombo.getSelectionModel().getSelectedItem() + FilesUtil.SLASH + APP_JSON),
-						objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(empList),
-						Charset.defaultCharset(), false);
-				// prepare the js file required for the app to function
-			} catch (IOException e1) {
-				e1.printStackTrace();
+				// check if the header name is changed . This is imp for runjson building.
+				if (!props.get(teamCombo.getSelectionModel().getSelectedItem()).equals(chartNameTF.getText())) {
+					Alert alert = popOutAlert("The Header Name is changed . Did you really intend to change this. \n "
+							+ "Are you sure you wanted to save the new name instead of the old name . \n "
+							+ "Once saved the new name will be displayed as the header for this Organization chart.",
+							AlertType.CONFIRMATION);
+
+					if (alert.getResult() == ButtonType.OK) {
+						// back up the file first before saving it.
+						try {
+							File bckFile = new File(FilesUtil.DASHBOARD_PROPS_PATH_BCK + FilesUtil.SLASH
+									+ "managerpropsbck-" + System.currentTimeMillis() + ".properties");
+							OutputStream os = FileUtils.openOutputStream(bckFile, false);
+							props.store(os, "Back Up File Craeted Due to Changes Made to header on :"
+									+ new Date(System.currentTimeMillis()));
+							os.flush();
+							os.close();
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+
+						props.put(teamCombo.getSelectionModel().getSelectedItem(), chartNameTF.getText());
+						saveAllDetailsToFile();
+					} else {
+						// do nothing for now just hide the dialog and leave it alone.
+					}
+				} else {
+					saveAllDetailsToFile();
+				}
+
+			} else {
+				popOutAlert("The Header Text the chart has to display can never be Empty . \n "
+						+ "Please provide a Header Text thats needs to be displayed in the "
+						+ "Chart Header Text Field..", "MPS Charts");
 			}
+		}
+	}
+
+	private void saveAllDetailsToFile() {
+		List<EmployeeDetails> empList = new ArrayList<>();
+		data.stream().forEach(p -> {
+			EmployeeDetails emp = new EmployeeDetails();
+			emp.setName(p.getName().get());
+			emp.setParent(p.getParent().get());
+			emp.setPortalId(p.getPortal().get());
+			emp.setTeam(p.getTeam().get());
+			emp.setDescription(p.getDesignation().get());
+			emp.setLink("http://localhost:8020/" + emp.getPortalId());
+			empList.add(emp);
+		});
+
+		chartBoardBoundary.setEmployeeDetails(empList);
+		chartBoardBoundary.setFolderName(teamCombo.getSelectionModel().getSelectedItem());
+		chartBoardBoundary.setHeaderTxt(chartNameTF.getText());
+		// TODO to think if this field is useful or replace it with some other data in
+		// future
+		chartBoardBoundary.setHeadName(chartNameTF.getText());
+
+		try {
+
+			// re- write the props manager file with the newer entries .so that we dont miss
+			// on any updates.
+
+			File propsFile = new File(FilesUtil.MANAGER_PROPS_PATH);
+			OutputStream os = FileUtils.openOutputStream(propsFile);
+			// second field is the commented filed.
+			props.store(os, "This is updated recently on " + new Date(System.currentTimeMillis()));
+			// flush the changes to file
+			os.flush();
+			os.close();
+			// save the chart list in the boundary.
+			FileUtils.write(
+					new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + teamCombo.getSelectionModel().getSelectedItem()
+							+ FilesUtil.SLASH + APP_JSON),
+					objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chartBoardBoundary),
+					Charset.defaultCharset(), false);
+			// prepare the js file required for the app to function
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
 	}
 
 	private void onPreviewBtnAction(ActionEvent e) {
 
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Address Book");
-		alert.setContentText("This would auto save the current table data . \n "
-				+ "Please press OK to proceed or Cancel to stay on this page.");
-		alert.showAndWait();
-
-		if (alert.getResult() == ButtonType.OK) {
-			// do a auto save action before proceeding further.
-			this.onSaveActionPerfomed();
-
-			Dialog orgPreviewDialog = new Dialog<>();
-			orgPreviewDialog.setResizable(true);
-			List<EmployeeDetails> empList = new ArrayList<>();
-			data.stream().forEach(p -> {
-				EmployeeDetails emp = new EmployeeDetails();
-				emp.setName(p.getName().get());
-				emp.setParent(p.getParent().get());
-				emp.setPortalId(p.getPortal().get());
-				emp.setTeam(p.getTeam().get());
-				emp.setDescription(p.getDesignation().get());
-				emp.setLink("http://localhost:8020/" + emp.getPortalId());
-				empList.add(emp);
-			});
-			// current app dir depending on the check box..
-			File appDir = new File(
-					FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + teamCombo.getSelectionModel().getSelectedItem());
-			OrgTreeView<EmployeeDetails> orgTreeView = new OrgTreeView<>(empList, orgPreviewDialog, appDir);
-			orgTreeView.show();
+		if (teamCombo.getSelectionModel().getSelectedItem() == null) {
+			popOutAlert(
+					"Not a Valid folder selected to display the data.. \n "
+							+ "Please select a valid option from the Combo Box and then make this selection.",
+					"MPS Charts");
 		} else {
-			// do nothing.
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Address Book");
+			alert.setContentText("This would auto save the current table data . \n "
+					+ "Please press OK to proceed or Cancel to stay on this page.");
+			alert.showAndWait();
+
+			if (alert.getResult() == ButtonType.OK) {
+				// do a auto save action before proceeding further.
+				this.onSaveActionPerfomed();
+
+				// TODO for now this is not changed with chartboundary
+				// need to make sure if in future this needs to be changed.
+				Dialog orgPreviewDialog = new Dialog<>();
+				orgPreviewDialog.setResizable(true);
+				List<EmployeeDetails> empList = new ArrayList<>();
+				data.stream().forEach(p -> {
+					EmployeeDetails emp = new EmployeeDetails();
+					emp.setName(p.getName().get());
+					emp.setParent(p.getParent().get());
+					emp.setPortalId(p.getPortal().get());
+					emp.setTeam(p.getTeam().get());
+					emp.setDescription(p.getDesignation().get());
+					emp.setLink("http://localhost:8020/" + emp.getPortalId());
+					empList.add(emp);
+				});
+				// current app dir depending on the check box..
+				File appDir = new File(
+						FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + teamCombo.getSelectionModel().getSelectedItem());
+				OrgTreeView<EmployeeDetails> orgTreeView = new OrgTreeView<>(empList, orgPreviewDialog, appDir);
+				orgTreeView.show();
+			} else {
+				// do nothing.
+			}
 		}
 
 	}
