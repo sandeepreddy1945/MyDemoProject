@@ -3,6 +3,8 @@
  */
 package com.app.charts.main;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -24,6 +26,13 @@ public class ApplicationMain extends Application {
 	 * A time Line task with a delay of 2 minutes for each slide.
 	 */
 	Timeline timeline = new Timeline(new KeyFrame(Duration.minutes(2.0), this::executeTask));
+
+	// Fetch the Run JSON Boundary to fetch the sequence of running and headers.
+
+	private ObjectMapper objectMapper = new ObjectMapper();
+	
+
+	// TODO Some how push everything to cache so that app can be made more clean.
 
 	@Override
 	public void init() throws Exception {
