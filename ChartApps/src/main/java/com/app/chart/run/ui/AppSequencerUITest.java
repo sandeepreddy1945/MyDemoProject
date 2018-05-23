@@ -3,11 +3,6 @@
  */
 package com.app.chart.run.ui;
 
-import java.io.File;
-
-import com.app.chart.dashboard.ui.PerfomanceBoardDetails;
-import com.app.chart.fx.FilesUtil;
-
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;

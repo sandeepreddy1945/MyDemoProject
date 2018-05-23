@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -67,8 +68,9 @@ import lombok.ToString;
  */
 public class AppSequencerUI extends HBox {
 
-	private ObservableList<RunJSonTableBoundary> members = FXCollections
-			.observableArrayList(/* constructTestBoundary() */);
+	private LinkedList<RunJSonTableBoundary> memberLinkedList = new LinkedList<>();
+
+	private ObservableList<RunJSonTableBoundary> members = FXCollections.observableArrayList(memberLinkedList);
 	// build tree
 	final TreeItem<RunJSonTableBoundary> root = new RecursiveTreeItem<>(members, RecursiveTreeObject::getChildren);
 
@@ -84,10 +86,10 @@ public class AppSequencerUI extends HBox {
 	VBox mainBox = new VBox(10);
 	private ObjectMapper mapper = new ObjectMapper();
 	private List<RunJsonBoundary> runJsonBoundaries;
+	private JFXTreeTableView<SearchOptionTableBoundary> searchOptionTabView;
 
 	public AppSequencerUI(File runJsonFile) {
 		super(10);
-
 		initUI();
 	}
 
@@ -150,11 +152,181 @@ public class AppSequencerUI extends HBox {
 	}
 
 	private void editEntryAction(ActionEvent e) {
+		if (tableView.getSelectionModel().getSelectedItem() != null) {
+			RunJSonTableBoundary runJSonTableBoundary = tableView.getSelectionModel().getSelectedItem().getValue();
+			if (runJSonTableBoundary.getType().get().equalsIgnoreCase(DisplayBoardConstants.image.name())
+					|| runJSonTableBoundary.getType().get().equalsIgnoreCase(DisplayBoardConstants.customer.name())) {
+				displayEditEntryDialog(runJSonTableBoundary);
+			} else {
+				popOutAlert(
+						"Only an Image Chart Can be Edited for now. \n"
+								+ "If it really requires to edit the Dashboard (or) Organizational Chart"
+								+ " please remove the entry from the table and add it as a fresh entry .",
+						"MPS Charts", AlertType.INFORMATION);
+			}
+		}
+	}
+
+	/**
+	 * TODO to reduce the similar piece of code
+	 * 
+	 * @param value
+	 */
+	private void displayEditEntryDialog(RunJSonTableBoundary boundary) {
+
+		ObservableList<String> optionsList = FXCollections.observableArrayList(DisplayBoardConstants.chart.name(),
+				DisplayBoardConstants.dashboard.name(), DisplayBoardConstants.image.name(),
+				DisplayBoardConstants.customer.name());
+		JFXComboBox<String> optionsBox = new JFXComboBox<>(optionsList);
+		JFXComboBox<String> headerCBX = new JFXComboBox<>(FXCollections.observableArrayList("Y", "N"));
+
+		optionsBox.setPromptText("Select The Type Here");
+		headerCBX.setPromptText("Is Header Display Req");
+
+		JFXAlert<String> alert = new JFXAlert<>();
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setOverlayClose(false);
+		JFXDialogLayout layout = new JFXDialogLayout();
+		layout.setHeading(new Text("Add Perfomance Meter Stats"));
+		layout.setMinSize(1200, 200);
+
+		HBox box = new HBox(10);
+		JFXTextField pathTF = new JFXTextField();
+		pathTF.setPromptText("Path");
+		JFXTextField headerTxtTF = new JFXTextField();
+		headerTxtTF.setPromptText("Enter Header Txt");
+
+		// dimension settings
+		optionsBox.setMinWidth(200);
+		headerCBX.setMinWidth(250);
+
+		pathTF.setMinWidth(300);
+		headerTxtTF.setMinWidth(300);
+
+		box.getChildren().addAll(optionsBox, pathTF, headerCBX, headerTxtTF);
+		layout.setBody(box);
+
+		// preload the values into the fields
+		optionsBox.getSelectionModel().select(boundary.type.get());
+		// disable the combo box as we don't want to re-edit it.
+		optionsBox.setDisable(true);
+
+		headerCBX.getSelectionModel().select(boundary.isHeaderApplicable.get());
+		headerTxtTF.setText(boundary.displayTxt.get());
+		pathTF.setText(boundary.path.get());
+		// disable the path as well if req to edit delete this and add a new entry
+		// instead.
+		pathTF.setDisable(true);
+
+		JFXButton okBtn = new JFXButton("Add Record To Table");
+		okBtn.getStyleClass().add("dialog-accept");
+
+		optionsBox.setOnAction(e -> {
+			if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.dashboard.name())) {
+				pathTF.setText(FilesUtil.DASHBOARD_CONTENT_DATA_FILE);
+				pathTF.setDisable(true);
+				headerCBX.getSelectionModel().select(0);
+				headerCBX.setDisable(true);
+				headerTxtTF.setDisable(true);
+			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.chart.name())) {
+				// adding validator for all these fields
+				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
+				headerCBX.getSelectionModel().select(0);
+				headerCBX.setDisable(true);
+				// the header text should be loaded from the files it self no edit option here
+				// again.
+				headerTxtTF.setDisable(true);
+				pathTF.clear();
+				pathTF.setDisable(false);
+			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.image.name())) {
+				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
+				headerCBX.setDisable(false);
+				headerTxtTF.setDisable(false);
+				pathTF.clear();
+				pathTF.setDisable(false);
+			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.customer.name())) {
+				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
+				headerCBX.setDisable(false);
+				headerTxtTF.setDisable(false);
+				pathTF.clear();
+				pathTF.setDisable(false);
+			}
+		});
+
+		okBtn.setOnAction(e -> {
+			// now add the record obtained to the main table .
+			// path is the main part of the app so check for it.
+			if (pathTF.getText().length() > 0 && optionsBox.getSelectionModel().getSelectedItem() != null) {
+				String fileName = pathTF.getText();
+				boolean isHeaderReq = headerCBX.getSelectionModel().getSelectedItem() == null ? Boolean.FALSE
+						: stringToBoolean(headerCBX.getSelectionModel().getSelectedItem());
+				String isHedeaderReqTxt = booleanToString(isHeaderReq);
+				String headerText = headerTxtTF.getText();
+				String type = optionsBox.getSelectionModel().getSelectedItem();
+
+				// as this is a edit sequence for the table first remove the old row and the
+				// re-add it back again.
+				members.remove(boundary);
+
+				// add it at the same row where it was removed.
+				members.add(tableView.getSelectionModel().getSelectedIndex(),
+						constructTableMemberBoundary(type, fileName, isHedeaderReqTxt, headerText));
+				// fire the table away with the changes.
+				tableView.fireEvent(e);
+
+				// hide the popup
+				alert.hideWithAnimation();
+			}
+		});
+
+		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+				+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+				+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+		JFXButton cancelBtn = new JFXButton("Cancel");
+		cancelBtn.setOnAction(e -> {
+			alert.hideWithAnimation();
+		});
+		// add enter button listener on the button
+		okBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+
+		cancelBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				cancelBtn.fire();
+			}
+		});
+
+		JFXButton searchBtn = new JFXButton("Search Option");
+		searchBtn.setOnAction(e -> {
+			try {
+				// run the dialog only after a valid selection is made.
+				if (optionsBox.getSelectionModel().getSelectedItem() != null)
+					buildSearchOptionDialog(optionsBox.getSelectionModel().getSelectedItem(), pathTF, headerTxtTF);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
+
+		// only edit on header Txt and isHeaderReq fields no search option provided to
+		// the user.
+		// TODO to check if this can be improved in future.
+		searchBtn.setDisable(true);
+
+		layout.setActions(searchBtn, okBtn, cancelBtn);
+		alert.setContent(layout);
+		alert.show();
 
 	}
 
 	private void deleteRowEntryAction(ActionEvent e) {
-
+		if (tableView.getSelectionModel().getSelectedItem() != null) {
+			members.remove(tableView.getSelectionModel().getSelectedItem().getValue());
+			tableView.fireEvent(e);
+		}
 	}
 
 	private void saveDetailsAction(ActionEvent e) {
@@ -182,17 +354,17 @@ public class AppSequencerUI extends HBox {
 		HBox box = new HBox(10);
 		JFXTextField pathTF = new JFXTextField();
 		pathTF.setPromptText("Path");
-		JFXTextField headerTxt = new JFXTextField();
-		headerTxt.setPromptText("Enter Header Txt");
+		JFXTextField headerTxtTF = new JFXTextField();
+		headerTxtTF.setPromptText("Enter Header Txt");
 
 		// dimension settings
 		optionsBox.setMinWidth(200);
 		headerCBX.setMinWidth(250);
 
 		pathTF.setMinWidth(300);
-		headerTxt.setMinWidth(300);
+		headerTxtTF.setMinWidth(300);
 
-		box.getChildren().addAll(optionsBox, pathTF, headerCBX, headerTxt);
+		box.getChildren().addAll(optionsBox, pathTF, headerCBX, headerTxtTF);
 		layout.setBody(box);
 
 		JFXButton okBtn = new JFXButton("Add Record To Table");
@@ -204,34 +376,51 @@ public class AppSequencerUI extends HBox {
 				pathTF.setDisable(true);
 				headerCBX.getSelectionModel().select(0);
 				headerCBX.setDisable(true);
-				headerTxt.setDisable(true);
+				headerTxtTF.setDisable(true);
 			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.chart.name())) {
 				// adding validator for all these fields
-				DashboardUtil.buildRequestValidator(pathTF, headerTxt);
+				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
 				headerCBX.getSelectionModel().select(0);
 				headerCBX.setDisable(true);
-				headerTxt.setDisable(false);
+				// the header text should be loaded from the files it self no edit option here
+				// again.
+				headerTxtTF.setDisable(true);
 				pathTF.clear();
 				pathTF.setDisable(false);
 			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.image.name())) {
-				DashboardUtil.buildRequestValidator(pathTF, headerTxt);
+				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
 				headerCBX.setDisable(false);
-				headerTxt.setDisable(false);
+				headerTxtTF.setDisable(false);
 				pathTF.clear();
 				pathTF.setDisable(false);
 			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.customer.name())) {
-				DashboardUtil.buildRequestValidator(pathTF, headerTxt);
+				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
 				headerCBX.setDisable(false);
-				headerTxt.setDisable(false);
+				headerTxtTF.setDisable(false);
 				pathTF.clear();
 				pathTF.setDisable(false);
 			}
 		});
 
 		okBtn.setOnAction(e -> {
-		} /*
-			 * onSprintDatAddOk(teamName, alert, totalPoints, currentPoints, backlogPoints)
-			 */);
+			// now add the record obtained to the main table .
+			// path is the main part of the app so check for it.
+			if (pathTF.getText().length() > 0 && optionsBox.getSelectionModel().getSelectedItem() != null) {
+				String fileName = pathTF.getText();
+				boolean isHeaderReq = headerCBX.getSelectionModel().getSelectedItem() == null ? Boolean.FALSE
+						: stringToBoolean(headerCBX.getSelectionModel().getSelectedItem());
+				String isHedeaderReqTxt = booleanToString(isHeaderReq);
+				String headerText = headerTxtTF.getText();
+				String type = optionsBox.getSelectionModel().getSelectedItem();
+
+				members.add(constructTableMemberBoundary(type, fileName, isHedeaderReqTxt, headerText));
+				// fire the table away with the changes.
+				tableView.fireEvent(e);
+
+				// hide the popup
+				alert.hideWithAnimation();
+			}
+		});
 
 		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
 				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
@@ -250,13 +439,19 @@ public class AppSequencerUI extends HBox {
 
 		cancelBtn.setOnKeyPressed(e -> {
 			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
-				okBtn.fire();
+				cancelBtn.fire();
 			}
 		});
 
 		JFXButton searchBtn = new JFXButton("Search Option");
 		searchBtn.setOnAction(e -> {
-
+			try {
+				// run the dialog only after a valid selection is made.
+				if (optionsBox.getSelectionModel().getSelectedItem() != null)
+					buildSearchOptionDialog(optionsBox.getSelectionModel().getSelectedItem(), pathTF, headerTxtTF);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		});
 
 		layout.setActions(searchBtn, okBtn, cancelBtn);
@@ -265,7 +460,8 @@ public class AppSequencerUI extends HBox {
 
 	}
 
-	private void buildSearchOptionDialog(String typeSelected) throws IOException {
+	private void buildSearchOptionDialog(String typeSelected, JFXTextField pathTF, JFXTextField headerTF)
+			throws IOException {
 
 		ObservableList<SearchOptionTableBoundary> searchOptionMembers = FXCollections.observableArrayList();
 
@@ -288,6 +484,12 @@ public class AppSequencerUI extends HBox {
 			chartManagerProps.forEach((key, value) -> {
 				searchOptionMembers.add(
 						constructSearchOptionTabBoundary(type, propsPath, String.valueOf(key), String.valueOf(value)));
+
+				// call the dialog with table view.
+				displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
+
+				// disable the pathTf as well so no manual edits are done.
+				pathTF.setDisable(true);
 			});
 		} else if (typeSelected.equals(DisplayBoardConstants.image.name())) {
 			// just display all the entries in the image folder that are available
@@ -310,6 +512,12 @@ public class AppSequencerUI extends HBox {
 					searchOptionMembers
 							.add(constructSearchOptionTabBoundary(type, propsPath, f.getName(), "To Be Added"));
 				});
+
+				// call the dialog with table view.
+				displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
+
+				// don't give the user an option to edit name here .
+				pathTF.setDisable(true);
 			}
 		} else if (typeSelected.equals(DisplayBoardConstants.customer.name())) {
 			// this is yet to be implemented ..Coding in Process.
@@ -317,8 +525,65 @@ public class AppSequencerUI extends HBox {
 					AlertType.INFORMATION);
 		}
 
-		buildSearchOptionTableView(searchOptionMembers);
+	}
 
+	private void displaySearchOptionTableDialog(VBox tableBox, JFXTextField pathTF, JFXTextField headerTF) {
+
+		JFXAlert<String> alert = new JFXAlert<>();
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setOverlayClose(false);
+		JFXDialogLayout layout = new JFXDialogLayout();
+		layout.setHeading(new Text("Search Option View"));
+		layout.setMinSize(800, 800);
+
+		// add the table view to the body.
+		layout.setBody(tableBox);
+
+		JFXButton okBtn = new JFXButton("Okay!!");
+		okBtn.getStyleClass().add("dialog-accept");
+
+		okBtn.setOnAction(e -> {
+		});
+
+		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+				+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+				+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+		JFXButton cancelBtn = new JFXButton("Cancel");
+		cancelBtn.setOnAction(e -> {
+			alert.hideWithAnimation();
+		});
+		// add enter button listener on the button
+		okBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+
+		cancelBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+
+		JFXButton addSelectedBtn = new JFXButton("Add Selected Item");
+		addSelectedBtn.setOnAction(e -> {
+			if (searchOptionTabView.getSelectionModel().getSelectedItem() != null) {
+				pathTF.setText(searchOptionTabView.getSelectionModel().getSelectedItem().getValue().fileName.get());
+				headerTF.setText(searchOptionTabView.getSelectionModel().getSelectedItem().getValue().headerText.get());
+				alert.hideWithAnimation();
+			}
+		});
+
+		// for now ok button does the same as addselection
+		// TODO in future remove this or make some other use of it.
+		okBtn.setOnAction(e -> {
+			addSelectedBtn.fire();
+		});
+
+		layout.setActions(addSelectedBtn, okBtn, cancelBtn);
+		alert.setContent(layout);
+		alert.show();
 	}
 
 	private VBox buildSearchOptionTableView(ObservableList<SearchOptionTableBoundary> searchOptionMembers) {
@@ -330,17 +595,17 @@ public class AppSequencerUI extends HBox {
 		TreeItem<SearchOptionTableBoundary> searchOptionRoot = new RecursiveTreeItem<>(searchOptionMembers,
 				RecursiveTreeObject::getChildren);
 
-		JFXTreeTableView<SearchOptionTableBoundary> searchOptionTabView = new JFXTreeTableView<>(searchOptionRoot);
+		searchOptionTabView = new JFXTreeTableView<>(searchOptionRoot);
 
 		// prior settings
-		searchOptionTabView.setMinSize(WIDTH, HEIGHT - 180);
-		searchOptionTabView.setPrefSize(WIDTH, HEIGHT - 180);
+		searchOptionTabView.setMinSize(600, 600);
+		searchOptionTabView.setPrefSize(600, 600);
 		searchOptionTabView.setShowRoot(false);
 		searchOptionTabView.setEditable(true);
 		searchOptionTabView.setPadding(new Insets(15));
 
 		JFXTreeTableColumn<SearchOptionTableBoundary, String> componentType = new JFXTreeTableColumn<>("Type");
-		componentType.setPrefWidth(200);
+		componentType.setPrefWidth(50);
 		componentType
 				.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
 					if (componentType.validateValue(param)) {
@@ -351,7 +616,7 @@ public class AppSequencerUI extends HBox {
 				});
 
 		JFXTreeTableColumn<SearchOptionTableBoundary, String> componentRefPath = new JFXTreeTableColumn<>("File Name");
-		componentRefPath.setPrefWidth(300);
+		componentRefPath.setPrefWidth(150);
 		componentRefPath
 				.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
 					if (componentRefPath.validateValue(param)) {
@@ -362,7 +627,7 @@ public class AppSequencerUI extends HBox {
 				});
 
 		JFXTreeTableColumn<SearchOptionTableBoundary, String> isHdrApplicable = new JFXTreeTableColumn<>("Folder Name");
-		isHdrApplicable.setPrefWidth(350);
+		isHdrApplicable.setPrefWidth(250);
 		isHdrApplicable
 				.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
 					if (isHdrApplicable.validateValue(param)) {
@@ -374,7 +639,7 @@ public class AppSequencerUI extends HBox {
 
 		JFXTreeTableColumn<SearchOptionTableBoundary, String> hdrTxt = new JFXTreeTableColumn<>(
 				"Header Text If Applicable");
-		hdrTxt.setPrefWidth(450);
+		hdrTxt.setPrefWidth(250);
 		hdrTxt.setCellValueFactory((TreeTableColumn.CellDataFeatures<SearchOptionTableBoundary, String> param) -> {
 			if (hdrTxt.validateValue(param)) {
 				return param.getValue().getValue().getHeaderText();
@@ -383,8 +648,9 @@ public class AppSequencerUI extends HBox {
 			}
 		});
 
-		// allow multi row selection here for the table
-		searchOptionTabView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		// allow single row selection here for the table as we need to capture them in
+		// the dialog for further analysis.
+		searchOptionTabView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 		// set colums to table
 		searchOptionTabView.getColumns().addAll(componentType, componentRefPath, isHdrApplicable, hdrTxt);
@@ -411,8 +677,6 @@ public class AppSequencerUI extends HBox {
 		box.getChildren().addAll(searchTF, sizeLbl, size);
 		box.setPrefSize(600, 20);
 		box.setPadding(new Insets(15));
-
-		JFXButton addSelectedBtn = new JFXButton("Add Selected Item(s)");
 
 		// add the components to search box
 		searchVBox.getChildren().addAll(box, searchOptionTabView);
@@ -465,6 +729,8 @@ public class AppSequencerUI extends HBox {
 
 					event.setDropCompleted(true);
 					tableView.getSelectionModel().select(dropIndex);
+					// fire the table change
+					tableView.fireEvent(event);
 					event.consume();
 				}
 			});
@@ -544,8 +810,8 @@ public class AppSequencerUI extends HBox {
 		return box;
 	}
 
-	private RunJSonTableBoundary constructTableMemberBoundary(String probleWith, String problemCause,
-			String probelmDesc, String probelmSoln) {
+	private RunJSonTableBoundary constructTableMemberBoundary(String type, String fileName, String isHeaderApplicable,
+			String headerTxt) {
 		RunJSonTableBoundary m = new RunJSonTableBoundary();
 		// instantiate fields
 		m.setType(new SimpleStringProperty());
@@ -553,10 +819,10 @@ public class AppSequencerUI extends HBox {
 		m.setIsHeaderApplicable(new SimpleStringProperty());
 		m.setDisplayTxt(new SimpleStringProperty());
 
-		m.getType().set(probleWith);
-		m.getPath().set(problemCause);
-		m.getIsHeaderApplicable().set(probelmDesc);
-		m.getDisplayTxt().set(probelmSoln);
+		m.getType().set(type);
+		m.getPath().set(fileName);
+		m.getIsHeaderApplicable().set(isHeaderApplicable);
+		m.getDisplayTxt().set(headerTxt);
 
 		return m;
 	}
