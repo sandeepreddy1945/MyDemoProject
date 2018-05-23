@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CurrentSprintBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
+import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.PerfomanceMeterBoundary;
 import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.TeamMember;
@@ -148,6 +149,59 @@ public class DashboardUI extends Application {
 
 		Platform.runLater(() -> stage.show());
 
+	}
+
+	// The Actual Constructor that's used by the main App Program
+	/**
+	 * This is constructor used for preview of the board.
+	 * 
+	 * @param teamMembers
+	 * @param headerTxt
+	 * @param managerDetailBoundary
+	 * @param sunburstBoundary
+	 * @param perfomanceMeterBoundary
+	 * @param currentSprintBoundary
+	 * @throws Exception
+	 */
+	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary,
+			SunburstBoundary sunburstBoundary, PerfomanceMeterBoundary perfomanceMeterBoundary,
+			CurrentSprintBoundary currentSprintBoundary) throws Exception {
+		// compare the elements using the sort available.
+		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
+		// sort it by descending order now.
+		Collections.reverse(teamMembers);
+		this.teamMembers = teamMembers;
+		this.headerTxt = headerTxt;
+		this.managerDetailBoundary = managerDetailBoundary;
+		this.sunburstBoundary = sunburstBoundary;
+		this.perfomanceMeterBoundary = perfomanceMeterBoundary;
+		this.currentSprintBoundary = currentSprintBoundary;
+		// init the UI using the init method.
+		init();
+		hbox.setBackground(DashboardUtil.BLACK_BACKGROUND);
+		hbox.setMinSize(WIDTH, HEIGHT);
+
+	}
+
+	/**
+	 * Alternate Boundary to the main boundary.
+	 * 
+	 * @param boardBoundary
+	 * @throws Exception
+	 */
+	public DashboardUI(PerfomanceBoardBoundary boardBoundary) throws Exception {
+		this(boardBoundary.getTeamMembers(), boardBoundary.getHeaderTxt(), boardBoundary.getManagerDetailBoundary(),
+				boardBoundary.getSunburstBoundary(), boardBoundary.getPerfomanceMeterBoundary(),
+				boardBoundary.getCurrentSprintBoundary());
+	}
+
+	/**
+	 * Method used by the main app to render the UI with panel.
+	 * 
+	 * @return
+	 */
+	public HBox dashBoardMainBox() {
+		return hbox;
 	}
 
 	/**
