@@ -3,11 +3,14 @@
  */
 package com.app.chart.fx;
 
+import javafx.stage.Stage;
+
 /**
  * @author ezibcef
  *
  */
+@FunctionalInterface
 public interface DisplayImage {
 
-	void displayImag(String imageData);
+	void displayImage(String imageData, Stage stage);
 }
