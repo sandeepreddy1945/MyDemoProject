@@ -5,6 +5,7 @@ package com.app.chart.run.ui;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -16,9 +17,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.FilesUtil;
-import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.RunJsonBoundary;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
@@ -76,8 +78,6 @@ public class AppSequencerUI extends HBox {
 
 	JFXTreeTableView<RunJSonTableBoundary> tableView = new JFXTreeTableView<>(root);
 
-	private List<PerfomanceBoardBoundary> perfomanceBoardBoundaries;
-
 	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 	public static double WIDTH = visualBounds.getWidth() - 100;
 	public static double HEIGHT = visualBounds.getHeight() - 50;
@@ -85,17 +85,19 @@ public class AppSequencerUI extends HBox {
 
 	VBox mainBox = new VBox(10);
 	private ObjectMapper mapper = new ObjectMapper();
-	private List<RunJsonBoundary> runJsonBoundaries;
+	private List<RunJsonBoundary> runJsonBoundaries = new ArrayList<>();
 	private JFXTreeTableView<SearchOptionTableBoundary> searchOptionTabView;
 
 	public AppSequencerUI(File runJsonFile) {
 		super(10);
+		buildRunJsonListFromFile(runJsonFile);
 		initUI();
 	}
 
-	public AppSequencerUI(String runJsonFile) {
+	public AppSequencerUI() {
 		super(10);
-
+		// take the default path from the lane present
+		buildRunJsonListFromFile(new File(FilesUtil.RUN_PROPS_PATH));
 		initUI();
 	}
 
@@ -104,6 +106,29 @@ public class AppSequencerUI extends HBox {
 
 		this.runJsonBoundaries = runJsonBoundaries;
 		initUI();
+	}
+
+	private void buildRunJsonListFromFile(File runJsonFile) {
+		try {
+			String jsonStr = FileUtils.readFileToString(runJsonFile, Charset.defaultCharset());
+			if (jsonStr != null && jsonStr.length() > 0) {
+				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+				List<RunJsonBoundary> dataList = mapper.readValue(jsonStr,
+						mapper.getTypeFactory().constructCollectionType(List.class, RunJsonBoundary.class));
+				runJsonBoundaries = dataList;
+
+				// covert and add this to table boundary
+				runJsonBoundaries.stream().forEach(r -> {
+					members.add(constructTableMemberBoundary(r.getType(), r.getPath(),
+							booleanToString(r.isHeaderApplicable()), r.getDisplayTxt()));
+				});
+
+				// no requirement to fire the table as it is not yet instantiated.
+				// tableView.fireEvent(null);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	private void initUI() {
@@ -330,7 +355,24 @@ public class AppSequencerUI extends HBox {
 	}
 
 	private void saveDetailsAction(ActionEvent e) {
+		if (members != null) {
+			// clear the list before adding so that duplicates are avoided.
+			runJsonBoundaries.clear();
+			members.stream().forEach(m -> {
+				runJsonBoundaries.add(constructRunJsonBoundary(m));
+			});
 
+			try {
+				// now convert the list to json and store.
+				String jsonValue = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(runJsonBoundaries);
+				String fileStorePath = FilesUtil.RUN_PROPS_PATH;
+				System.out.println(jsonValue);
+				// write the value to the file.
+				FileUtils.write(new File(fileStorePath), jsonValue, Charset.defaultCharset());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 
 	private void displayAddEntryBox() {
@@ -715,22 +757,17 @@ public class AppSequencerUI extends HBox {
 				Dragboard db = event.getDragboard();
 				if (db.hasContent(SERIALIZED_MIME_TYPE)) {
 					int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-					RunJSonTableBoundary draggedPerson = members.remove(draggedIndex);
-
+					TreeItem<RunJSonTableBoundary> draggedPerson = tableView.getRoot().getChildren()
+							.remove(draggedIndex);
 					int dropIndex;
-
 					if (row.isEmpty()) {
 						dropIndex = members.size();
 					} else {
 						dropIndex = row.getIndex();
 					}
-
-					members.add(dropIndex, draggedPerson);
-
+					tableView.getRoot().getChildren().add(dropIndex, draggedPerson);
 					event.setDropCompleted(true);
 					tableView.getSelectionModel().select(dropIndex);
-					// fire the table change
-					tableView.fireEvent(event);
 					event.consume();
 				}
 			});
@@ -842,6 +879,16 @@ public class AppSequencerUI extends HBox {
 		m.getHeaderText().set(headerTxt);
 
 		return m;
+	}
+
+	private RunJsonBoundary constructRunJsonBoundary(RunJSonTableBoundary r) {
+		RunJsonBoundary b = new RunJsonBoundary();
+		b.setType(r.type.get());
+		b.setPath(r.path.get());
+		b.setDisplayTxt(r.displayTxt.get());
+		b.setHeaderApplicable(stringToBoolean(r.isHeaderApplicable.get()));
+
+		return b;
 	}
 
 	@Getter

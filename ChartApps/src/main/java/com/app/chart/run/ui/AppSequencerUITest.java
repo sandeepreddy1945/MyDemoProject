@@ -24,7 +24,7 @@ public class AppSequencerUITest extends Application {
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
 
-		Scene scene = new Scene(new AppSequencerUI(""), WIDTH, HEIGHT);
+		Scene scene = new Scene(new AppSequencerUI(), WIDTH, HEIGHT);
 		stage.setScene(scene);
 		stage.show();
 

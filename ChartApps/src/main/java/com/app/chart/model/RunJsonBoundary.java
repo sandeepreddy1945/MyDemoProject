@@ -20,14 +20,14 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonPropertyOrder({ "type", "type", "isHeaderApplicable", "displayTxt" })
+@JsonPropertyOrder({ "type", "path", "isHeaderApplicable", "displayTxt" })
 @ToString(includeFieldNames = true)
 @JsonInclude(value = Include.NON_NULL)
 public class RunJsonBoundary {
 
 	@JsonProperty("type")
 	private String type;
-	@JsonProperty("type")
+	@JsonProperty("path")
 	private String path;
 	@JsonProperty("isHeaderApplicable")
 	private boolean isHeaderApplicable;
