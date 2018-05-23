@@ -3,8 +3,6 @@
  */
 package com.app.chart.fx;
 
-import javafx.stage.Stage;
-
 /**
  * @author ezibcef
  *
@@ -12,5 +10,5 @@ import javafx.stage.Stage;
 @FunctionalInterface
 public interface DisplayOrgChart {
 
-	void displayOrgChart(String data, Stage stage);
+	void displayOrgChart(String data);
 }

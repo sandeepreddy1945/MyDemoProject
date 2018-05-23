@@ -3,8 +3,6 @@
  */
 package com.app.chart.fx;
 
-import javafx.stage.Stage;
-
 /**
  * @author ezibcef
  *
@@ -12,5 +10,5 @@ import javafx.stage.Stage;
 @FunctionalInterface
 public interface DisplayImage {
 
-	void displayImage(String imageData, Stage stage);
+	void displayImage(String imageData);
 }

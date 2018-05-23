@@ -13,7 +13,6 @@ import javafx.animation.Animation.Status;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
@@ -66,19 +65,19 @@ public class TimerUtils implements DisplayImage, DisplayOrgChart, DisplayPerfoma
 	}
 
 	@Override
-	public void displayPerfomanceBoard(String perfomanceData, Stage stage) {
+	public void displayPerfomanceBoard(String perfomanceData) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void displayOrgChart(String data, Stage stage) {
+	public void displayOrgChart(String data) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void displayImage(String imageData, Stage stage) {
+	public void displayImage(String imageData) {
 		// TODO Auto-generated method stub
 
 	}
