@@ -367,8 +367,10 @@ public class AddressBook extends Application {
 		searchTF.textProperty().addListener((o, oldVal, newVal) -> {
 			tableView.setPredicate(userProp -> {
 				final AddressBookTableBoundary user = userProp.getValue();
-				return user.portal.get().contains(newVal) || user.name.get().contains(newVal)
-						|| user.designation.get().contains(newVal) || user.team.get().contains(newVal)
+				return user.portal.get().contains(newVal)
+						|| user.name.get().toLowerCase().contains(newVal.toLowerCase())
+						|| user.designation.get().toLowerCase().contains(newVal.toLowerCase())
+						|| user.team.get().toLowerCase().contains(newVal.toLowerCase())
 						|| user.parent.get().contains(newVal);
 			});
 		});

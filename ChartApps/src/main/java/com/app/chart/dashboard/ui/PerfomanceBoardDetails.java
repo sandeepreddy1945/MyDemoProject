@@ -975,7 +975,8 @@ public class PerfomanceBoardDetails extends HBox {
 
 		// TODO need to add JSON Model for this table list.
 		try {
-			String contentData = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(perfomanceBoardDetails);
+			// For now skipping the pretty view to conserve diskspace.
+			String contentData = mapper/*.writerWithDefaultPrettyPrinter()*/.writeValueAsString(perfomanceBoardDetails);
 			System.out.println(contentData);
 
 			// never append the file always overwrite it as we are stroing all the details

@@ -252,7 +252,9 @@ public class ReleaseBoardDetails {
 					 * mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 					 * mapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
 					 */
-					String sunBurstData = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
+					//for now skipping pretty writer to save disk space
+					//String sunBurstData = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
+					String sunBurstData = mapper.writeValueAsString(b);
 					System.out.println(sunBurstData);
 					/*
 					 * mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);

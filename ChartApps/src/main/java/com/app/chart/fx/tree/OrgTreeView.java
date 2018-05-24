@@ -472,8 +472,8 @@ public class OrgTreeView<T> extends Application {
 			sb.append(COMMA);
 
 			// add header employee next
-			configOrderBuilder.append(
-					treeView.getRoot().getValue().getName() + "_" + treeView.getRoot().getValue().getPortalId());
+			configOrderBuilder.append(treeView.getRoot().getValue().getName().replaceAll(" ", "") + "_"
+					+ treeView.getRoot().getValue().getPortalId());
 			configOrderBuilder.append(COMMA);
 
 			// loop on the entire view of list of tree nodes availabe in seq by order.
@@ -566,8 +566,14 @@ public class OrgTreeView<T> extends Application {
 
 	}
 
+	/**
+	 * Replace all the spaces..Spaces cause problem in many aspects.
+	 * 
+	 * @param tid
+	 * @return
+	 */
 	private String fetchParentStr(TreeItem<EmployeeDetails> tid) {
-		return tid.getValue().getName() + "_" + tid.getValue().getPortalId();
+		return tid.getValue().getName().replaceAll(" ", "") + "_" + tid.getValue().getPortalId();
 	}
 
 	// check if duplicate item is present;

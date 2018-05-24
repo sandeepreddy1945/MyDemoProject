@@ -6,6 +6,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/**
+ * This is important that ever response header contains the all_orginis added in order
+ * to avoid problems caused by CORS.
+ * 
+ * @author Sandeep Reddy Battula
+ *
+ */
 @Path("/")
 public class EntryPoint {
 

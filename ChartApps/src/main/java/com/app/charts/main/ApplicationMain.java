@@ -5,6 +5,8 @@ package com.app.charts.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +14,12 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.cache.ChartCacheManager;
+import com.app.chart.fx.ChartWebEngine;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.image.display.DisplayImage;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.RunJsonBoundary;
+import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 import com.app.chart.run.ui.DisplayBoardConstants;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -28,10 +32,12 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -135,8 +141,8 @@ public class ApplicationMain extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 		this.stage = stage;
-		// stage.setMaximized(true);
-		// stage.setFullScreen(true);
+		stage.setMaximized(true);
+		stage.setFullScreen(true);
 		stage.setMinWidth(WIDTH);
 		stage.setMinHeight(HEIGHT);
 		// stage.centerOnScreen();
@@ -154,9 +160,8 @@ public class ApplicationMain extends Application {
 
 		// juzz display a blank page at the start.
 		Scene scene = new Scene(new HBox(), WIDTH, HEIGHT);
-
 		// start the timer once the UI is initiated.
-		timeline = new Timeline(new KeyFrame(Duration.millis(99), this::executeTask));
+		timeline = new Timeline(new KeyFrame(Duration.minutes(1.0), this::executeTask));
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -173,6 +178,38 @@ public class ApplicationMain extends Application {
 	public void executeTask(ActionEvent e) {
 		RunJsonBoundary r = fetchNextValueFromList();
 		if (DisplayBoardConstants.chart.name().equals(r.getType())) {
+			String fileName = r.getPath();
+			String filePath = FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + fileName + FilesUtil.SLASH + "index.html";
+			String headerTxt = r.getDisplayTxt();
+			// by default header is applicable for a org chart.
+			// initialize the chart web engine
+			ChartWebEngine chartWebEngine = new ChartWebEngine().initialize();
+			// set the primary stage object to webview for popup displays
+			chartWebEngine.setParenStage(stage);
+			HBox box = new HBox();
+			VBox mainBox = new VBox(5);
+			mainBox.getChildren().add(DashboardUtil.HeaderSegment(box, headerTxt));
+			mainBox.getChildren().add(chartWebEngine.getWebView());
+			HBox footerSegment = DashboardUtil.FooterSegment();
+			footerSegment.setPrefHeight(25);
+			mainBox.getChildren().add(footerSegment);
+			box.getChildren().add(mainBox);
+
+			Scene scene = new Scene(box, WIDTH, HEIGHT);
+			stage.setScene(scene);
+			stage.setFullScreen(true);
+
+			URL url = null;
+			try {
+				url = new File(filePath).toURI().toURL();
+			} catch (MalformedURLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			// start putting the chart now
+			chartWebEngine.displayData(url.toExternalForm());
+
+			stage.toFront();
 
 		} else if (DisplayBoardConstants.dashboard.name().equals(r.getType())) {
 			// as it has a single file we need to stop the timer here and start a new one
@@ -182,8 +219,9 @@ public class ApplicationMain extends Application {
 				try {
 					executeDashboardTask(event);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
+					// If failed don't block load the next one
 					e1.printStackTrace();
+					// executeTask(e);
 				}
 			}));
 
@@ -194,7 +232,7 @@ public class ApplicationMain extends Application {
 			Scene scene = new Scene(box, WIDTH, HEIGHT);
 			stage.setScene(scene);
 			stage.toFront();
-			// stage.setFullScreen(true);
+			stage.setFullScreen(true);
 		} else if (DisplayBoardConstants.customer.name().equals(r.getType())) {
 			// not yet implemented.
 		}
@@ -211,7 +249,7 @@ public class ApplicationMain extends Application {
 			Scene scene = new Scene(box, WIDTH, HEIGHT);
 			stage.setScene(scene);
 			stage.toFront();
-			// stage.setFullScreen(true);
+			stage.setFullScreen(true);
 		}
 	}
 

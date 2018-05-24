@@ -18,21 +18,14 @@ import org.apache.commons.io.FileUtils;
 import org.codefx.libfx.control.webview.WebViewHyperlinkListener;
 import org.codefx.libfx.control.webview.WebViews;
 
+import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 
-import javafx.animation.AnimationTimer;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.effect.BoxBlur;
-import javafx.scene.effect.Effect;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -40,7 +33,6 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 /**
  * @author ezibcef
@@ -50,8 +42,13 @@ public class ChartWebEngine {
 
 	WebView webView;
 	WebEngine webEngine;
-	private AnimationTimer animationTimer;
 	private Stage stage;
+
+	/**
+	 * Used to reload the page . As the webEngine.reload has a bug for this.
+	 * Currently this is skipped by javascript reload.
+	 */
+	public static final String WINDOW_LOCATION_RELOAD = " window.location.reload();";
 
 	/**
 	 * Constructor to Initialize WebEngine and WebView.
@@ -81,37 +78,24 @@ public class ChartWebEngine {
 		return webEngine;
 	}
 
-	/**
-	 * 
-	 * @return the animationTimer
-	 */
-	public AnimationTimer getAnimationTimer() {
-		return animationTimer;
-	}
-
 	public ChartWebEngine initialize() {
-		// URL url = ClassLoader.getSystemResource("com/app/chart/html/index.html");
-
-		// webEngine.load(url.toExternalForm());
+		webView.setPrefSize(DashboardUI.WIDTH, DashboardUI.HEIGHT - 60);
+		webView.setMinSize(DashboardUI.WIDTH - 160, DashboardUI.HEIGHT - 110);
+		webView.setTranslateZ(10);
 		webEngine.setOnAlert(event -> showAlert(event.getData()));
-		// TODO to change in mere future just for display purpose for now.
-
-		animationTimer = new AnimationTimer() {
-			Long lastNanoTime = new Long(System.nanoTime());
-
-			@Override
-			public void handle(long now) {
-				if (now > lastNanoTime + 3_000_000_000l) {
-
-					lastNanoTime = now;
-				}
-			}
-		};
 		return this;
 	}
 
 	public void displayData() {
 		webEngine.load(firstContentUIPath());
+	}
+
+	public void displayData(String url) {
+		if (url != null && url.length() > 0) {
+			webEngine.load(url);
+			// Re-Load the page via javascript as there is a java bug out there.
+			reLoadPage();
+		}
 	}
 
 	private void showAlert(String message) {
@@ -127,8 +111,8 @@ public class ChartWebEngine {
 		 */
 	}
 
-	public void loadPage() {
-		webEngine.executeScript("pageDisplayData('Sandeep Reddy')");
+	public void reLoadPage() {
+		webEngine.executeScript(WINDOW_LOCATION_RELOAD);
 	}
 
 	/**

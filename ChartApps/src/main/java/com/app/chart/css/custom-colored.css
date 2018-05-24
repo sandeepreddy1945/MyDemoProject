@@ -88,8 +88,8 @@ body {
 	border-radius: 3px;
 	background-color: #262626;
 	border: 1px solid #000;
-	width: 250px; //
-	height: 100px;
+	width: 290px; //
+	height: 140px;
 	font-family: Tahoma;
 	font-size: 12px;
 	font-weight: bold;
@@ -99,7 +99,7 @@ body {
 .customColored img {
 	margin-right: 10px; //
 	border-radius: 50%;
-	height: 80px;
+	height: 90px;
 }
 
 .gray {

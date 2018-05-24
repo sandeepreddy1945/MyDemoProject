@@ -34,8 +34,8 @@ public class ChartAppMain extends Application {
 		// set the app to full screen mode
 		primaryStage.setFullScreen(true);
 		primaryStage.setMaximized(true);
-		primaryStage.setMinWidth(600);
-		primaryStage.setMinHeight(600);
+		primaryStage.setMinWidth(1200);
+		primaryStage.setMinHeight(1000);
 		primaryStage.setResizable(true);
 		primaryStage.setAlwaysOnTop(false);
 		primaryStage.setTitle("MPS - Project Details");

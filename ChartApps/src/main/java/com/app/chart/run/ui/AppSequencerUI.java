@@ -288,7 +288,7 @@ public class AppSequencerUI extends HBox {
 				String isHedeaderReqTxt = booleanToString(isHeaderReq);
 				String headerText = headerTxtTF.getText();
 				String type = optionsBox.getSelectionModel().getSelectedItem();
-
+				
 				// as this is a edit sequence for the table first remove the old row and the
 				// re-add it back again.
 				members.remove(boundary);
