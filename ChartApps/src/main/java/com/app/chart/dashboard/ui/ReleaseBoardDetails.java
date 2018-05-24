@@ -157,6 +157,7 @@ public class ReleaseBoardDetails {
 		addRoot.setOnAction(e -> {
 			JFXTextField field = new JFXTextField();
 			field.setPromptText("Enter Root Node Name");
+			field.setLabelFloat(true);
 			this.displayDialog("Root Node", 1, 1, null, field);
 		});
 

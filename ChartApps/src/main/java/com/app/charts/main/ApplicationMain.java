@@ -32,7 +32,6 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -82,6 +81,9 @@ public class ApplicationMain extends Application {
 	private List<PerfomanceBoardBoundary> perfomanceBoardBoundaries = new ArrayList<>();
 	private int dashBoardCount = -1;
 	private Timeline dashBoardTimeLine;
+
+	private boolean isDashBoardRunning = false;
+	private boolean isNormalOnesRunning = false;
 
 	// TODO Some how push everything to cache so that app can be made more clean.
 
@@ -161,7 +163,7 @@ public class ApplicationMain extends Application {
 		// juzz display a blank page at the start.
 		Scene scene = new Scene(new HBox(), WIDTH, HEIGHT);
 		// start the timer once the UI is initiated.
-		timeline = new Timeline(new KeyFrame(Duration.minutes(1.0), this::executeTask));
+		timeline = new Timeline(new KeyFrame(Duration.millis(9999), this::executeTask));
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -176,6 +178,9 @@ public class ApplicationMain extends Application {
 	}
 
 	public void executeTask(ActionEvent e) {
+		// set the flag is Normal running to true when ever its called,
+		isNormalOnesRunning = true;
+
 		RunJsonBoundary r = fetchNextValueFromList();
 		if (DisplayBoardConstants.chart.name().equals(r.getType())) {
 			String fileName = r.getPath();
@@ -215,6 +220,9 @@ public class ApplicationMain extends Application {
 			// as it has a single file we need to stop the timer here and start a new one
 			// for this.
 			timeline.pause();// pause the main timer.
+			// as it dashboard run put it to false
+			isNormalOnesRunning = false;
+			isDashBoardRunning = true;
 			dashBoardTimeLine = new Timeline(new KeyFrame(Duration.millis(9999), event -> {
 				try {
 					executeDashboardTask(event);
@@ -244,6 +252,9 @@ public class ApplicationMain extends Application {
 			dashBoardTimeLine.stop();
 			timeline.play();
 			dashBoardCount = 0;// reset the count .back again.
+			// as last one is reached put the flags back
+			isNormalOnesRunning = true;
+			isDashBoardRunning = false;
 		} else {
 			HBox box = new DashboardUI(fetchNextValueFromPerfomanceList()).dashBoardMainBox();
 			Scene scene = new Scene(box, WIDTH, HEIGHT);
@@ -275,6 +286,39 @@ public class ApplicationMain extends Application {
 
 		}
 
+	}
+
+	/**
+	 * Loads the Next Page
+	 * 
+	 * @throws Exception
+	 */
+	public void loadNext() throws Exception {
+		if (isNormalOnesRunning) {
+			executeTask(null);
+		} else if (isDashBoardRunning) {
+			executeDashboardTask(null);
+		}
+	}
+
+	/**
+	 * Loads the previous page.
+	 */
+	public void loadPrevious() {
+		if (isNormalOnesRunning) {
+			if (pageCount <= 1) {
+				pageCount = -1;
+			} else {
+				pageCount = pageCount - 2;
+			}
+
+		} else if (isDashBoardRunning) {
+			if (dashBoardCount <= 1) {
+				dashBoardCount = -1;
+			} else {
+				dashBoardCount = dashBoardCount - 2;
+			}
+		}
 	}
 
 	public static void main(String[] args) {

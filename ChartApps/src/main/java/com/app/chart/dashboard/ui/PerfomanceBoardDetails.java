@@ -166,6 +166,7 @@ public class PerfomanceBoardDetails extends HBox {
 
 		// listen to the changes on the combobox to change around the data.
 		managerCBX.setOnAction(this::listenToComboBoxChanges);
+		managerCBX.setLabelFloat(true);
 
 		getChildren().add(mainBox);
 
@@ -976,7 +977,8 @@ public class PerfomanceBoardDetails extends HBox {
 		// TODO need to add JSON Model for this table list.
 		try {
 			// For now skipping the pretty view to conserve diskspace.
-			String contentData = mapper/*.writerWithDefaultPrettyPrinter()*/.writeValueAsString(perfomanceBoardDetails);
+			String contentData = mapper
+					/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(perfomanceBoardDetails);
 			System.out.println(contentData);
 
 			// never append the file always overwrite it as we are stroing all the details

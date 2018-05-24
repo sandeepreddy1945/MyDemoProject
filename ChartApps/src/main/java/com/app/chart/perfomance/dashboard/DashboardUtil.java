@@ -151,6 +151,9 @@ public class DashboardUtil {
 				field.validate();
 			}
 		});
+		
+		// also add the floating label 
+		field.setLabelFloat(true);
 	}
 
 	public static void buildRequestValidator(JFXTextArea... fields) {
@@ -182,6 +185,7 @@ public class DashboardUtil {
 				field.validate();
 			}
 		});
+		field.setLabelFloat(true);
 	}
 
 	public static boolean validateTextField(JFXTextField... fields) {

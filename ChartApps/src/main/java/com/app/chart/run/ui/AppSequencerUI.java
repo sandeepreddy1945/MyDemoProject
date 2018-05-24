@@ -227,6 +227,11 @@ public class AppSequencerUI extends HBox {
 
 		pathTF.setMinWidth(300);
 		headerTxtTF.setMinWidth(300);
+		
+		headerTxtTF.setLabelFloat(true);
+		pathTF.setLabelFloat(true);
+		headerCBX.setLabelFloat(true);
+		optionsBox.setLabelFloat(true);
 
 		box.getChildren().addAll(optionsBox, pathTF, headerCBX, headerTxtTF);
 		layout.setBody(box);
@@ -398,6 +403,10 @@ public class AppSequencerUI extends HBox {
 		pathTF.setPromptText("Path");
 		JFXTextField headerTxtTF = new JFXTextField();
 		headerTxtTF.setPromptText("Enter Header Txt");
+		headerTxtTF.setLabelFloat(true);
+		pathTF.setLabelFloat(true);
+		headerCBX.setLabelFloat(true);
+		optionsBox.setLabelFloat(true);
 
 		// dimension settings
 		optionsBox.setMinWidth(200);

@@ -181,6 +181,7 @@ public class AddressBook extends Application {
 
 		chartNameTF.setMinSize(600, 30);
 		chartNameTF.setPrefSize(500, 40);
+		chartNameTF.setLabelFloat(true);
 
 		final JFXTextField portalTF = new JFXTextField();
 		portalTF.setPromptText("Portal Id");
@@ -375,6 +376,7 @@ public class AddressBook extends Application {
 			});
 		});
 		searchTF.setAlignment(Pos.CENTER_LEFT);
+		searchTF.setLabelFloat(true);
 		searchTF.setMinSize(450, 25);
 		box.getChildren().addAll(searchTF, sizeLbl, tableSize);
 		box.setPrefSize(WIDTH, 25);
