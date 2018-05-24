@@ -321,6 +321,17 @@ public class ApplicationMain extends Application {
 		}
 	}
 
+	/**
+	 * This should take care of both normal and dashboard as we have only one entry
+	 * in groupview pertaining to this.
+	 * 
+	 * @param count
+	 */
+	public void loadPage(int count) {
+		pageCount = count - 1;
+		executeTask(null);
+	}
+
 	public static void main(String[] args) {
 		launch(args);
 	}

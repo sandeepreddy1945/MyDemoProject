@@ -18,7 +18,6 @@ import com.app.chart.run.ui.DisplayBoardConstants;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
-import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -38,18 +37,18 @@ import javafx.scene.layout.VBox;
 public class ChartGroupView extends HBox {
 
 	private List<RunJsonBoundary> runJsonBoundaries = new ArrayList<>();
-	private Timeline timeline;
 
+	private ApplicationMain applicationMain;
 	private int colCount = 0;
 	private int rowCount = 0;
 
 	/**
 	 * @param spacing
 	 */
-	public ChartGroupView(List<RunJsonBoundary> runJsonBoundaries, Timeline timeline) {
+	public ChartGroupView(List<RunJsonBoundary> runJsonBoundaries, ApplicationMain applicationMain) {
 		super(10);
 		this.runJsonBoundaries = runJsonBoundaries;
-		this.timeline = timeline;
+		this.applicationMain = applicationMain;
 		initUI();
 
 	}
@@ -151,6 +150,8 @@ public class ChartGroupView extends HBox {
 				Integer rowIndex = GridPane.getRowIndex(source);
 				if (n instanceof Tile) {
 					System.out.println("Node instance of Tile");
+					Tile t = (Tile) n; // not used by it currently juzz for testing.
+					this.applicationMain.loadPage(rowIndex.intValue() * 6 + colIndex.intValue());
 				}
 				System.out.printf("Mouse entered cell [%d, %d]%n", colIndex.intValue(), rowIndex.intValue());
 			});
