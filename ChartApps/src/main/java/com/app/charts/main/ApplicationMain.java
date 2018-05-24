@@ -25,6 +25,7 @@ import com.app.chart.run.ui.DisplayBoardConstants;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.javafx.perf.PerformanceTracker;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -83,7 +84,7 @@ public class ApplicationMain extends Application {
 	private Timeline dashBoardTimeLine;
 
 	private boolean isDashBoardRunning = false;
-	private boolean isNormalOnesRunning = false;
+	private boolean isNormalOnesRunning = true;
 	private ChartGroupView chartGroupView;
 
 	// TODO Some how push everything to cache so that app can be made more clean.
@@ -159,7 +160,7 @@ public class ApplicationMain extends Application {
 	public void start(Stage stage) throws Exception {
 		this.stage = stage;
 		stage.setMaximized(true);
-		stage.setFullScreen(true);
+		// stage.setFullScreen(true);
 		stage.setMinWidth(WIDTH);
 		stage.setMinHeight(HEIGHT);
 		// stage.centerOnScreen();
@@ -170,7 +171,7 @@ public class ApplicationMain extends Application {
 				if (!stage.isFullScreen()) {
 					// just make it to full screen when it is not .in other case juzz leave it as
 					// is.
-					stage.setFullScreen(true);
+					// stage.setFullScreen(true);
 				}
 			}
 		});
@@ -184,14 +185,14 @@ public class ApplicationMain extends Application {
 		// add listeners for front and back steps
 		// forward step listener
 		stage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-			if (e.isControlDown() && e.getCode().ordinal() == KeyCode.KP_RIGHT.ordinal()) {
+			if (e.isControlDown() && e.getCode().ordinal() == KeyCode.RIGHT.ordinal()) {
 				stepForward();
 			}
 		});
 
 		// back ward step listener
 		stage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-			if (e.isControlDown() && e.getCode().ordinal() == KeyCode.KP_LEFT.ordinal()) {
+			if (e.isControlDown() && e.getCode().ordinal() == KeyCode.LEFT.ordinal()) {
 				stepBackward();
 			}
 		});
@@ -199,7 +200,7 @@ public class ApplicationMain extends Application {
 		// juzz display a blank page at the start.
 		Scene scene = new Scene(new HBox(), WIDTH, HEIGHT);
 		// start the timer once the UI is initiated.
-		timeline = new Timeline(new KeyFrame(Duration.millis(9999), this::executeTask));
+		timeline = new Timeline(new KeyFrame(Duration.millis(999999), this::executeTask));
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -242,7 +243,7 @@ public class ApplicationMain extends Application {
 		initializeGroupViewLook();
 		Scene scene = new Scene(chartGroupView, WIDTH, HEIGHT);
 		stage.setScene(scene);
-		stage.setFullScreen(true);
+		// stage.setFullScreen(true);
 		stage.toFront();
 
 	}
@@ -254,8 +255,6 @@ public class ApplicationMain extends Application {
 	}
 
 	public void executeTask(ActionEvent e) {
-		// set the flag is Normal running to true when ever its called,
-		isNormalOnesRunning = true;
 
 		RunJsonBoundary r = fetchNextValueFromList();
 		if (DisplayBoardConstants.chart.name().equals(r.getType())) {
@@ -278,7 +277,7 @@ public class ApplicationMain extends Application {
 
 			Scene scene = new Scene(box, WIDTH, HEIGHT);
 			stage.setScene(scene);
-			stage.setFullScreen(true);
+			// stage.setFullScreen(true);
 
 			URL url = null;
 			try {
@@ -316,7 +315,7 @@ public class ApplicationMain extends Application {
 			Scene scene = new Scene(box, WIDTH, HEIGHT);
 			stage.setScene(scene);
 			stage.toFront();
-			stage.setFullScreen(true);
+			// stage.setFullScreen(true);
 		} else if (DisplayBoardConstants.customer.name().equals(r.getType())) {
 			// not yet implemented.
 		}
@@ -333,12 +332,13 @@ public class ApplicationMain extends Application {
 			isDashBoardRunning = false;
 		} else {
 			// Be Null Safe as Always.
-			if (fetchNextValueFromList() != null) {
-				HBox box = new DashboardUI(fetchNextValueFromPerfomanceList()).dashBoardMainBox();
+			PerfomanceBoardBoundary p = fetchNextValueFromPerfomanceList();
+			if (p != null) {
+				HBox box = new DashboardUI(p).dashBoardMainBox();
 				Scene scene = new Scene(box, WIDTH, HEIGHT);
 				stage.setScene(scene);
 				stage.toFront();
-				stage.setFullScreen(true);
+				// stage.setFullScreen(true);
 			}
 		}
 	}
