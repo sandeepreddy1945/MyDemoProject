@@ -84,6 +84,7 @@ public class ApplicationMain extends Application {
 
 	private boolean isDashBoardRunning = false;
 	private boolean isNormalOnesRunning = false;
+	private ChartGroupView chartGroupView;
 
 	// TODO Some how push everything to cache so that app can be made more clean.
 
@@ -100,6 +101,20 @@ public class ApplicationMain extends Application {
 
 		// read the dashboardlist and put it to cache.
 		buildPerfomanceBoardBoundary();
+
+		// initialize the group view extended look .Not required for now as we are doing
+		// it in pubish event.
+		// initializeGroupViewLook();
+	}
+
+	/**
+	 * This method initializes the Group View Look. Can be used by clicking
+	 * ctrl+G.<br>
+	 * The Group view exits automatically as always.
+	 */
+	private void initializeGroupViewLook() {
+		chartGroupView = new ChartGroupView(runJsonBoundaries, this);
+
 	}
 
 	/**
@@ -159,6 +174,12 @@ public class ApplicationMain extends Application {
 				}
 			}
 		});
+		// add group view listener
+		stage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+			if (e.isControlDown() && e.getCode().ordinal() == KeyCode.G.ordinal()) {
+				publishGroupView();
+			}
+		});
 
 		// juzz display a blank page at the start.
 		Scene scene = new Scene(new HBox(), WIDTH, HEIGHT);
@@ -168,6 +189,26 @@ public class ApplicationMain extends Application {
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
 		timeline.play();
+
+	}
+
+	/**
+	 * Publishes the Group View Re-Initialie it to skip Exception in thread "JavaFX
+	 * Application Thread" java.lang.IllegalArgumentException:
+	 * ChartGroupView@5b31a39e[styleClass=root]is already set as root of another
+	 * scene Exception
+	 */
+	private void publishGroupView() {
+		// pause the time line for certain period untill the screen is closed.
+		// re-instantiate it once the screen is unlocked
+		timeline.pause();
+		// to avoid potential Illegal State Exceptions as this might be set to another
+		// node.
+		initializeGroupViewLook();
+		Scene scene = new Scene(chartGroupView, WIDTH, HEIGHT);
+		stage.setScene(scene);
+		stage.setFullScreen(true);
+		stage.toFront();
 
 	}
 
@@ -330,6 +371,14 @@ public class ApplicationMain extends Application {
 	public void loadPage(int count) {
 		pageCount = count - 1;
 		executeTask(null);
+	}
+
+	public Timeline getTimeLine() {
+		return timeline;
+	}
+
+	public Timeline getDashboardTimeLine() {
+		return dashBoardTimeLine;
 	}
 
 	public static void main(String[] args) {

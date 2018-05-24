@@ -118,6 +118,10 @@ public class ChartGroupView extends HBox {
 
 		ruleBox.getChildren().add(mainBox);
 
+		// set the fav black baground
+
+		setBackground(DashboardUtil.BLACK_BACKGROUND);
+
 		getChildren().add(ruleBox);
 
 	}
@@ -152,6 +156,7 @@ public class ChartGroupView extends HBox {
 					System.out.println("Node instance of Tile");
 					Tile t = (Tile) n; // not used by it currently juzz for testing.
 					this.applicationMain.loadPage(rowIndex.intValue() * 6 + colIndex.intValue());
+					this.applicationMain.getTimeLine().play();
 				}
 				System.out.printf("Mouse entered cell [%d, %d]%n", colIndex.intValue(), rowIndex.intValue());
 			});
