@@ -213,7 +213,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		ImageView imageView = new ImageView();
 		imageView.setFitHeight(190);
 		imageView.setFitWidth(190);
-		imageView.setPreserveRatio(true);
+		imageView.setPreserveRatio(false);
 		try {
 			imageView.setImage(new Image(FileUtils.openInputStream(imgFile)));
 		} catch (IOException e) {

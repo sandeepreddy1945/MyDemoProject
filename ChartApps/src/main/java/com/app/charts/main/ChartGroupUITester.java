@@ -39,6 +39,7 @@ public class ChartGroupUITester extends Application {
 	public void start(Stage stage) throws Exception {
 
 		stage.setMaximized(true);
+		//stage.setFullScreen(true);
 
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonStr = FileUtils.readFileToString(new File(FilesUtil.RUN_PROPS_PATH), Charset.defaultCharset());

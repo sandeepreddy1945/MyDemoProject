@@ -71,8 +71,8 @@ public class DashboardImageViewer extends HBox {
 		img2.setFitHeight(250);
 		img2.setFitWidth(200);
 
-		img1.setPreserveRatio(true);
-		img2.setPreserveRatio(true);
+		img1.setPreserveRatio(false);
+		img2.setPreserveRatio(false);
 
 		// set the image paths
 		img1.setImage(new Image(FileUtils.openInputStream(img1Path)));

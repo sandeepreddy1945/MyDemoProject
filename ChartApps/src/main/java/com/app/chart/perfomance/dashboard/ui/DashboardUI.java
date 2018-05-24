@@ -507,7 +507,7 @@ public class DashboardUI extends Application {
 		ImageView imageView = new ImageView(image);
 		imageView.setFitHeight(250);
 		imageView.setFitWidth(200);
-		imageView.setPreserveRatio(true);
+		imageView.setPreserveRatio(false);
 
 		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(250, 250).title("Team Manager")
 				.text(this.managerDetailBoundary.getName()).graphic(imageView).roundedCorners(true).build();
