@@ -156,9 +156,13 @@ public class AppSequencerUI extends HBox {
 		JFXButton editEntry = new JFXButton("Edit Entry");
 		JFXButton deleteRow = new JFXButton("Delete Row");
 		JFXButton saveBtn = new JFXButton("Save");
+		JFXButton moveRowUp = new JFXButton("Shift Row Up");
+		JFXButton moveRowDown = new JFXButton("Shift Row Down");
 
 		// listeners to buttons
 
+		moveRowUp.setOnAction(this::moveRowUpAction);
+		moveRowDown.setOnAction(this::moveRowDownAction);
 		addEntry.setOnAction(this::addEntryAction);
 		editEntry.setOnAction(this::editEntryAction);
 		deleteRow.setOnAction(this::deleteRowEntryAction);
@@ -168,8 +172,28 @@ public class AppSequencerUI extends HBox {
 		box.setAlignment(Pos.BOTTOM_RIGHT);
 		box.setPadding(new Insets(0, 40, 0, 0));
 		// add all the buttons to box
-		box.getChildren().addAll(addEntry, editEntry, deleteRow, saveBtn);
+		box.getChildren().addAll(moveRowUp, moveRowDown, addEntry, editEntry, deleteRow, saveBtn);
 		return box;
+	}
+
+	private void moveRowUpAction(ActionEvent e) {
+		if (members.size() > 0 && tableView.getSelectionModel().getSelectedIndex() != 0) {
+			int selectedRow = tableView.getSelectionModel().getSelectedIndex();
+			RunJSonTableBoundary r = members.remove(selectedRow);
+			RunJSonTableBoundary r1 = members.remove(selectedRow - 1);
+			members.add(selectedRow - 1, r);
+			members.add(selectedRow, r1);
+			tableView.fireEvent(e);
+		}
+	}
+
+	private void moveRowDownAction(ActionEvent e) {
+		if (members.size() > 0 && tableView.getSelectionModel().getSelectedIndex() != members.size() - 1) {
+			int selectedRow = tableView.getSelectionModel().getSelectedIndex();
+			RunJSonTableBoundary r = members.remove(selectedRow);
+			members.add(selectedRow + 1, r);
+			tableView.fireEvent(e);
+		}
 	}
 
 	private void addEntryAction(ActionEvent e) {
@@ -227,7 +251,7 @@ public class AppSequencerUI extends HBox {
 
 		pathTF.setMinWidth(300);
 		headerTxtTF.setMinWidth(300);
-		
+
 		headerTxtTF.setLabelFloat(true);
 		pathTF.setLabelFloat(true);
 		headerCBX.setLabelFloat(true);
@@ -293,7 +317,7 @@ public class AppSequencerUI extends HBox {
 				String isHedeaderReqTxt = booleanToString(isHeaderReq);
 				String headerText = headerTxtTF.getText();
 				String type = optionsBox.getSelectionModel().getSelectedItem();
-				
+
 				// as this is a edit sequence for the table first remove the old row and the
 				// re-add it back again.
 				members.remove(boundary);
@@ -770,11 +794,11 @@ public class AppSequencerUI extends HBox {
 							.remove(draggedIndex);
 					int dropIndex;
 					if (row.isEmpty()) {
-						dropIndex = members.size();
+						dropIndex = tableView.getRoot().getChildren().size();
 					} else {
 						dropIndex = row.getIndex();
 					}
-					tableView.getRoot().getChildren().add(dropIndex, draggedPerson);
+					tableView.getRoot().getChildren().add(dropIndex - 1, draggedPerson);
 					event.setDropCompleted(true);
 					tableView.getSelectionModel().select(dropIndex);
 					event.consume();
