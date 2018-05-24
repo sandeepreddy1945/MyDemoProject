@@ -19,8 +19,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
- * @author Sandeep
- *
+ * @author Sandeep Currently there is a complicationin the usage of the side
+ *         drawer. This needs to be reviewd architecture wise. Currently this
+ *         will be used for viewing the project status if required. This can be
+ *         used to accomplish that for now.
  */
 public class DashboardSidePane {
 
@@ -47,7 +49,7 @@ public class DashboardSidePane {
 		drawer.getStyleClass().add("jfx-drawer");
 		drawer.setOverLayVisible(true);
 		drawer.setResizableOnDrag(false);
-		//drawer.setMouseTransparent(true);
+		// drawer.setMouseTransparent(true);
 		VBox toolbar = FXMLLoader
 				.load(getClass().getResource("/com/app/chart/perfomance/dashboard/sidebar/toolbar.fxml"));
 		drawer.setSidePane(toolbar);
