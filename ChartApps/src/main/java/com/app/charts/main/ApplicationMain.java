@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 
@@ -25,7 +26,6 @@ import com.app.chart.run.ui.DisplayBoardConstants;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.javafx.perf.PerformanceTracker;
 
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -80,7 +80,7 @@ public class ApplicationMain extends Application {
 
 	private int pageCount = -1;
 	private List<PerfomanceBoardBoundary> perfomanceBoardBoundaries = new ArrayList<>();
-	private int dashBoardCount = -1;
+	private int dashBoardCount = 0;
 	private Timeline dashBoardTimeLine;
 
 	private boolean isDashBoardRunning = false;
@@ -294,6 +294,27 @@ public class ApplicationMain extends Application {
 		} else if (DisplayBoardConstants.dashboard.name().equals(r.getType())) {
 			// as it has a single file we need to stop the timer here and start a new one
 			// for this.
+
+			// first display off the first slide and then start with the timer rules..
+			// hell of themmmmmm
+
+			// Be Null Safe as Always.
+			PerfomanceBoardBoundary p = Optional.ofNullable(perfomanceBoardBoundaries.get(0)).orElse(null);
+			if (p != null) {
+				HBox box = null;
+				try {
+					box = new DashboardUI(p).dashBoardMainBox();
+					Scene scene = new Scene(box, WIDTH, HEIGHT);
+					stage.setScene(scene);
+					stage.toFront();
+					// stage.setFullScreen(true);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+			}
+
 			timeline.pause();// pause the main timer.
 			// as it dashboard run put it to false
 			isNormalOnesRunning = false;
@@ -323,7 +344,7 @@ public class ApplicationMain extends Application {
 	}
 
 	public void executeDashboardTask(ActionEvent e) throws Exception {
-		if (dashBoardCount == perfomanceBoardBoundaries.size()) {
+		if (dashBoardCount == perfomanceBoardBoundaries.size() - 1) {
 			dashBoardTimeLine.stop();
 			timeline.play();
 			dashBoardCount = 0;// reset the count .back again.
@@ -391,13 +412,27 @@ public class ApplicationMain extends Application {
 				pageCount = pageCount - 2;
 			}
 
+			executeTask(null);
 		} else if (isDashBoardRunning) {
 			if (dashBoardCount <= 1) {
-				dashBoardCount = -1;
+				// never add a dashboard at the first .to avoid this problem
+				// dashBoardCount = -1;
+				if (pageCount <= 1) {
+					pageCount = -1;
+				} else {
+					pageCount = pageCount - 2;
+				}
+				executeTask(null);
 			} else {
 				dashBoardCount = dashBoardCount - 2;
 			}
+			try {
+				executeDashboardTask(null);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+
 	}
 
 	/**
