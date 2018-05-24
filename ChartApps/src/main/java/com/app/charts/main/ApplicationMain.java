@@ -181,6 +181,21 @@ public class ApplicationMain extends Application {
 			}
 		});
 
+		// add listeners for front and back steps
+		// forward step listener
+		stage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+			if (e.isControlDown() && e.getCode().ordinal() == KeyCode.KP_RIGHT.ordinal()) {
+				stepForward();
+			}
+		});
+
+		// back ward step listener
+		stage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+			if (e.isControlDown() && e.getCode().ordinal() == KeyCode.KP_LEFT.ordinal()) {
+				stepBackward();
+			}
+		});
+
 		// juzz display a blank page at the start.
 		Scene scene = new Scene(new HBox(), WIDTH, HEIGHT);
 		// start the timer once the UI is initiated.
@@ -190,6 +205,26 @@ public class ApplicationMain extends Application {
 		timeline.setCycleCount(Animation.INDEFINITE);
 		timeline.play();
 
+	}
+
+	/**
+	 * Loads the forward page on ctrl + right key press
+	 */
+	private void stepForward() {
+		try {
+			loadNext();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Loads the previous page on ctrl + left key press.
+	 */
+	private void stepBackward() {
+		loadPrevious();
 	}
 
 	/**
@@ -297,11 +332,14 @@ public class ApplicationMain extends Application {
 			isNormalOnesRunning = true;
 			isDashBoardRunning = false;
 		} else {
-			HBox box = new DashboardUI(fetchNextValueFromPerfomanceList()).dashBoardMainBox();
-			Scene scene = new Scene(box, WIDTH, HEIGHT);
-			stage.setScene(scene);
-			stage.toFront();
-			stage.setFullScreen(true);
+			// Be Null Safe as Always.
+			if (fetchNextValueFromList() != null) {
+				HBox box = new DashboardUI(fetchNextValueFromPerfomanceList()).dashBoardMainBox();
+				Scene scene = new Scene(box, WIDTH, HEIGHT);
+				stage.setScene(scene);
+				stage.toFront();
+				stage.setFullScreen(true);
+			}
 		}
 	}
 
