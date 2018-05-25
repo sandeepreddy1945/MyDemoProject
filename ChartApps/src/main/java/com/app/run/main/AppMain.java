@@ -36,15 +36,24 @@ public class AppMain extends Application {
 		GridPane gridPane = new GridPane();
 		ImageView addrBookImage = new ImageView(
 				new Image(getClass().getClassLoader().getResourceAsStream("com/app/chart/images/AppChartEditor.PNG")));
+		addrBookImage.setFitWidth(230);
+		addrBookImage.setFitHeight(230);
+		addrBookImage.setPreserveRatio(false);
 		Tile addressBookTile = buildTileFromData("Edit Organization Charts", "Org Charts Editor", addrBookImage);
 
 		ImageView perfomanceBoardEditorImage = new ImageView(
 				new Image(getClass().getClassLoader().getResourceAsStream("com/app/chart/images/PerfomanceBoard.png")));
+		perfomanceBoardEditorImage.setFitWidth(230);
+		perfomanceBoardEditorImage.setFitHeight(230);
+		perfomanceBoardEditorImage.setPreserveRatio(false);
 		Tile perfomanceBoardEditor = buildTileFromData("Edit Perfomance Board", "Perfomance Board Editor",
 				perfomanceBoardEditorImage);
 		// add the main components.
 		ImageView runEditorImg = new ImageView(
 				new Image(getClass().getClassLoader().getResourceAsStream("com/app/chart/images/RunUI.PNG")));
+		runEditorImg.setFitWidth(230);
+		runEditorImg.setFitHeight(230);
+		runEditorImg.setPreserveRatio(false);
 		Tile runUIEditort = buildTileFromData("Dsiplay Order Editor", "View Ordering Editor", runEditorImg);
 
 		Tile disgnosticsTool = buildTextTileFromData("Diagnostic Tools", "Runs The App Diagnostics",
