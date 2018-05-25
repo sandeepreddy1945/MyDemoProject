@@ -11,12 +11,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.FilesUtil;
+import com.app.chart.model.ChartBoardBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
+import com.app.chart.model.RunJsonBoundary;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -66,7 +69,10 @@ public class DiagnoseIssues extends HBox {
 
 	JFXTreeTableView<DiagnoseIssueTableBoundary> tableView = new JFXTreeTableView<>(root);
 
-	private List<PerfomanceBoardBoundary> perfomanceBoardBoundaries;
+	// instantiate so in order to skip null pointers.
+	private List<PerfomanceBoardBoundary> perfomanceBoardBoundaries = new ArrayList<>();
+	private List<RunJsonBoundary> runJsonBoundaries = new ArrayList<>();
+	private List<ChartBoardBoundary> chartBoardBoundaries = new ArrayList<>();
 
 	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 	public static double WIDTH = visualBounds.getWidth() - 100;
@@ -74,6 +80,11 @@ public class DiagnoseIssues extends HBox {
 
 	VBox mainBox = new VBox(10);
 	private ObjectMapper mapper = new ObjectMapper();
+	public static final String APP_JSON = "app.json";
+
+	private boolean isPerfomanceListTampered = false;
+	private boolean isOrgChartTampered = false;
+	private boolean isRunOrderTampered = false;
 
 	/**
 	 * 
@@ -88,6 +99,7 @@ public class DiagnoseIssues extends HBox {
 
 	public DiagnoseIssues() {
 		super(10);
+		diagnoseAllTheIssuesPresent();
 		initUI();
 	}
 
@@ -103,6 +115,11 @@ public class DiagnoseIssues extends HBox {
 		initUI();
 	}
 
+	/**
+	 * Diagnoses the issues specified from the perfomance file
+	 * 
+	 * @param dataFile
+	 */
 	private void loadPerfomanceDetailsFromFile(File dataFile) {
 
 		try {
@@ -124,8 +141,76 @@ public class DiagnoseIssues extends HBox {
 				perfomanceBoardBoundaries = new ArrayList<>();
 			}
 		} catch (IOException e) {
-
+			isPerfomanceListTampered = true;
 			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * By Default this method diagnoses all the issues present in the Application.
+	 */
+	private void diagnoseAllTheIssuesPresent() {
+		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+		// perfomance file
+		File perfomanceFile = new File(FilesUtil.DASHBOARD_CONTENT_DATA);
+		try {
+			if (perfomanceFile != null && perfomanceFile.exists()
+					&& FileUtils.readFileToString(perfomanceFile, Charset.defaultCharset()).length() > 0) {
+				String fileData = FileUtils.readFileToString(perfomanceFile, Charset.defaultCharset());
+				System.out.println(fileData);
+				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+
+				List<PerfomanceBoardBoundary> dataList = mapper.readValue(fileData,
+						mapper.getTypeFactory().constructCollectionType(List.class, PerfomanceBoardBoundary.class));
+				// set the list with details
+				this.perfomanceBoardBoundaries = dataList;
+
+			} else {
+				// instntiate the perfomance list as not data is present.
+				perfomanceBoardBoundaries = new ArrayList<>();
+			}
+		} catch (IOException e) {
+			isPerfomanceListTampered = true;
+			e.printStackTrace();
+		}
+
+		// next runjson files and images present.
+		File runJsonFile = new File(FilesUtil.RUN_PROPS_PATH);
+		try {
+			String jsonStr = FileUtils.readFileToString(runJsonFile, Charset.defaultCharset());
+			if (jsonStr != null && jsonStr.length() > 0) {
+				List<RunJsonBoundary> dataList = mapper.readValue(jsonStr,
+						mapper.getTypeFactory().constructCollectionType(List.class, RunJsonBoundary.class));
+				runJsonBoundaries = dataList;
+			}
+		} catch (Exception ex) {
+			isRunOrderTampered = true;
+			ex.printStackTrace();
+		}
+
+		// read all the employees present in the chart.
+		try {
+			Properties properties = new Properties();
+			properties.load(FileUtils.openInputStream(new File(FilesUtil.MANAGER_PROPS_PATH)));
+
+			properties.keySet().stream().forEach(o -> {
+				// loop on the folders for the org charts
+				try {
+					String jsonStr = FileUtils.readFileToString(new File(
+							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + o.toString() + FilesUtil.SLASH + APP_JSON),
+							Charset.defaultCharset());
+					ChartBoardBoundary chartBoardBoundary = mapper.readValue(jsonStr, ChartBoardBoundary.class);
+					chartBoardBoundaries.add(chartBoardBoundary);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
+
+		} catch (Exception ex) {
+			isOrgChartTampered = true;
+			ex.printStackTrace();
 		}
 
 	}
@@ -141,7 +226,7 @@ public class DiagnoseIssues extends HBox {
 
 		JFXButton diagnose = new JFXButton("Diagnose Problems");
 		diagnose.setAlignment(Pos.BOTTOM_RIGHT);
-		diagnose.setPadding(new Insets(10));
+		diagnose.setPadding(new Insets(20));
 
 		diagnose.setOnAction(this::diagnoseProblemsAndSolutions);
 
@@ -159,6 +244,30 @@ public class DiagnoseIssues extends HBox {
 	// TODO implement this one for Chart Boundaries as well the required image
 	// libraries.
 	private void diagnoseProblemsAndSolutions(ActionEvent e) {
+
+		if (!new File(FilesUtil.MAIN_APP_PATH).exists()) {
+			members.add(constructTableMemberBoundary("Main App No Created", "App not yet created",
+					"fatal Error : Application will not be launched", "Start Creating the App and its data"));
+		}
+
+		if (isPerfomanceListTampered) {
+			members.add(constructTableMemberBoundary("Perfomance List", "Peformance Data List File is tampered.",
+					"The Perfomance List Data has been modified manually.	",
+					"Either re-add the perfomance chart and save else verify logs."));
+		}
+
+		if (isRunOrderTampered) {
+			members.add(constructTableMemberBoundary("Ordering List", "Ordering  Data List File is tampered.",
+					"Ordering List Data has been modified manually.	",
+					"Either re-add the Ordering List and save else verify logs."));
+		}
+
+		if (isOrgChartTampered) {
+			members.add(constructTableMemberBoundary("Org Chart List", "Org Chart  Data List File is tampered.",
+					"Org Chart List Data has been modified manually.	",
+					"Either re-add the Or Chart List and save else verify logs."));
+		}
+
 		// do a search for the images required on performance board.
 		if (perfomanceBoardBoundaries != null && perfomanceBoardBoundaries.size() > 0) {
 			perfomanceBoardBoundaries.stream().map(PerfomanceBoardBoundary::getTeamMembers).forEach(t -> {
@@ -178,6 +287,7 @@ public class DiagnoseIssues extends HBox {
 				});
 			});
 
+			// then managers.
 			perfomanceBoardBoundaries.stream().forEach(p -> {
 				ManagerDetailBoundary b = p.getManagerDetailBoundary();
 				Path path = Paths.get(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + b.getPortalId() + ".png");
@@ -190,9 +300,42 @@ public class DiagnoseIssues extends HBox {
 				}
 			});
 
-			// fire table with changes.
-			tableView.fireEvent(e);
 		}
+		// now with the run json list
+		runJsonBoundaries.stream().forEach(p -> {
+			Path path = Paths.get(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + p.getPath());
+			if (!Files.exists(path)) {
+				members.add(constructTableMemberBoundary(p.getPath(), "Image -> " + p.getPath() + "  " + "Missing!!",
+						"Image Doesnot Exist In Req Folder",
+						"Copy The PNG Image to folder: " + FilesUtil.IMAGES_DIR_PATH));
+			}
+		});
+
+		// now check for all the images on the org chart folder.
+		chartBoardBoundaries.stream().forEach(c -> {
+			Path path = Paths.get(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + c.getFolderName());
+			if (!Files.exists(path)) {
+				members.add(constructTableMemberBoundary(c.getFolderName(),
+						"Folder -> " + c.getFolderName() + "  " + "Missing!!", "Folder Doesnot Exist In Req Main Path",
+						"Please Re-Add The Details for the OrgChart: " + c.getHeaderTxt()));
+			}
+
+			c.getEmployeeDetails().stream().forEach(emp -> {
+				Path path1 = Paths.get(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + emp.getPortalId() + ".png");
+				if (!Files.exists(path1)) {
+					System.out
+							.println("Image Doesnot exist for Portal Id: " + emp.getPortalId() + " - " + emp.getName());
+					members.add(constructTableMemberBoundary(emp.getPortalId() + " - " + emp.getName(),
+							"Image -> " + emp.getPortalId() + ".png" + "  " + "Missing!!",
+							"Image Doesnot Exist In Req Folder",
+							"Copy The PNG Image to folder: " + FilesUtil.IMAGES_DIR_PATH));
+				}
+
+			});
+		});
+
+		// fire table with changes.
+		tableView.fireEvent(e);
 
 	}
 

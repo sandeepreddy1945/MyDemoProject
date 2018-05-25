@@ -36,7 +36,7 @@ public class CheckDiagnoseUI extends Application {
 		stage.setMinHeight(HEIGHT);
 		stage.setMinWidth(WIDTH);
 
-		Scene scene = new Scene(new DiagnoseIssues(new File(FilesUtil.DASHBOARD_CONTENT_DATA)), WIDTH, HEIGHT);
+		Scene scene = new Scene(new DiagnoseIssues(), WIDTH, HEIGHT);
 		stage.setScene(scene);
 		stage.show();
 
