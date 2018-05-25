@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -70,7 +69,7 @@ import lombok.ToString;
  */
 public class AppSequencerUI extends HBox {
 
-	private LinkedList<RunJSonTableBoundary> memberLinkedList = new LinkedList<>();
+	private List<RunJSonTableBoundary> memberLinkedList = new ArrayList<>();
 
 	private ObservableList<RunJSonTableBoundary> members = FXCollections.observableArrayList(memberLinkedList);
 	// build tree
@@ -141,7 +140,8 @@ public class AppSequencerUI extends HBox {
 		tableView.setPadding(new Insets(15));
 
 		// add drag and drop listener on the table
-		addTableDragDropListener();
+		// removed as it not currently applicable for JFXTable.
+		// addTableDragDropListener();
 
 		HBox bottomPanel = buildBottomPanel();
 
@@ -179,10 +179,9 @@ public class AppSequencerUI extends HBox {
 	private void moveRowUpAction(ActionEvent e) {
 		if (members.size() > 0 && tableView.getSelectionModel().getSelectedIndex() != 0) {
 			int selectedRow = tableView.getSelectionModel().getSelectedIndex();
-			RunJSonTableBoundary r = members.remove(selectedRow);
-			RunJSonTableBoundary r1 = members.remove(selectedRow - 1);
-			members.add(selectedRow - 1, r);
-			members.add(selectedRow, r1);
+			TreeItem<RunJSonTableBoundary> r = tableView.getRoot().getChildren().remove(selectedRow);
+			tableView.getRoot().getChildren().add(selectedRow - 1, r);
+			tableView.getSelectionModel().select(selectedRow - 1);
 			tableView.fireEvent(e);
 		}
 	}
@@ -190,8 +189,9 @@ public class AppSequencerUI extends HBox {
 	private void moveRowDownAction(ActionEvent e) {
 		if (members.size() > 0 && tableView.getSelectionModel().getSelectedIndex() != members.size() - 1) {
 			int selectedRow = tableView.getSelectionModel().getSelectedIndex();
-			RunJSonTableBoundary r = members.remove(selectedRow);
-			members.add(selectedRow + 1, r);
+			TreeItem<RunJSonTableBoundary> r = tableView.getRoot().getChildren().remove(selectedRow);
+			tableView.getRoot().getChildren().add(selectedRow + 1, r);
+			tableView.getSelectionModel().select(selectedRow + 1);
 			tableView.fireEvent(e);
 		}
 	}
@@ -387,7 +387,15 @@ public class AppSequencerUI extends HBox {
 		if (members != null) {
 			// clear the list before adding so that duplicates are avoided.
 			runJsonBoundaries.clear();
-			members.stream().forEach(m -> {
+
+			// members are not ordered . We have the table ordered ..So make a move from the
+			// table.
+			ObservableList<RunJSonTableBoundary> clonedTabList = FXCollections.observableArrayList();
+			tableView.getRoot().getChildren().stream().forEach(f -> {
+				clonedTabList.add(f.getValue());
+			});
+
+			clonedTabList.stream().forEach(m -> {
 				runJsonBoundaries.add(constructRunJsonBoundary(m));
 			});
 

@@ -37,14 +37,16 @@ public class AppMain extends Application {
 	public static double WIDTH = visualBounds.getWidth() - 100;
 	public static double HEIGHT = visualBounds.getHeight() - 50;
 	private Stage stage;
+	private Scene mainScene;
 
 	@Override
 	public void start(Stage stage) throws Exception {
 		this.stage = stage;
 		// stage.setMaximized(true);
+		stage.setTitle("MPS Org View Editing Options");
 
-		Scene scene = new Scene(contructUIPane(), 600, 600);
-		stage.setScene(scene);
+		mainScene = new Scene(contructUIPane(), 600, 600);
+		stage.setScene(mainScene);
 		stage.show();
 
 	}
@@ -62,13 +64,6 @@ public class AppMain extends Application {
 			Scene scene = null;
 			try {
 				scene = new Scene(new AddressBook().fetchMainDisplayBox(), WIDTH, HEIGHT);
-				scene.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, w -> {
-					GridPane pane = contructUIPane();
-					Scene sc = new Scene(pane);
-					stage.setScene(sc);
-					stage.toFront();
-
-				});
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -89,13 +84,6 @@ public class AppMain extends Application {
 		perfomanceBoardEditor.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
 			Scene scene = new Scene(new PerfomanceBoardDetails(), WIDTH, HEIGHT);
 			stage.setScene(scene);
-			scene.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, w -> {
-				GridPane pane = contructUIPane();
-				Scene sc = new Scene(pane);
-				stage.setScene(sc);
-				stage.toFront();
-
-			});
 			stage.toFront();
 			stage.setMaximized(true);
 		});
@@ -110,13 +98,6 @@ public class AppMain extends Application {
 
 		runUIEditort.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
 			Scene scene = new Scene(new AppSequencerUI(), WIDTH, HEIGHT);
-			scene.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, w -> {
-				GridPane pane = contructUIPane();
-				Scene sc = new Scene(pane);
-				stage.setScene(sc);
-				stage.toFront();
-
-			});
 			stage.setScene(scene);
 			stage.toFront();
 			stage.setMaximized(true);
@@ -127,13 +108,6 @@ public class AppMain extends Application {
 
 		runUIEditort.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
 			Scene scene = new Scene(new DiagnoseIssues(), WIDTH, HEIGHT);
-			scene.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, w -> {
-				GridPane pane = contructUIPane();
-				Scene sc = new Scene(pane);
-				stage.setScene(sc);
-				stage.toFront();
-
-			});
 			stage.setScene(scene);
 			stage.toFront();
 			stage.setMaximized(true);
