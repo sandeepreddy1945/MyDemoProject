@@ -8,6 +8,7 @@ import java.io.IOException;
 import com.app.chart.dashboard.ui.PerfomanceBoardDetails;
 import com.app.chart.diagnose.DiagnoseIssues;
 import com.app.chart.fx.AddressBook;
+import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.run.ui.AppSequencerUI;
 
 import eu.hansolo.tilesfx.Tile;
@@ -147,6 +148,7 @@ public class AppMain extends Application {
 		gridPane.setHgap(20);
 		gridPane.setAlignment(Pos.CENTER);
 		gridPane.setPadding(new Insets(10));
+		gridPane.setBackground(DashboardUtil.BLACK_BACKGROUND);
 		return gridPane;
 	}
 
