@@ -1,0 +1,2 @@
+Need to add a transistion for the team status and then in the transistion need to add some keyframes to display welcome any customer
+visit if required or any important information that wants to be seen.
