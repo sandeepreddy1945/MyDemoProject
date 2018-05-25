@@ -12,8 +12,8 @@ import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.run.ui.AppSequencerUI;
 
 import eu.hansolo.tilesfx.Tile;
-import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.Tile.SkinType;
+import eu.hansolo.tilesfx.TileBuilder;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,7 +25,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 /**
  * @author Sandeep Reddy Battula
@@ -106,7 +105,7 @@ public class AppMain extends Application {
 		Tile disgnosticsTool = buildTextTileFromData("Diagnostic Tools", "Runs The App Diagnostics",
 				"Run The App Diagnostics Tool.");
 
-		runUIEditort.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+		disgnosticsTool.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
 			Scene scene = new Scene(new DiagnoseIssues(), WIDTH, HEIGHT);
 			stage.setScene(scene);
 			stage.toFront();
