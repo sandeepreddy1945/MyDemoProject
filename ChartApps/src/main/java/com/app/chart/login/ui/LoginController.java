@@ -3,6 +3,7 @@ package com.app.chart.login.ui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.app.run.main.AppMain;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 
@@ -44,6 +45,9 @@ public class LoginController implements Initializable {
 
 	private void closeStage() {
 		((Stage) username.getScene().getWindow()).close();
+
+		// call the main of the main app class
+		AppMain.main(new String[10]);
 	}
 
 	/*
