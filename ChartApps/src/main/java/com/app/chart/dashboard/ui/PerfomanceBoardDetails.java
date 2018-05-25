@@ -123,6 +123,15 @@ public class PerfomanceBoardDetails extends HBox {
 		initUI();
 	}
 
+	public PerfomanceBoardDetails() {
+		super(5);
+		this.dataFile = new File(FilesUtil.DASHBOARD_CONTENT_DATA);
+		// before init of ui just read the file and save the data for usage.
+		readDataFromFile();
+
+		initUI();
+	}
+
 	private void readDataFromFile() {
 		try {
 			if (dataFile != null && dataFile.exists()

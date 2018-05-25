@@ -86,6 +86,11 @@ public class DiagnoseIssues extends HBox {
 		initUI();
 	}
 
+	public DiagnoseIssues() {
+		super(10);
+		initUI();
+	}
+
 	/**
 	 * 
 	 * @param perfomanceBoardBoundaries
