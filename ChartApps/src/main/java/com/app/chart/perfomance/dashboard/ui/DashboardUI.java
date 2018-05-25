@@ -5,6 +5,7 @@ package com.app.chart.perfomance.dashboard.ui;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
@@ -286,12 +287,12 @@ public class DashboardUI extends Application {
 
 		DashboardHeader dashboardHeader = null;
 		try {
-			URL url1 = ClassLoader.getSystemResource("com/app/chart/images/nttlogo.png");
-			URL url2 = ClassLoader.getSystemResource("com/app/chart/images/ntt-data.png");
-			File logo1 = new File(url1.toURI().getPath());
-			File logo2 = new File(url2.toURI().getPath());
+			InputStream f1 = DashboardUtil.class.getClassLoader()
+					.getResourceAsStream("com/app/chart/images/nttlogo.png");
+			InputStream f2 = DashboardUtil.class.getClassLoader()
+					.getResourceAsStream("com/app/chart/images/ntt-data.png");
 
-			dashboardHeader = new DashboardHeader(logo1, logo2, headerTxt);
+			dashboardHeader = new DashboardHeader(f1, f2, headerTxt);
 			dashboardHeader.setMinSize(WIDTH - 160, 90);
 			dashboardHeader.setPrefSize(WIDTH, 90);
 
@@ -323,7 +324,7 @@ public class DashboardUI extends Application {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			// when file not found
-			URL url3 = ClassLoader.getSystemResource("com/app/chart/images/default.png");
+			URL url3 = getClass().getClassLoader().getResource("com/app/chart/images/default.png");
 
 			File logo1;
 			try {
@@ -496,12 +497,7 @@ public class DashboardUI extends Application {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			try {
-				image = new Image(ClassLoader.getSystemResource("com/app/chart/images/default.png").openStream());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			image = new Image(getClass().getClassLoader().getResourceAsStream("com/app/chart/images/default.png"));
 		}
 
 		ImageView imageView = new ImageView(image);

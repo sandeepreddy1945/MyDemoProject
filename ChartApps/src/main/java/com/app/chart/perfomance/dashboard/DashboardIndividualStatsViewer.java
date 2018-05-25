@@ -204,7 +204,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 			// image not found assign default image.
 			try {
 				imgFile = new File(
-						ClassLoader.getSystemResource("com/app/chart/images/default.png").toURI().toURL().getPath());
+						getClass().getClassLoader().getResource("com/app/chart/images/default.png").toURI().toURL().getPath());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -5,6 +5,7 @@ package com.app.chart.perfomance.dashboard;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -37,6 +38,15 @@ public class DashboardHeader extends HBox {
 		this(0, f1, f2, dashboardLbl);
 
 	}
+	
+	/**
+	 * @throws IOException
+	 * 
+	 */
+	public DashboardHeader(InputStream f1, InputStream f2, String dashboardLbl) throws IOException {
+		this(0, f1, f2, dashboardLbl);
+
+	}
 
 	/**
 	 * @param spacing
@@ -47,12 +57,27 @@ public class DashboardHeader extends HBox {
 		this.logo1 = f1;
 		this.logo2 = f2;
 		this.dashboardLbl = dashboardLbl;
+		imageView1 = new ImageView(new Image(FileUtils.openInputStream(logo1)));
+		imageView2 = new ImageView(new Image(FileUtils.openInputStream(logo2)));
+		init();
+	}
+	
+	/**
+	 * @param spacing
+	 * @throws IOException
+	 */
+	public DashboardHeader(double spacing, InputStream f1, InputStream f2, String dashboardLbl) throws IOException {
+		super(spacing);
+		this.logo1 = null;
+		this.logo2 = null;
+		this.dashboardLbl = dashboardLbl;
+		imageView1 = new ImageView(new Image(f1));
+		imageView2 = new ImageView(new Image(f2));
 		init();
 	}
 
 	private void init() throws IOException {
-		imageView1 = new ImageView(new Image(FileUtils.openInputStream(logo1)));
-		imageView2 = new ImageView(new Image(FileUtils.openInputStream(logo2)));
+		
 		HBox box = new HBox();
 		Text dashBoardLbl = new Text(dashboardLbl);
 		dashBoardLbl.setFont(Font.font("Verdana", 38));
