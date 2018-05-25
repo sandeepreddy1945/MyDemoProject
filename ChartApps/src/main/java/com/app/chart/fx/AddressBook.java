@@ -16,6 +16,7 @@ import com.app.chart.fx.tree.OrgTreeView;
 import com.app.chart.model.ChartBoardBoundary;
 import com.app.chart.model.EmployeeDetails;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
+import com.app.charts.utilities.JFXNumberField;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
@@ -33,7 +34,6 @@ import com.jfoenix.validation.RequiredFieldValidator;
 import de.jensd.fx.glyphs.GlyphsBuilder;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -68,7 +68,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-public class AddressBook extends Application {
+public class AddressBook  {
 
 	/**
 	 * Visual Bounds of the Screen.
@@ -112,14 +112,26 @@ public class AddressBook extends Application {
 
 	private ChartBoardBoundary chartBoardBoundary;
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		launch(args);
+	}*/
+
+	private HBox mainPane = new HBox();
+
+	// default constructor
+	public AddressBook() throws IOException {
+		// create the files for fetching before start.
+		FilesUtil.initializeFileSettings();
+		initUI();
 	}
 
+	public HBox fetchMainDisplayBox() {
+		return mainPane;
+	}
 	// TODO to replace the save employee boundary with the ChartBoardBoundary for
 	// saving purpose.
 
-	@Override
+	//@Override
 	public void start(Stage stage) throws IOException {
 		// create the files for fetching before start.
 		FilesUtil.initializeFileSettings();
@@ -183,7 +195,7 @@ public class AddressBook extends Application {
 		chartNameTF.setPrefSize(500, 40);
 		chartNameTF.setLabelFloat(true);
 
-		final JFXTextField portalTF = new JFXTextField();
+		final JFXNumberField portalTF = new JFXNumberField();
 		portalTF.setPromptText("Portal Id");
 		portalTF.setMaxWidth(230);
 		final JFXTextField nameTF = new JFXTextField();
@@ -265,6 +277,142 @@ public class AddressBook extends Application {
 
 		stage.setScene(scene);
 		stage.show();
+	}
+
+	private void initUI() throws IOException {
+
+		chartBoardBoundary = new ChartBoardBoundary();
+
+		tableView.setMinSize(WIDTH, HEIGHT - 300);
+		tableView.setPrefSize(WIDTH, HEIGHT - 300);
+		tableView.setShowRoot(false);
+		tableView.setEditable(true);
+		tableView.setPadding(new Insets(15));
+
+		final Label label = new Label("Chart Address Book");
+		label.setFont(new Font("Arial", 20));
+
+		teamCombo = new JFXComboBox<>();
+		teamCombo.setMinSize(300, 20);
+		teamCombo.setPromptText("Select Manager/Manager's Team");
+
+		// initalize the Team Combo Box from Main Props File
+		props = FilesUtil.readMainPropertiesFile();
+		teamCombo.getItems()
+				.addAll(FXCollections.observableArrayList(props.keySet().toArray(new String[props.size()])));
+
+		addManagerField = new JFXTextField();
+		addManagerField.setPromptText("Create/Add New Chart here");
+
+		final JFXButton previewBtn = new JFXButton("Create Preview Order");
+		addManagerField.setMinSize(450, 20);
+
+		// make it a required filed for entering data.
+		DashboardUtil.buildRequestValidator(addManagerField);
+
+		JFXButton addChart = new JFXButton("Add Chart To List");
+		headerHb.setMinWidth(1000);
+		headerHb.setSpacing(10);
+		headerHb.getChildren().addAll(teamCombo, addManagerField, addChart, previewBtn);
+
+		chartNameTF = new JFXTextField();
+
+		chartNameTF.setPromptText("Enter Chart Header Name Here..");
+		RequiredFieldValidator validator = new RequiredFieldValidator();
+		validator.setMessage("This is a Required Field. Please Enter the Chart Name");
+		validator.setIcon(GlyphsBuilder.create(FontAwesomeIconView.class).glyph(FontAwesomeIcon.WARNING).size(EM1)
+				.styleClass(ERROR).build());
+		chartNameTF.getValidators().add(validator);
+		chartNameTF.focusedProperty().addListener((o, oldVal, newVal) -> {
+			if (!newVal) {
+				chartNameTF.validate();
+			}
+		});
+
+		chartNameTF.setMinSize(600, 30);
+		chartNameTF.setPrefSize(500, 40);
+		chartNameTF.setLabelFloat(true);
+
+		final JFXNumberField portalTF = new JFXNumberField();
+		portalTF.setPromptText("Portal Id");
+		portalTF.setMaxWidth(230);
+		final JFXTextField nameTF = new JFXTextField();
+		nameTF.setPromptText("Name");
+		nameTF.setMaxWidth(230);
+		final JFXTextField designationTF = new JFXTextField();
+		designationTF.setMaxWidth(230);
+		designationTF.setPromptText("Designation");
+		final JFXTextField teamTF = new JFXTextField();
+		teamTF.setMaxWidth(230);
+		teamTF.setPromptText("Team");
+		final JFXTextField parentTF = new JFXTextField();
+		parentTF.setMaxWidth(230);
+		parentTF.setPromptText("Parent");
+
+		// add validations to the txt fields
+		DashboardUtil.buildRequestValidator(portalTF, nameTF, designationTF, teamTF, parentTF);
+
+		final JFXButton addButton = new JFXButton("Add");
+		addButton.setOnAction(e -> {
+			addBtnAction(portalTF, nameTF, designationTF, teamTF, parentTF);
+		});
+
+		final JFXButton delButton = new JFXButton("Delete");
+		delButton.setOnAction(e -> {
+			data.remove(tableView.getSelectionModel().getFocusedIndex());
+			tableView.fireEvent(e);
+		});
+
+		final JFXButton saveBtn = new JFXButton("Save");
+		saveBtn.setOnAction(e -> {
+			onSaveActionPerfomed();
+		});
+
+		addChart.setOnAction(e -> {
+			onAddChartAction(addManagerField, chartNameTF);
+		});
+
+		previewBtn.setOnAction(e -> {
+			onPreviewBtnAction(e);
+		});
+
+		teamCombo.setOnAction(e -> {
+			onTeamComboChanged(e);
+		});
+		nameTF.setPrefWidth(200);
+		designationTF.setPrefWidth(200);
+		teamTF.setPrefWidth(200);
+
+		nameTF.setMinWidth(180);
+		designationTF.setMinWidth(180);
+		teamTF.setMinWidth(180);
+		parentTF.setMinWidth(180);
+		portalTF.setMinWidth(180);
+
+		hb.getChildren().addAll(portalTF, nameTF, designationTF, teamTF, parentTF, addButton, delButton, saveBtn);
+		hb.setSpacing(3);
+
+		chartNameTF.setPadding(new Insets(0, 0, 5, 10));
+		// tool tip for shortcut and clearing
+		chartNameTF.setTooltip(new Tooltip("Press \"alt+c\" to clear this field"));
+		chartNameTF.setOnKeyPressed(b -> {
+			if (b.getCode().ordinal() == KeyCode.C.ordinal() && b.isAltDown()) {
+				chartNameTF.clear();
+			}
+		});
+
+		StackPane pane = new StackPane(chartNameTF);
+		chartNameTF.setMaxSize(600, 40);
+		pane.setMinSize(600, 40);
+		pane.setAlignment(Pos.CENTER_LEFT);
+
+		final VBox vbox = new VBox();
+		vbox.setSpacing(25);
+		vbox.setPadding(new Insets(10, 0, 0, 10));
+		vbox.getChildren().addAll(label, headerHb, pane, buildDefaultTableRows(), /* table */ tableView, hb);
+
+		mainPane.getChildren().addAll(vbox);
+
 	}
 
 	/**
