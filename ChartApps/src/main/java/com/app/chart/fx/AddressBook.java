@@ -71,7 +71,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AddressBook  {
+public class AddressBook {
 
 	/**
 	 * Visual Bounds of the Screen.
@@ -115,9 +115,9 @@ public class AddressBook  {
 
 	private ChartBoardBoundary chartBoardBoundary;
 
-	/*public static void main(String[] args) {
-		launch(args);
-	}*/
+	/*
+	 * public static void main(String[] args) { launch(args); }
+	 */
 
 	private HBox mainPane = new HBox();
 
@@ -134,7 +134,7 @@ public class AddressBook  {
 	// TODO to replace the save employee boundary with the ChartBoardBoundary for
 	// saving purpose.
 
-	//@Override
+	// @Override
 	public void start(Stage stage) throws IOException {
 		// create the files for fetching before start.
 		FilesUtil.initializeFileSettings();
@@ -594,7 +594,7 @@ public class AddressBook  {
 				});
 			}
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER,"onTeamComboChanged", e1);
+			log.error(Marker.ANY_MARKER, "onTeamComboChanged", e1);
 		}
 	}
 
@@ -680,7 +680,7 @@ public class AddressBook  {
 					teamCombo.getItems().add(addManagerField.getText());
 					addManagerField.clear();
 				} catch (IOException e1) {
-					log.error(Marker.ANY_MARKER,"onAddChartAction", e1);
+					log.error(Marker.ANY_MARKER, "onAddChartAction", e1);
 				}
 			}
 
@@ -727,7 +727,7 @@ public class AddressBook  {
 							os.flush();
 							os.close();
 						} catch (Exception ex) {
-							log.error(Marker.ANY_MARKER,"onSaveActionPerfomed", ex);
+							log.error(Marker.ANY_MARKER, "onSaveActionPerfomed", ex);
 						}
 
 						props.put(teamCombo.getSelectionModel().getSelectedItem(), chartNameTF.getText());
@@ -783,11 +783,13 @@ public class AddressBook  {
 			FileUtils.write(
 					new File(FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + teamCombo.getSelectionModel().getSelectedItem()
 							+ FilesUtil.SLASH + APP_JSON),
-					objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(chartBoardBoundary),
+					objectMapper/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(chartBoardBoundary),
 					Charset.defaultCharset(), false);
+			log.info("saveAllDetailsToFile",
+					objectMapper/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(chartBoardBoundary));
 			// prepare the js file required for the app to function
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER,"saveAllDetailsToFile", e1);
+			log.error(Marker.ANY_MARKER, "saveAllDetailsToFile", e1);
 		}
 	}
 

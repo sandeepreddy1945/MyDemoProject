@@ -212,7 +212,7 @@ public class ApplicationMain extends Application {
 		// juzz display a blank page at the start.
 		Scene scene = new Scene(new HBox(), WIDTH, HEIGHT);
 		// start the timer once the UI is initiated.
-		timeline = new Timeline(new KeyFrame(Duration.millis(999999), this::executeTask));
+		timeline = new Timeline(new KeyFrame(Duration.millis(999), this::executeTask));
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);

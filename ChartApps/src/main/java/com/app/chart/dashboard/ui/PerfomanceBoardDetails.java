@@ -991,7 +991,7 @@ public class PerfomanceBoardDetails extends HBox {
 			// For now skipping the pretty view to conserve diskspace.
 			String contentData = mapper
 					/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(perfomanceBoardDetails);
-			System.out.println(contentData);
+			log.info("saveAllTheDetails", contentData);
 
 			// never append the file always overwrite it as we are stroing all the details
 			// in one single file.
@@ -1001,7 +1001,6 @@ public class PerfomanceBoardDetails extends HBox {
 
 			List<PerfomanceBoardBoundary> list1 = mapper.readValue(contentData,
 					mapper.getTypeFactory().constructCollectionType(List.class, PerfomanceBoardBoundary.class));
-			list1.forEach(System.out::println);
 			// can be used as alternative to the above method to read json back.
 			/*
 			 * 

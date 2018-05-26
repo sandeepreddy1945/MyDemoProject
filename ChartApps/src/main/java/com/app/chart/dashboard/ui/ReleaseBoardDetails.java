@@ -260,7 +260,7 @@ public class ReleaseBoardDetails {
 					// String sunBurstData =
 					// mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
 					String sunBurstData = mapper.writeValueAsString(b);
-					System.out.println(sunBurstData);
+					log.info("setOnAction", sunBurstData);
 					/*
 					 * mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 					 * mapper.reader().forType(SunburstBoundary.class).readValue(sunBurstData);
