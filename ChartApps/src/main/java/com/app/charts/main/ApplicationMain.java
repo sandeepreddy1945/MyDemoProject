@@ -99,10 +99,6 @@ public class ApplicationMain extends Application {
 	public void init() throws Exception {
 		log.info("Init Method Called From Main... App Started Execution.");
 
-		// start the jetty server
-		serverMain = new JettyServerMain();
-		serverMain.startServer();
-
 		// initialize the cache
 		// this initilizes the cache manager and puts a cache entry.
 		chartCacheManager = ChartCacheManager.getInstance();
@@ -118,6 +114,10 @@ public class ApplicationMain extends Application {
 		// initialize the group view extended look .Not required for now as we are doing
 		// it in pubish event.
 		// initializeGroupViewLook();
+
+		// start the jetty server
+		serverMain = new JettyServerMain();
+		serverMain.startServer();
 	}
 
 	/**

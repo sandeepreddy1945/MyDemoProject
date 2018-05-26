@@ -47,7 +47,7 @@ public class JettyServerMain {
 
 	public void startServer() throws Exception {
 		server.start();
-		server.join();
+		//server.join();
 		log.info("Server Started on Port 8020");
 
 	}
