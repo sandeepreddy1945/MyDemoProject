@@ -40,6 +40,7 @@ public class FilesUtil {
 	public static final String DASHBOARD_CONTENT_DATA = DASHBOARD_CONTENT_PATH + SLASH + DASHBOARD_CONTENT_DATA_FILE;
 	public static final String DASHBOARD_PROPS_PATH_BCK = PROPS_DIR_PATH + SLASH + "managerpropsbck";
 	public static final String DASHBOARD_CONTENT_PATH_BCK = DASHBOARD_CONTENT_PATH + SLASH + "dashboardbck";
+	public static final String DASHBOARD_PROJECT_STATUS_FILE = DASHBOARD_CONTENT_PATH + SLASH + "projectstatus.json";
 
 	/**
 	 * 
@@ -67,7 +68,8 @@ public class FilesUtil {
 
 		copyJsAndCssFilesToFolders();
 
-		checkAndCreateFile(RUN_PROPS_PATH, MANAGER_PROPS_PATH, DASHBOARD_PROPS_PATH, DASHBOARD_CONTENT_DATA);
+		checkAndCreateFile(RUN_PROPS_PATH, MANAGER_PROPS_PATH, DASHBOARD_PROPS_PATH, DASHBOARD_CONTENT_DATA,
+				DASHBOARD_PROJECT_STATUS_FILE);
 
 		copyRequiredJsAndCssFiles();
 	}

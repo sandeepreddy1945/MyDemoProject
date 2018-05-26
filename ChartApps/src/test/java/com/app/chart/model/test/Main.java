@@ -60,14 +60,14 @@ public class Main extends Application {
 			 */
 
 			// sequental transistion
-			/*FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), centeredLabel);
+			FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), centeredLabel);
 			fadeTransition.setFromValue(1.0f);
 			fadeTransition.setToValue(0.3f);
 			fadeTransition.setCycleCount(1);
 			fadeTransition.setAutoReverse(true);
 
 			TranslateTransition translateTransition = new TranslateTransition(Duration.millis(2000), centeredLabel);
-			translateTransition.setFromX(50);
+			translateTransition.setFromX(0);
 			translateTransition.setToX(375);
 			translateTransition.setCycleCount(2);
 			translateTransition.setAutoReverse(true);
@@ -86,25 +86,18 @@ public class Main extends Application {
 			scaleTransition.setAutoReverse(true);
 
 			sequentialTransition = new SequentialTransition();
-			sequentialTransition.getChildren().addAll(fadeTransition, translateTransition, rotateTransition,
-					scaleTransition);
+			sequentialTransition.getChildren().addAll(/*fadeTransition, translateTransition, rotateTransition,
+					scaleTransition*/ translateTransition);
 			sequentialTransition.setCycleCount(Timeline.INDEFINITE);
 			sequentialTransition.setAutoReverse(true);
 
-			sequentialTransition.play();*/
+			sequentialTransition.play();
 
 			StackPane root = new StackPane(centeredLabel);
 			root.setPadding(new Insets(10));
 			root.setPrefSize(300, 100);
 
 			Scene scene = new Scene(root, 800, 800);
-			Camera camera = new PerspectiveCamera(true);
-			Group cameraGroup = new Group();
-			cameraGroup.getChildren().add(camera);
-			root.getChildren().add(cameraGroup);
-			scene.setCamera(camera);
-			camera.setRotate(180);
-			cameraGroup.setTranslateZ(-75);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
