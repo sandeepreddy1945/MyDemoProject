@@ -3,6 +3,7 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.Getter;
@@ -16,8 +17,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EmployeeSortModel {
+public class EmployeeSortModel implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6998692762142268155L;
 	private EmployeeDetails employeeDetails;
 	private boolean headerEmployee;
 	private boolean hasChildren;

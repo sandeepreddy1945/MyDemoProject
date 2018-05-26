@@ -3,6 +3,7 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,8 +26,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonPropertyOrder({ "portalId", "name", "designation", "folderName", "teamMembers" })
-public class ManagerDetailBoundary {
+public class ManagerDetailBoundary implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2626656708493273347L;
 	@JsonProperty("portalId")
 	private int portalId;
 	@JsonProperty("name")

@@ -3,6 +3,8 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,8 +26,12 @@ import lombok.ToString;
 @JsonInclude(value = Include.NON_NULL)
 @JsonPropertyOrder({ "red", "green", "blue", "opacity" })
 @ToString(includeFieldNames = true)
-public class CustomColor {
+public class CustomColor implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1082536919349441979L;
 	@JsonProperty("red")
 	double red;
 	@JsonProperty("green")

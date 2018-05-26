@@ -3,6 +3,8 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -23,8 +25,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @JsonInclude(value = Include.NON_NULL)
 @JsonPropertyOrder({ "totalSprintPoints", "currentSprintPoints", "backlogSprintPoints" })
-public class CurrentSprintBoundary {
+public class CurrentSprintBoundary implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3093030121490792732L;
 	@JsonProperty("totalSprintPoints")
 	private double totalSprintPoints;
 	@JsonProperty("currentSprintPoints")

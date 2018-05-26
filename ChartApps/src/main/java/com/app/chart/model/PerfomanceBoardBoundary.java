@@ -3,6 +3,7 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -27,8 +28,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @JsonPropertyOrder({ "headerTxt", "managerDetailBoundary", "teamMembers", "initalDate", "folderName",
 		"sunburstBoundary", "perfomanceMeterBoundary", "currentSprintBoundary" })
-public class PerfomanceBoardBoundary {
+public class PerfomanceBoardBoundary implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3522145124433203757L;
 	@JsonProperty("headerTxt")
 	private String headerTxt;
 	@JsonProperty("managerDetailBoundary")

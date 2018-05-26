@@ -78,7 +78,7 @@ dependencies {
 	
 	//sl4j dependencies
 	//compile 'org.slf4j:slf4j-api:1.7.25'
-	//compile 'org.slf4j:slf4j-simple:1.7.25'
+	compile 'org.slf4j:slf4j-simple:1.7.25'
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     testCompile "org.testfx:testfx-core:4.0.13-alpha"

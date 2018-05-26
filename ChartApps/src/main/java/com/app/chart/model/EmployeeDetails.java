@@ -1,5 +1,7 @@
 package com.app.chart.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -21,8 +23,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @JsonPropertyOrder({ "portalId", "name", "description", "team", "parent", "link","pseudo" })
 @JsonInclude(value = Include.NON_NULL)
-public class EmployeeDetails {
+public class EmployeeDetails implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3985553512453170494L;
 	@JsonProperty("portalId")
 	String portalId;
 	@JsonProperty("name")

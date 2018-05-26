@@ -3,6 +3,7 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import eu.hansolo.tilesfx.chart.ChartData;
@@ -21,8 +22,12 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReleaseBoardBoundary {
+public class ReleaseBoardBoundary implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4216088667961733680L;
 	private List<SunburstBoundary> sunburstBoundaries;
 	private List<ChartData> radialBoundaries;
 	private List<ChartData> donutBoundaries;

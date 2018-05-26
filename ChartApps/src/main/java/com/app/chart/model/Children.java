@@ -3,6 +3,7 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,8 +28,12 @@ import lombok.ToString;
 @JsonPropertyOrder({ "children", "childrenDropLevel" })
 @JsonInclude(value = Include.NON_NULL)
 @JsonRootName(value = "children")
-public class Children {
+public class Children implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6870149475437451946L;
 	@JsonProperty("children")
 	private List<ChildrenPackage> children;
 	@JsonProperty("childrenDropLevel")
@@ -43,8 +48,12 @@ public class Children {
 @JsonInclude(value = Include.NON_NULL)
 // @JsonRootName(value = "children") // no root name for this element as we
 // don't display this
-class ChildrenPackage {
+class ChildrenPackage implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4535890196328334998L;
 	@JsonProperty("text")
 	private Text text;
 	@JsonProperty("HTMLclass")

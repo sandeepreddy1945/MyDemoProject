@@ -3,6 +3,8 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -25,8 +27,12 @@ import lombok.ToString;
 @JsonPropertyOrder({ "val", "href", "target" })
 @JsonInclude(value = Include.NON_NULL)
 @JsonRootName(value = "contact")
-public class Contact {
+public class Contact implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 865864420152580486L;
 	@JsonProperty("val")
 	private String val;
 	@JsonProperty("href")

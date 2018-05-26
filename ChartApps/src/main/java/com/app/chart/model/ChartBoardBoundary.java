@@ -3,6 +3,7 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -23,8 +24,12 @@ import lombok.ToString;
 @ToString
 @JsonInclude(value = Include.NON_NULL)
 @JsonPropertyOrder({ "folderName", "headName", "headerTxt", "employeeDetails" })
-public class ChartBoardBoundary {
+public class ChartBoardBoundary implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3945559430317795818L;
 	@JsonProperty("folderName")
 	private String folderName;
 	@JsonProperty("headName")

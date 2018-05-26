@@ -3,6 +3,8 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,8 +27,12 @@ import lombok.ToString;
 @JsonPropertyOrder({ "name", "title", "desc", "contact" })
 @JsonInclude(value = Include.NON_NULL)
 @JsonRootName(value = "text")
-public class Text {
+public class Text implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1754459838928832118L;
 	@JsonProperty("name")
 	private String name;
 	@JsonProperty("title")

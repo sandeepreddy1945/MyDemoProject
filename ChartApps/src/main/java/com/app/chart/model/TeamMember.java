@@ -3,6 +3,8 @@
  */
 package com.app.chart.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -22,8 +24,12 @@ import lombok.Setter;
 @JsonPropertyOrder({ "portalId", "name", "description", "team", "parent", "link", "score1", "score2", "score3",
 		"intreval1", "intreval2", "intreval3", "valueAdd", "quality", "onTime", "extraDescription" })
 @JsonInclude(value = Include.NON_NULL)
-public class TeamMember {
+public class TeamMember implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6191758893719953530L;
 	@JsonProperty("portalId")
 	String portalId;
 	@JsonProperty("name")
