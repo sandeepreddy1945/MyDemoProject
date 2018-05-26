@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CurrentSprintBoundary;
@@ -75,11 +76,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep
  *
  */
+@Slf4j
 public class PerfomanceBoardDetails extends HBox {
 
 	/**
@@ -154,7 +157,7 @@ public class PerfomanceBoardDetails extends HBox {
 			}
 		} catch (IOException e) {
 
-			e.printStackTrace();
+			log.error(Marker.ANY_MARKER, "readDataFromFile", e);
 		}
 
 	}
@@ -190,7 +193,7 @@ public class PerfomanceBoardDetails extends HBox {
 			});
 		} else {
 			// for now no implementation
-			System.out.println("Intial Start of creating data.");
+			log.info("Intial Start of creating data.");
 		}
 
 	}
@@ -901,7 +904,7 @@ public class PerfomanceBoardDetails extends HBox {
 									+ System.currentTimeMillis() + ".json"),
 							contentData, Charset.defaultCharset(), false);
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					log.error(Marker.ANY_MARKER, "deleteManagerAction", e);
 				}
 
 				// remove the detail from main boundary.
@@ -1011,8 +1014,7 @@ public class PerfomanceBoardDetails extends HBox {
 			 * Arrays.stream(list).forEach(System.out::println);
 			 */
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			log.error(Marker.ANY_MARKER, "saveAllTheDetails", e1);
 		}
 	}
 

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CurrentSprintBoundary;
@@ -58,6 +59,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep<br>
@@ -66,6 +68,7 @@ import javafx.stage.Window;
  *         <img alt="Dashboard" src="dashboard.png">
  *
  */
+@Slf4j
 public class DashboardUI extends Application {
 
 	/**
@@ -333,11 +336,9 @@ public class DashboardUI extends Application {
 
 				dashboardImageViewer = new DashboardImageViewer(logo1, logo2, teamMembers);
 			} catch (URISyntaxException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(Marker.ANY_MARKER, "initializeTopImages", e);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(Marker.ANY_MARKER, "initializeTopImages", e);
 			}
 
 		}
@@ -495,8 +496,7 @@ public class DashboardUI extends Application {
 			logo1 = new File(url1.toURI().getPath());
 			image = new Image(FileUtils.openInputStream(logo1));
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(Marker.ANY_MARKER, "initializeManagerPicture", e);
 			image = new Image(getClass().getClassLoader().getResourceAsStream("com/app/chart/images/default.png"));
 		}
 

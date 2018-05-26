@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.cache.ChartCacheManager;
 import com.app.chart.fx.ChartWebEngine;
 import com.app.chart.fx.FilesUtil;
+import com.app.chart.fx.JettyServerMain;
 import com.app.chart.image.display.DisplayImage;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.RunJsonBoundary;
@@ -41,6 +43,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.Element;
 
 /**
@@ -51,6 +54,7 @@ import net.sf.ehcache.Element;
  *         class methods would break the application or effect its
  *         performance.<br>
  */
+@Slf4j
 public class ApplicationMain extends Application {
 
 	public static final String PERFOMANCEBOARDLIST = "PERFOMANCEBOARDLIST";
@@ -87,10 +91,18 @@ public class ApplicationMain extends Application {
 	private boolean isNormalOnesRunning = true;
 	private ChartGroupView chartGroupView;
 
+	private JettyServerMain serverMain;
+
 	// TODO Some how push everything to cache so that app can be made more clean.
 
 	@Override
 	public void init() throws Exception {
+		log.info("Init Method Called From Main... App Started Execution.");
+
+		// start the jetty server
+		serverMain = new JettyServerMain();
+		serverMain.startServer();
+
 		// initialize the cache
 		// this initilizes the cache manager and puts a cache entry.
 		chartCacheManager = ChartCacheManager.getInstance();
@@ -215,8 +227,7 @@ public class ApplicationMain extends Application {
 		try {
 			loadNext();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(Marker.ANY_MARKER, "stepForward", e);
 		}
 
 	}
@@ -252,6 +263,8 @@ public class ApplicationMain extends Application {
 	public void stop() throws Exception {
 		// shut down the cache manager once the application is closed.
 		chartCacheManager.getCacheManager().shutdown();
+		// stop the server
+		serverMain.stopServer();
 	}
 
 	public void executeTask(ActionEvent e) {
@@ -283,8 +296,7 @@ public class ApplicationMain extends Application {
 			try {
 				url = new File(filePath).toURI().toURL();
 			} catch (MalformedURLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				log.error(Marker.ANY_MARKER, "executeTask", e1);
 			}
 			// start putting the chart now
 			chartWebEngine.displayData(url.toExternalForm());
@@ -309,8 +321,7 @@ public class ApplicationMain extends Application {
 					stage.toFront();
 					// stage.setFullScreen(true);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					log.error(Marker.ANY_MARKER, "executeTask", e1);
 				}
 
 			}
@@ -323,9 +334,7 @@ public class ApplicationMain extends Application {
 				try {
 					executeDashboardTask(event);
 				} catch (Exception e1) {
-					// If failed don't block load the next one
-					e1.printStackTrace();
-					// executeTask(e);
+					log.error(Marker.ANY_MARKER, "executeTask", e1);
 				}
 			}));
 
@@ -429,7 +438,7 @@ public class ApplicationMain extends Application {
 			try {
 				executeDashboardTask(null);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(Marker.ANY_MARKER, "loadPrevious", e);
 			}
 		}
 

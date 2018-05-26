@@ -5,6 +5,7 @@ package com.app.chart.diagnose;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.ChartBoardBoundary;
@@ -50,6 +52,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep Reddy Battula <br>
@@ -59,6 +62,7 @@ import lombok.ToString;
  *         This searches the images missing both from charts as well as the
  *         perfomance graphs .
  */
+@Slf4j
 public class DiagnoseIssues extends HBox {
 
 	private ObservableList<DiagnoseIssueTableBoundary> members = FXCollections
@@ -142,7 +146,7 @@ public class DiagnoseIssues extends HBox {
 			}
 		} catch (IOException e) {
 			isPerfomanceListTampered = true;
-			e.printStackTrace();
+			log.error(Marker.ANY_MARKER, "loadPerfomanceDetailsFromFile", e);
 		}
 
 	}
@@ -172,7 +176,7 @@ public class DiagnoseIssues extends HBox {
 			}
 		} catch (IOException e) {
 			isPerfomanceListTampered = true;
-			e.printStackTrace();
+			log.error(Marker.ANY_MARKER, "diagnoseAllTheIssuesPresent", e);
 		}
 
 		// next runjson files and images present.
@@ -203,8 +207,7 @@ public class DiagnoseIssues extends HBox {
 					ChartBoardBoundary chartBoardBoundary = mapper.readValue(jsonStr, ChartBoardBoundary.class);
 					chartBoardBoundaries.add(chartBoardBoundary);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(Marker.ANY_MARKER, "diagnoseAllTheIssuesPresent", e);
 				}
 			});
 
@@ -333,6 +336,8 @@ public class DiagnoseIssues extends HBox {
 
 			});
 		});
+
+		log.error(Marker.ANY_MARKER, "All Errors Found in Diagnose Issues", members);
 
 		// fire table with changes.
 		tableView.fireEvent(e);

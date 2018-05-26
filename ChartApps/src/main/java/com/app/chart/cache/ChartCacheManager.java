@@ -3,6 +3,7 @@
  */
 package com.app.chart.cache;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -14,6 +15,7 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
  * @author Sandeep Reddy Battula
  *
  */
+@Slf4j
 public class ChartCacheManager {
 
 	public static final String MPS_CHART_CACHE = "MPSChartCache";
@@ -35,10 +37,11 @@ public class ChartCacheManager {
 
 	// TODO to work on this cache management and put this to main class call..
 	public void createCacheInitializer() {
+		log.info("Cache Initailzed with cache name as MPSChartCache");
 		cacheManager = CacheManager.create();
 		mpsChartCache = new Cache(new CacheConfiguration(MPS_CHART_CACHE, 1000000000)
-				.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).eternal(true).timeToLiveSeconds(60)
-				.timeToIdleSeconds(30).diskExpiryThreadIntervalSeconds(0)
+				.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU).eternal(true)
+				.diskExpiryThreadIntervalSeconds(0)
 				.persistence(new PersistenceConfiguration().strategy(Strategy.LOCALTEMPSWAP)));
 		CacheConfiguration cacheConfiguration = mpsChartCache.getCacheConfiguration();
 		// store less on heap and more on disk to reduce tension in heap as the app

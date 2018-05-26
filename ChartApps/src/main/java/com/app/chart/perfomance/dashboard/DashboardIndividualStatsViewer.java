@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.TeamMember;
@@ -35,6 +36,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep
@@ -43,6 +45,7 @@ import javafx.scene.text.Font;
  *         Perfomance of scores Tile, Ontime Details Tile.
  *
  */
+@Slf4j
 public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 	private Pagination pagination;
@@ -199,15 +202,13 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 					.toURL();
 			imgFile = new File(url1.toURI().getPath());
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			log.error(Marker.ANY_MARKER, "fetchMemberImage", e1);
 			// image not found assign default image.
 			try {
 				imgFile = new File(
 						getClass().getClassLoader().getResource("com/app/chart/images/default.png").toURI().toURL().getPath());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(Marker.ANY_MARKER, "fetchMemberImage", e1);
 			}
 		}
 		ImageView imageView = new ImageView();

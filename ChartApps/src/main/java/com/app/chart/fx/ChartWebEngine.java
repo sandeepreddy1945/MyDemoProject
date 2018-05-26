@@ -17,6 +17,7 @@ import javax.swing.event.HyperlinkEvent;
 import org.apache.commons.io.FileUtils;
 import org.codefx.libfx.control.webview.WebViewHyperlinkListener;
 import org.codefx.libfx.control.webview.WebViews;
+import org.slf4j.Marker;
 
 import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 import com.jfoenix.animation.alert.JFXAlertAnimation;
@@ -33,11 +34,13 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ezibcef
  *
  */
+@Slf4j
 public class ChartWebEngine {
 
 	WebView webView;
@@ -126,8 +129,7 @@ public class ChartWebEngine {
 			try {
 				onHyperLinkClicked(event);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(Marker.ANY_MARKER, "addWebHyperLinkListeners", e);
 			}
 			return true;
 		};
@@ -195,8 +197,7 @@ public class ChartWebEngine {
 			// this retunrs the details contained in the props file
 			properties.load(FileUtils.openInputStream(new File(FilesUtil.MANAGER_PROPS_PATH)));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(Marker.ANY_MARKER, "firstContentUIPath", e);
 		}
 		// take the first entry for display
 		String fileName = properties.keySet().stream().toArray(String[]::new)[0];
@@ -205,8 +206,7 @@ public class ChartWebEngine {
 		try {
 			path = new File(filePath).toURI().toURL().toExternalForm();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(Marker.ANY_MARKER, "firstContentUIPath", e);
 		}
 		return path;
 

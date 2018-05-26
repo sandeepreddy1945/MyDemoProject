@@ -3,13 +3,13 @@
  */
 package com.app.chart.perfomance.dashboard;
 
-import java.io.File;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import org.slf4j.Marker;
 
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
@@ -34,11 +34,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep
  *
  */
+@Slf4j
 public class DashboardUtil {
 
 	public static final Background BLACK_BACKGROUND = new Background(
@@ -80,7 +82,7 @@ public class DashboardUtil {
 			DashboardSidePane dashboardSidePane = new DashboardSidePane(dashboardHeader.getImageView1(), hbox);
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error(Marker.ANY_MARKER, "HeaderSegment", ex);
 		}
 		return dashboardHeader;
 	}

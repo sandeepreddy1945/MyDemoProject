@@ -5,6 +5,8 @@ package com.app.run.main;
 
 import java.io.IOException;
 
+import org.slf4j.Marker;
+
 import com.app.chart.dashboard.ui.PerfomanceBoardDetails;
 import com.app.chart.diagnose.DiagnoseIssues;
 import com.app.chart.fx.AddressBook;
@@ -25,11 +27,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep Reddy Battula
  *
  */
+@Slf4j
 public class AppMain extends Application {
 
 	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
@@ -64,8 +68,7 @@ public class AppMain extends Application {
 			try {
 				scene = new Scene(new AddressBook().fetchMainDisplayBox(), WIDTH, HEIGHT);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				log.error(Marker.ANY_MARKER, "contructUIPane", e1);
 			}
 			stage.setScene(scene);
 			stage.toFront();

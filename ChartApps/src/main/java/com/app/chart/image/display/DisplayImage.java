@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
@@ -20,11 +21,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep Reddy Battula
  *
  */
+@Slf4j
 public class DisplayImage extends HBox {
 
 	/**
@@ -91,7 +94,7 @@ public class DisplayImage extends HBox {
 				this.displayImage = new ImageView(new Image(FileUtils.openInputStream(displayImageFile)));
 			} catch (IOException e) {
 
-				e.printStackTrace();
+				log.error(Marker.ANY_MARKER, "fecthImageFromFile", e);
 			}
 		}
 

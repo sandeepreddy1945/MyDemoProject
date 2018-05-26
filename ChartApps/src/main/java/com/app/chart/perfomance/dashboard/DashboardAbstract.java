@@ -18,11 +18,13 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep Reddy Battula
  *
  */
+@Slf4j
 public abstract class DashboardAbstract extends HBox {
 
 	private AnimationTimer animationTimer;
@@ -34,7 +36,7 @@ public abstract class DashboardAbstract extends HBox {
 	 * Default Constructor.
 	 */
 	public DashboardAbstract(List<TeamMember> teamMembers) {
-		this(teamMembers, null);
+		this(teamMembers, new File(""));
 	}
 
 	/**

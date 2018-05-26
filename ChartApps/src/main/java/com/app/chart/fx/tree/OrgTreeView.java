@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.AddressBook;
 import com.app.chart.fx.BuildJavaScript;
@@ -47,6 +48,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep
@@ -58,6 +60,7 @@ import javafx.stage.Window;
  *            This nature to skip quotes is applicable only to the parent
  *            element in all aspects as per the java script conditionality .<br>
  */
+@Slf4j
 public class OrgTreeView<T> extends Application {
 
 	/**
@@ -395,8 +398,7 @@ public class OrgTreeView<T> extends Application {
 					new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_HTML),
 					Charset.defaultCharset());
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			log.error(Marker.ANY_MARKER, "refreshWebView", e1);
 		}
 		if (fileContent.length() > 0) {
 
@@ -480,14 +482,13 @@ public class OrgTreeView<T> extends Application {
 			loopOnTreeView(sb, configOrderBuilder, bjs, stepCount,
 					treeView.getRoot().getChildren().toArray(new TreeItem[treeView.getRoot().getChildren().size()]));
 			// print for debug purpose
-			System.out.println("******************************************************");
-			System.out.println(sb.toString());
-			System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-			System.out.println(
-					String.format(BuildJavaScript.jsConfigTemplate, "chart_config", configOrderBuilder.toString()));
+			log.info("******************************************************");
+			log.info(sb.toString());
+			log.info("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+			log.info(String.format(BuildJavaScript.jsConfigTemplate, "chart_config", configOrderBuilder.toString()));
 
-			System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-			System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList));
+			log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+			log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList));
 
 			// write the things back to files
 			synchronized (sb) {
@@ -508,7 +509,7 @@ public class OrgTreeView<T> extends Application {
 			}
 
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			log.error(Marker.ANY_MARKER, "doSaveAction", e1);
 		}
 	}
 

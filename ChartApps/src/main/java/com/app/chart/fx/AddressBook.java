@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.tree.OrgTreeView;
 import com.app.chart.model.ChartBoardBoundary;
@@ -67,7 +68,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AddressBook  {
 
 	/**
@@ -591,7 +594,7 @@ public class AddressBook  {
 				});
 			}
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			log.error(Marker.ANY_MARKER,"onTeamComboChanged", e1);
 		}
 	}
 
@@ -677,7 +680,7 @@ public class AddressBook  {
 					teamCombo.getItems().add(addManagerField.getText());
 					addManagerField.clear();
 				} catch (IOException e1) {
-					e1.printStackTrace();
+					log.error(Marker.ANY_MARKER,"onAddChartAction", e1);
 				}
 			}
 
@@ -724,7 +727,7 @@ public class AddressBook  {
 							os.flush();
 							os.close();
 						} catch (Exception ex) {
-							ex.printStackTrace();
+							log.error(Marker.ANY_MARKER,"onSaveActionPerfomed", ex);
 						}
 
 						props.put(teamCombo.getSelectionModel().getSelectedItem(), chartNameTF.getText());
@@ -784,7 +787,7 @@ public class AddressBook  {
 					Charset.defaultCharset(), false);
 			// prepare the js file required for the app to function
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			log.error(Marker.ANY_MARKER,"saveAllDetailsToFile", e1);
 		}
 	}
 

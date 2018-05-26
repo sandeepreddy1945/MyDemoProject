@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Marker;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CustomColor;
@@ -57,13 +58,15 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep
  *
  */
+@Slf4j
 public class ReleaseBoardDetails {
-	
+
 	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
 	public static double WIDTH = visualBounds.getWidth() - 200;
 	public static double HEIGHT = visualBounds.getHeight() - 200;
@@ -92,7 +95,7 @@ public class ReleaseBoardDetails {
 	private HBox releaseBoardBox = new HBox(5);
 
 	public ReleaseBoardDetails(String teamHeader, PerfomanceBoardBoundary perfomanceBoardBoundary, Dialog dialog) {
-		
+
 		this.teamNameHdr = teamHeader;
 		this.perfomanceBoardBoundary = perfomanceBoardBoundary;
 		// if the teamheader Name is not proper then donot dispay it only
@@ -253,8 +256,9 @@ public class ReleaseBoardDetails {
 					 * mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
 					 * mapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
 					 */
-					//for now skipping pretty writer to save disk space
-					//String sunBurstData = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
+					// for now skipping pretty writer to save disk space
+					// String sunBurstData =
+					// mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
 					String sunBurstData = mapper.writeValueAsString(b);
 					System.out.println(sunBurstData);
 					/*
@@ -274,11 +278,11 @@ public class ReleaseBoardDetails {
 							FilesUtil.DASHBOARD_CONTENT_PATH + FilesUtil.SLASH + teamNameHdr + "_" + "sunburst.json"),
 							sunBurstData, Charset.defaultCharset(), true);
 				} catch (JsonProcessingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+
+					log.error(Marker.ANY_MARKER, "Save Process", e1);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+
+					log.error(Marker.ANY_MARKER, "Save Process", e1);
 				}
 			});
 		});

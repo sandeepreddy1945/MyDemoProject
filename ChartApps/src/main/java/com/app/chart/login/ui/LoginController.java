@@ -3,17 +3,18 @@ package com.app.chart.login.ui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import com.app.chart.fx.AddressBook;
-import com.app.run.main.AppMain;
+import org.slf4j.Marker;
+
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LoginController implements Initializable {
 
 	@FXML
@@ -37,6 +38,8 @@ public class LoginController implements Initializable {
 		} else {
 			username.getStyleClass().add("wrong-credentials");
 			password.getStyleClass().add("wrong-credentials");
+			log.error(Marker.ANY_MARKER, "handleLoginButtonAction Method : Wrong Credentials Entered ", username,
+					password);
 		}
 	}
 

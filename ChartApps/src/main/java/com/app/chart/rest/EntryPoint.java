@@ -6,14 +6,19 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Marker;
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * This is important that ever response header contains the all_orginis added in order
- * to avoid problems caused by CORS.
+ * This is important that ever response header contains the all_orginis added in
+ * order to avoid problems caused by CORS.
  * 
  * @author Sandeep Reddy Battula
  *
  */
 @Path("/")
+@Slf4j
 public class EntryPoint {
 
 	private static final String ALL_ORIGINS = "*";
@@ -30,7 +35,7 @@ public class EntryPoint {
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response fetchEmployeeData() {
-
+		log.error(Marker.ANY_MARKER, "fetchEmployeeData", "Service Call Attempted to Server");
 		return Response.ok().entity("For Now Its Now Yet Completely Implemented. Development Work Still In Progress")
 				.header(ACCESS_CONTROL_ALLOW_ORIGIN, ALL_ORIGINS).build();
 	}
