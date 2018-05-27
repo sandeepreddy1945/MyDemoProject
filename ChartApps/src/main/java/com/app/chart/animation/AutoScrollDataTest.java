@@ -5,6 +5,7 @@ package com.app.chart.animation;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -19,7 +20,7 @@ public class AutoScrollDataTest extends Application {
 		//stage.setMaximized(true);
 
 		Scene scene = new Scene(
-				new AutoScrollProjectStatus( 1200), 200, 1200);
+				new AutoScrollProjectStatus( Screen.getPrimary().getVisualBounds().getHeight()  - 150), 150,  Screen.getPrimary().getVisualBounds().getHeight()  - 150);
 
 		stage.setScene(scene);
 		stage.show();

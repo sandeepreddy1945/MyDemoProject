@@ -114,14 +114,16 @@ public class DashboardProjectStatus extends HBox {
 		JFXButton addTeamDetails = new JFXButton("Add A New Team Status");
 		JFXButton editTeamDetail = new JFXButton("Edit Existing Team Status");
 		JFXButton saveAction = new JFXButton("Save Details");
+		JFXButton deleteRow = new JFXButton("Delete Row");
 
 		addTeamDetails.setOnAction(this::addTeamDetais);
 		editTeamDetail.setOnAction(this::editTeamDetails);
 		saveAction.setOnAction(this::saveAction);
+		deleteRow.setOnAction(this::deletRowAction);
 
 		HBox btmBox = new HBox(15);
 
-		btmBox.getChildren().addAll(addTeamDetails, editTeamDetail, saveAction);
+		btmBox.getChildren().addAll(addTeamDetails, editTeamDetail, saveAction, deleteRow);
 		btmBox.setAlignment(Pos.BOTTOM_RIGHT);
 
 		mainBox.getChildren().addAll(buildTableView(), tableView, btmBox);
@@ -136,6 +138,12 @@ public class DashboardProjectStatus extends HBox {
 	private void editTeamDetails(ActionEvent e) {
 		if (tableView.getSelectionModel().getSelectedItem() != null) {
 			displayDialogBox(tableView.getSelectionModel().getSelectedItem().getValue(), true);
+		}
+	}
+	
+	private void deletRowAction(ActionEvent e) {
+		if(tableView.getSelectionModel().getSelectedItem() != null) {
+			members.remove(tableView.getSelectionModel().getSelectedItem().getValue());
 		}
 	}
 

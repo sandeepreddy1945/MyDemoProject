@@ -297,7 +297,7 @@ public class DashboardUI extends Application {
 		headerCombp.getChildren().add(headerBox);
 		headerBox.setMaxWidth(WIDTH);
 		VBox pBox = new VBox(10);
-		pBox.setMinWidth(WIDTH - 150);
+		pBox.setMinWidth(WIDTH - 140);
 		pBox.getChildren().addAll(secondLayer, thirdLayer, fourthLayer);
 		HBox phBox = new HBox(5);
 
@@ -542,20 +542,17 @@ public class DashboardUI extends Application {
 
 	private VBox initializeProjectStatus() {
 		// currently not working.
-		HBox mainBox = new AutoScrollProjectStatus(HEIGHT - 650);
-		VBox box = new VBox(10);
-
+		HBox mainBox = new AutoScrollProjectStatus(HEIGHT - 150);
+		VBox box = new VBox(5);
+		Text text = new Text("Project \n Status");
+		text.setFill(Color.WHITE);
+		text.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+		HBox m = new HBox();
+		box.getChildren().add(text);
+		box.getChildren().addAll(m, mainBox);
 		box.setAlignment(Pos.TOP_LEFT);
+
 		return box;
-
-	}
-
-	private Background determineBackGround(String name) {
-		Color color = name.equalsIgnoreCase("GREEN") ? Color.GREEN
-				: name.equalsIgnoreCase("ORANGE") ? Color.ORANGE
-						: name.equalsIgnoreCase("RED") ? Color.RED : Color.GREEN;
-
-		return new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
 
 	}
 

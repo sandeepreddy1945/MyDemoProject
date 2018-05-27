@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javafx.animation.Interpolator;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
@@ -31,6 +30,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author Sandeep
  *
+ *         DOnot modify the values very hard to alogn again.
  */
 @Slf4j
 public class AutoScrollProjectStatus extends HBox {
@@ -83,25 +84,27 @@ public class AutoScrollProjectStatus extends HBox {
 	}
 
 	private void initUI() {
-		place = -1;
+		place = 100;
 		if (projectStatusBoundaries != null && projectStatusBoundaries.size() > 0) {
-			HBox stackPane = new HBox(5);
+			VBox stackPane = new VBox(5);
 			// add some gap to pane
-			stackPane.setRotate(90);
-			stackPane.setMaxHeight(150);
+			// stackPane.setRotate(270);
+			// stackPane.setMaxHeight(150);
 
 			projectStatusBoundaries.stream().forEach(s -> {
 				Label label = new Label(s.getTeamName());
 				stackPane.getChildren().add(label);
 				label.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+				label.setWrapText(s.getTeamName().length() > 14 ? Boolean.TRUE : Boolean.FALSE);
 				label.setTextFill(Color.WHITE);
 				label.setBackground(determineBackGround(s.getStatusColor()));
-				label.setPadding(new Insets(50, 50, 50, 50));
-				label.setMinWidth(250);
+				label.setPadding(new Insets(label.isWrapText() ? 40 : 50, 30, label.isWrapText() ? 40 : 50, 30));
+				label.setMinWidth(210);
+				label.setRotate(270);
 				TranslateTransition translateTransition = new TranslateTransition(Duration.millis(9999), label);
-				translateTransition.setFromX(-height);
-				translateTransition.setToX(height / 4);
-				// place = place + 100;
+				translateTransition.setFromY(-height + 200);
+				translateTransition.setToY(place);
+				place = place + 90;
 				translateTransition.setCycleCount(1);
 				translateTransition.setAutoReverse(false);
 				translateTransition.play();
@@ -118,7 +121,9 @@ public class AutoScrollProjectStatus extends HBox {
 			StackPane stackPane2 = new StackPane(stackPane);
 			// stackPane2.setAlignment(Pos.BASELINE_LEFT);
 
-			setAlignment(Pos.BASELINE_RIGHT);
+			setMinWidth(150);
+			setMaxWidth(150);
+			setAlignment(Pos.TOP_CENTER);
 			getChildren().add(stackPane2);
 		}
 
