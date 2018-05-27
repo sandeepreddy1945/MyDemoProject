@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,11 +19,13 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Marker;
 
 import com.app.chart.animation.AutoScrollProjectStatus;
+import com.app.chart.animation.ScrollTextDataUI.ScrollTxtTableBoundary;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CurrentSprintBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.PerfomanceMeterBoundary;
+import com.app.chart.model.ScrollTexts;
 import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
@@ -36,19 +40,31 @@ import com.app.chart.perfomance.dashboard.DashboardTeamMemberScoreViewer;
 import com.app.chart.perfomance.dashboard.DashboardTeamProgressViewer;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -61,6 +77,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -294,9 +311,9 @@ public class DashboardUI extends Application {
 		// add the project status
 		VBox projectStatus = initializeProjectStatus();
 		phBox.getChildren().addAll(pBox, projectStatus);
-		headerCombp.getChildren().add(phBox);
+		headerCombp.getChildren().addAll(phBox, translationTextBox());
 
-		vbox.getChildren().add(headerCombp);
+		vbox.getChildren().addAll(headerCombp, foorterTile);
 
 		// dynamically add the drawer pane implicitly
 		hbox.getChildren().addAll(vbox/* , projectStatus */);
@@ -534,10 +551,12 @@ public class DashboardUI extends Application {
 		// currently not working.
 		HBox mainBox = new AutoScrollProjectStatus(HEIGHT - 150);
 		VBox box = new VBox(5);
-		Text text = new Text("Project \n Status");
+		Text text = new Text("Project Status");
 		text.setFill(Color.WHITE);
-		text.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+		text.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+		text.setTextAlignment(TextAlignment.LEFT);
 		HBox m = new HBox();
+		m.setAlignment(Pos.TOP_LEFT);
 		box.getChildren().add(text);
 		box.getChildren().addAll(m, mainBox);
 		box.setAlignment(Pos.TOP_LEFT);
@@ -576,6 +595,61 @@ public class DashboardUI extends Application {
 
 		return footerBox;
 
+	}
+
+	private HBox translationTextBox() {
+
+		String buildCongratsTxt = "Congrats !!! " + teamMembers.get(0).getName() + " and "
+				+ teamMembers.get(1).getName() + " for the Best Performance.";
+
+		Label label = new Label(buildCongratsTxt);
+		label.setFont(Font.font("Verdana", FontWeight.BOLD, 22));
+		label.setTextFill(Color.BLACK);
+
+		TranslateTransition t = new TranslateTransition(Duration.seconds(30), label);
+		t.setFromX(WIDTH);
+		t.setToX(-WIDTH);
+		t.setAutoReverse(false);
+		HBox box = new HBox(label);
+		Background background = new Background(
+				new BackgroundFill(Color.web("#ffbf80"), CornerRadii.EMPTY, Insets.EMPTY));
+		box.setBackground(background);
+		SequentialTransition st = new SequentialTransition();
+		st.getChildren().addAll(t);
+		// fecth the scroll texts.
+		List<ScrollTexts> scrollTexts = new ArrayList<>();
+		if (new File(FilesUtil.DASHBOARD_PROJECT_SCROLL_TEXT_FILE).exists()) {
+			try {
+				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE),
+						Charset.defaultCharset());
+				final ObjectMapper mapper = new ObjectMapper();
+				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+				scrollTexts = mapper.readValue(jsonData,
+						mapper.getTypeFactory().constructCollectionType(List.class, ScrollTexts.class));
+				// tableView.fireEvent(null);
+			} catch (IOException e) {
+				log.error(Marker.ANY_MARKER, "loadListFromFile", e);
+			}
+		}
+
+		// add them to the list
+		if (scrollTexts != null && scrollTexts.size() > 0) {
+			scrollTexts.stream().forEach(s -> {
+				Label label1 = new Label(s.getScrollText());
+				label1.setFont(Font.font("Verdana", FontWeight.BOLD, 22));
+				label1.setTextFill(Color.BLACK);
+
+				TranslateTransition t1 = new TranslateTransition(Duration.seconds(25), label1);
+				t1.setFromX(WIDTH);
+				t1.setToX(-WIDTH);
+				t1.setAutoReverse(false);
+				box.getChildren().add(label1);
+				st.getChildren().add(t1);
+			});
+		}
+		st.setCycleCount(Timeline.INDEFINITE);
+		st.play();
+		return box;
 	}
 
 	// TODO to remove this variables later

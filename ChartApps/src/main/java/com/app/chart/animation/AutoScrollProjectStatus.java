@@ -102,7 +102,7 @@ public class AutoScrollProjectStatus extends HBox {
 				label.setMinWidth(210);
 				label.setRotate(270);
 				TranslateTransition translateTransition = new TranslateTransition(Duration.millis(9999), label);
-				translateTransition.setFromY(-height + 200);
+				translateTransition.setFromY(-height );
 				translateTransition.setToY(place);
 				place = place + 90;
 				translateTransition.setCycleCount(1);

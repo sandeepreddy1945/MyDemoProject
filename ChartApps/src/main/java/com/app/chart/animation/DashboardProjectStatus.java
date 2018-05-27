@@ -43,8 +43,12 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellEditEvent;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import lombok.AllArgsConstructor;
@@ -128,6 +132,7 @@ public class DashboardProjectStatus extends HBox {
 
 		mainBox.getChildren().addAll(buildTableView(), tableView, btmBox);
 
+		setAlignment(Pos.CENTER);
 		getChildren().add(mainBox);
 	}
 
@@ -173,6 +178,7 @@ public class DashboardProjectStatus extends HBox {
 		JFXDialogLayout layout = new JFXDialogLayout();
 		layout.setHeading(new Text("Add Project Status"));
 		layout.setMinWidth(700);
+		layout.setBackground(new Background(new BackgroundFill(Color.web("#ffffff"), CornerRadii.EMPTY, Insets.EMPTY)));
 
 		JFXTextField teamNameTF = new JFXTextField();
 		teamNameTF.setPromptText("Enter Team Name");
@@ -236,34 +242,34 @@ public class DashboardProjectStatus extends HBox {
 	}
 
 	private HBox buildTableView() {
-		JFXTreeTableColumn<StatusTableBoundary, String> portalId = new JFXTreeTableColumn<>("Team Name");
-		portalId.setPrefWidth(300);
-		portalId.setCellValueFactory((TreeTableColumn.CellDataFeatures<StatusTableBoundary, String> param) -> {
-			if (portalId.validateValue(param)) {
+		JFXTreeTableColumn<StatusTableBoundary, String> teamName = new JFXTreeTableColumn<>("Team Name");
+		teamName.setPrefWidth(300);
+		teamName.setCellValueFactory((TreeTableColumn.CellDataFeatures<StatusTableBoundary, String> param) -> {
+			if (teamName.validateValue(param)) {
 				return param.getValue().getValue().getName();
 			} else {
-				return portalId.getComputedValue(param);
+				return teamName.getComputedValue(param);
 			}
 		});
 
-		JFXTreeTableColumn<StatusTableBoundary, String> name = new JFXTreeTableColumn<>("Project Status Color");
-		name.setPrefWidth(150);
-		name.setCellValueFactory((TreeTableColumn.CellDataFeatures<StatusTableBoundary, String> param) -> {
-			if (name.validateValue(param)) {
+		JFXTreeTableColumn<StatusTableBoundary, String> statusColor = new JFXTreeTableColumn<>("Project Status Color");
+		statusColor.setPrefWidth(150);
+		statusColor.setCellValueFactory((TreeTableColumn.CellDataFeatures<StatusTableBoundary, String> param) -> {
+			if (statusColor.validateValue(param)) {
 				return param.getValue().getValue().getColor();
 			} else {
-				return name.getComputedValue(param);
+				return statusColor.getComputedValue(param);
 			}
 		});
 
-		portalId.setCellFactory(
+		teamName.setCellFactory(
 				(TreeTableColumn<StatusTableBoundary, String> param) -> new GenericEditableTreeTableCell<>(
 						new TextFieldEditorBuilder()));
-		portalId.setOnEditCommit((CellEditEvent<StatusTableBoundary, String> t) -> t.getTreeTableView()
+		teamName.setOnEditCommit((CellEditEvent<StatusTableBoundary, String> t) -> t.getTreeTableView()
 				.getTreeItem(t.getTreeTablePosition().getRow()).getValue().getName().set(t.getNewValue()));
 
 		// set colums to table
-		tableView.getColumns().addAll(portalId, name);
+		tableView.getColumns().addAll(teamName, statusColor);
 
 		HBox box = new HBox(20);
 		Label sizeLbl = new Label("Table Size: ");

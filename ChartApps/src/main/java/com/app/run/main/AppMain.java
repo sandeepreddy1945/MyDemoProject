@@ -7,6 +7,8 @@ import java.io.IOException;
 
 import org.slf4j.Marker;
 
+import com.app.chart.animation.DashboardProjectStatus;
+import com.app.chart.animation.ScrollTextDataUI;
 import com.app.chart.dashboard.ui.PerfomanceBoardDetails;
 import com.app.chart.diagnose.DiagnoseIssues;
 import com.app.chart.fx.AddressBook;
@@ -48,7 +50,7 @@ public class AppMain extends Application {
 		// stage.setMaximized(true);
 		stage.setTitle("MPS Org View Editing Options");
 
-		mainScene = new Scene(contructUIPane(), 600, 600);
+		mainScene = new Scene(contructUIPane(), 900, 600);
 		stage.setScene(mainScene);
 		stage.show();
 
@@ -115,10 +117,32 @@ public class AppMain extends Application {
 			stage.setMaximized(true);
 		});
 
+		Tile projectStatus = buildTextTileFromData("Project Status UI", "To Build and Edit the Current Project Status",
+				"UI To edit and Build Project Status");
+
+		projectStatus.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+			Scene scene = new Scene(new DashboardProjectStatus(), WIDTH, HEIGHT);
+			stage.setScene(scene);
+			stage.toFront();
+			stage.setMaximized(true);
+		});
+
+		Tile scrollTxt = buildTextTileFromData("Scroll Text Builder",
+				"UI To Edit and Build Scroll Texts that run in Performance Board", "UI to Build and Edit Scroll Texts");
+
+		scrollTxt.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+			Scene scene = new Scene(new ScrollTextDataUI(), WIDTH, HEIGHT);
+			stage.setScene(scene);
+			stage.toFront();
+			stage.setMaximized(true);
+		});
+
 		gridPane.add(addressBookTile, 0, 0);
 		gridPane.add(perfomanceBoardEditor, 1, 0);
+		gridPane.add(projectStatus, 2, 0);
 		gridPane.add(runUIEditort, 0, 1);
 		gridPane.add(disgnosticsTool, 1, 1);
+		gridPane.add(scrollTxt, 2, 1);
 
 		gridPane.setVgap(20);
 		gridPane.setHgap(20);
