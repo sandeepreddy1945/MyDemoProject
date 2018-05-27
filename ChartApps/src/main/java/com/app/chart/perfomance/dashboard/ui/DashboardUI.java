@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,11 +17,13 @@ import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Marker;
 
+import com.app.chart.animation.AutoScrollProjectStatus;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CurrentSprintBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.PerfomanceMeterBoundary;
+import com.app.chart.model.ProjectStatusBoundary;
 import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.TeamMember;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
@@ -35,6 +38,9 @@ import com.app.chart.perfomance.dashboard.DashboardTeamMemberScoreViewer;
 import com.app.chart.perfomance.dashboard.DashboardTeamProgressViewer;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
@@ -46,12 +52,18 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -277,10 +289,27 @@ public class DashboardUI extends Application {
 		// footer for the dashboard
 		HBox foorterTile = initializeFooter();
 
-		vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer, foorterTile);
+		// vbox.getChildren().addAll(headerBox, secondLayer, thirdLayer, fourthLayer,
+		// foorterTile);
+
+		// add the first header
+		VBox headerCombp = new VBox(10);
+		headerCombp.getChildren().add(headerBox);
+		headerBox.setMaxWidth(WIDTH);
+		VBox pBox = new VBox(10);
+		pBox.setMinWidth(WIDTH - 150);
+		pBox.getChildren().addAll(secondLayer, thirdLayer, fourthLayer);
+		HBox phBox = new HBox(5);
+
+		// add the project status
+		VBox projectStatus = initializeProjectStatus();
+		phBox.getChildren().addAll(pBox, projectStatus);
+		headerCombp.getChildren().add(phBox);
+
+		vbox.getChildren().add(headerCombp);
 
 		// dynamically add the drawer pane implicitly
-		hbox.getChildren().addAll(vbox);
+		hbox.getChildren().addAll(vbox/* , projectStatus */);
 	}
 
 	/**
@@ -509,6 +538,25 @@ public class DashboardUI extends Application {
 				.text(this.managerDetailBoundary.getName()).graphic(imageView).roundedCorners(true).build();
 
 		return tile;
+	}
+
+	private VBox initializeProjectStatus() {
+		// currently not working.
+		HBox mainBox = new AutoScrollProjectStatus(HEIGHT - 650);
+		VBox box = new VBox(10);
+
+		box.setAlignment(Pos.TOP_LEFT);
+		return box;
+
+	}
+
+	private Background determineBackGround(String name) {
+		Color color = name.equalsIgnoreCase("GREEN") ? Color.GREEN
+				: name.equalsIgnoreCase("ORANGE") ? Color.ORANGE
+						: name.equalsIgnoreCase("RED") ? Color.RED : Color.GREEN;
+
+		return new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
+
 	}
 
 	private HBox initializeFooter() {

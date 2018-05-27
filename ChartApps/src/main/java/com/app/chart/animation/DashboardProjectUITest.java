@@ -20,7 +20,7 @@ public class DashboardProjectUITest extends Application {
 	 */
 	@Override
 	public void start(Stage stage) throws Exception {
-		Scene scene = new Scene(new DashboardProjectStatus(), 900, 1000);
+		Scene scene = new Scene(new DashboardProjectStatus(), 1200, 1000);
 
 		stage.setScene(scene);
 		stage.show();

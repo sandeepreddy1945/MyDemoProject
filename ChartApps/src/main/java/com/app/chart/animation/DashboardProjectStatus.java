@@ -73,7 +73,7 @@ public class DashboardProjectStatus extends HBox {
 	private ObservableList<String> colorCombo = FXCollections.observableArrayList(GREEN, ORANGE, RED);
 	private JFXComboBox<String> pickBox = new JFXComboBox<>(colorCombo);
 
-	private VBox mainBox = new VBox(10);
+	private VBox mainBox = new VBox(15);
 	private List<ProjectStatusBoundary> projectStatusBoundaries = new ArrayList<>();
 
 	private ObjectMapper mapper = new ObjectMapper();
@@ -92,6 +92,11 @@ public class DashboardProjectStatus extends HBox {
 				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 				projectStatusBoundaries = mapper.readValue(jsonData,
 						mapper.getTypeFactory().constructCollectionType(List.class, ProjectStatusBoundary.class));
+				
+				projectStatusBoundaries.stream().forEach(p -> {
+					members.add(constructStatusTableBoundary(p));
+				});
+				//tableView.fireEvent(null);
 			} catch (IOException e) {
 				log.error(Marker.ANY_MARKER, "loadListFromFile", e);
 			}
@@ -268,9 +273,10 @@ public class DashboardProjectStatus extends HBox {
 			});
 		});
 		searchTF.setAlignment(Pos.CENTER_LEFT);
-		searchTF.setMinSize(450, 15);
+		searchTF.setMinSize(450, 25);
+		searchTF.setLabelFloat(true);
 		box.getChildren().addAll(searchTF, sizeLbl, size);
-		box.setPrefSize(400, 20);
+		box.setPrefSize(400, 25);
 		box.setPadding(new Insets(15));
 
 		return box;
