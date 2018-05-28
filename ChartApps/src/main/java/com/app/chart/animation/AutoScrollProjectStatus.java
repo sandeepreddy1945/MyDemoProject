@@ -77,7 +77,7 @@ public class AutoScrollProjectStatus extends HBox {
 				Collections.reverse(projectStatusBoundaries);
 				// tableView.fireEvent(null);
 			} catch (IOException e) {
-				log.error(Marker.ANY_MARKER, "loadListFromFile", e);
+				log.error("loadListFromFile", e);
 			}
 		}
 

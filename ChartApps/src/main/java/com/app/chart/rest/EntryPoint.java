@@ -35,7 +35,7 @@ public class EntryPoint {
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response fetchEmployeeData() {
-		log.error(Marker.ANY_MARKER, "fetchEmployeeData", "Service Call Attempted to Server");
+		log.error( "fetchEmployeeData", "Service Call Attempted to Server");
 		return Response.ok().entity("For Now Its Now Yet Completely Implemented. Development Work Still In Progress")
 				.header(ACCESS_CONTROL_ALLOW_ORIGIN, ALL_ORIGINS).build();
 	}

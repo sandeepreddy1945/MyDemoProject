@@ -94,7 +94,7 @@ public class DisplayImage extends HBox {
 				this.displayImage = new ImageView(new Image(FileUtils.openInputStream(displayImageFile)));
 			} catch (IOException e) {
 
-				log.error(Marker.ANY_MARKER, "fecthImageFromFile", e);
+				log.error( "fecthImageFromFile", e);
 			}
 		}
 

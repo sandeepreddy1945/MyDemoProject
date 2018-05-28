@@ -102,7 +102,7 @@ public class DashboardProjectStatus extends HBox {
 				});
 				//tableView.fireEvent(null);
 			} catch (IOException e) {
-				log.error(Marker.ANY_MARKER, "loadListFromFile", e);
+				log.error( "loadListFromFile", e);
 			}
 		}
 
@@ -162,11 +162,11 @@ public class DashboardProjectStatus extends HBox {
 
 			jsonData = mapper.writeValueAsString(projectStatusBoundaries);
 			// just for storage purpose.
-			log.info(jsonData);
+			log.info("saveAction :  \n" +  jsonData);
 			FileUtils.writeStringToFile(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE), jsonData,
 					Charset.defaultCharset(), false);
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER, "saveAction", e1);
+			log.error( "saveAction", e1);
 		}
 
 	}

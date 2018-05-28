@@ -202,13 +202,13 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 					.toURL();
 			imgFile = new File(url1.toURI().getPath());
 		} catch (Exception e1) {
-			log.error(Marker.ANY_MARKER, "fetchMemberImage", e1);
+			log.error( "fetchMemberImage", e1);
 			// image not found assign default image.
 			try {
 				imgFile = new File(
 						getClass().getClassLoader().getResource("com/app/chart/images/default.png").toURI().toURL().getPath());
 			} catch (Exception e) {
-				log.error(Marker.ANY_MARKER, "fetchMemberImage", e1);
+				log.error( "fetchMemberImage", e1);
 			}
 		}
 		ImageView imageView = new ImageView();

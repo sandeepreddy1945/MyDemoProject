@@ -93,20 +93,22 @@ public class ScrollTextDataUI extends HBox {
 			try {
 				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE),
 						Charset.defaultCharset());
-				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-				scrollTexts = mapper.readValue(jsonData,
-						mapper.getTypeFactory().constructCollectionType(List.class, ScrollTexts.class));
+				if (jsonData != null && jsonData.length() > 0) {
+					mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+					scrollTexts = mapper.readValue(jsonData,
+							mapper.getTypeFactory().constructCollectionType(List.class, ScrollTexts.class));
 
-				scrollTexts.stream().forEach(p -> {
-					StringProperty s = new SimpleStringProperty();
-					ScrollTxtTableBoundary st = new ScrollTxtTableBoundary();
-					st.setScrollText(s);
-					st.getScrollText().set(p.getScrollText());
-					members.add(st);
-				});
+					scrollTexts.stream().forEach(p -> {
+						StringProperty s = new SimpleStringProperty();
+						ScrollTxtTableBoundary st = new ScrollTxtTableBoundary();
+						st.setScrollText(s);
+						st.getScrollText().set(p.getScrollText());
+						members.add(st);
+					});
+				}
 				// tableView.fireEvent(null);
 			} catch (IOException e) {
-				log.error(Marker.ANY_MARKER, "loadListFromFile", e);
+				log.error( "loadListFromFile", e);
 			}
 		}
 
@@ -162,11 +164,11 @@ public class ScrollTextDataUI extends HBox {
 
 			jsonData = mapper.writeValueAsString(scrollTexts);
 			// just for storage purpose.
-			log.info(jsonData);
+			log.info("saveAction : \n" + jsonData);
 			FileUtils.writeStringToFile(new File(FilesUtil.DASHBOARD_PROJECT_SCROLL_TEXT_FILE), jsonData,
 					Charset.defaultCharset(), false);
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER, "saveAction", e1);
+			log.error( "saveAction", e1);
 		}
 	}
 

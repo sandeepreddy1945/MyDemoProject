@@ -145,7 +145,7 @@ public class DiagnoseIssues extends HBox {
 			}
 		} catch (IOException e) {
 			isPerfomanceListTampered = true;
-			log.error(Marker.ANY_MARKER, "loadPerfomanceDetailsFromFile", e);
+			log.error( "loadPerfomanceDetailsFromFile", e);
 		}
 
 	}
@@ -206,7 +206,7 @@ public class DiagnoseIssues extends HBox {
 					ChartBoardBoundary chartBoardBoundary = mapper.readValue(jsonStr, ChartBoardBoundary.class);
 					chartBoardBoundaries.add(chartBoardBoundary);
 				} catch (IOException e) {
-					log.error(Marker.ANY_MARKER, "diagnoseAllTheIssuesPresent", e);
+					log.error( "diagnoseAllTheIssuesPresent", e);
 				}
 			});
 
@@ -336,7 +336,7 @@ public class DiagnoseIssues extends HBox {
 			});
 		});
 
-		log.error(Marker.ANY_MARKER, "All Errors Found in Diagnose Issues", members);
+		log.error( "All Errors Found in Diagnose Issues", members);
 
 		// fire table with changes.
 		tableView.fireEvent(e);

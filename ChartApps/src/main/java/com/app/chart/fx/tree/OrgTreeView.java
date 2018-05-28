@@ -398,7 +398,7 @@ public class OrgTreeView<T> extends Application {
 					new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_HTML),
 					Charset.defaultCharset());
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER, "refreshWebView", e1);
+			log.error( "refreshWebView", e1);
 		}
 		if (fileContent.length() > 0) {
 
@@ -509,7 +509,7 @@ public class OrgTreeView<T> extends Application {
 			}
 
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER, "doSaveAction", e1);
+			log.error( "doSaveAction", e1);
 		}
 	}
 

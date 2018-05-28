@@ -172,7 +172,7 @@ public class ApplicationMain extends Application {
 	public void start(Stage stage) throws Exception {
 		this.stage = stage;
 		stage.setMaximized(true);
-		// stage.setFullScreen(true);
+		stage.setFullScreen(true);
 		stage.setMinWidth(WIDTH);
 		stage.setMinHeight(HEIGHT);
 		// stage.centerOnScreen();
@@ -183,7 +183,7 @@ public class ApplicationMain extends Application {
 				if (!stage.isFullScreen()) {
 					// just make it to full screen when it is not .in other case juzz leave it as
 					// is.
-					// stage.setFullScreen(true);
+					stage.setFullScreen(true);
 				}
 			}
 		});
@@ -227,7 +227,7 @@ public class ApplicationMain extends Application {
 		try {
 			loadNext();
 		} catch (Exception e) {
-			log.error(Marker.ANY_MARKER, "stepForward", e);
+			log.error( "stepForward", e);
 		}
 
 	}
@@ -254,7 +254,7 @@ public class ApplicationMain extends Application {
 		initializeGroupViewLook();
 		Scene scene = new Scene(chartGroupView, WIDTH, HEIGHT);
 		stage.setScene(scene);
-		// stage.setFullScreen(true);
+		stage.setFullScreen(true);
 		stage.toFront();
 
 	}
@@ -270,84 +270,87 @@ public class ApplicationMain extends Application {
 	public void executeTask(ActionEvent e) {
 
 		RunJsonBoundary r = fetchNextValueFromList();
-		if (DisplayBoardConstants.chart.name().equals(r.getType())) {
-			String fileName = r.getPath();
-			String filePath = FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + fileName + FilesUtil.SLASH + "index.html";
-			String headerTxt = r.getDisplayTxt();
-			// by default header is applicable for a org chart.
-			// initialize the chart web engine
-			ChartWebEngine chartWebEngine = new ChartWebEngine().initialize();
-			// set the primary stage object to webview for popup displays
-			chartWebEngine.setParenStage(stage);
-			HBox box = new HBox();
-			VBox mainBox = new VBox(5);
-			mainBox.getChildren().add(DashboardUtil.HeaderSegment(box, headerTxt));
-			mainBox.getChildren().add(chartWebEngine.getWebView());
-			HBox footerSegment = DashboardUtil.FooterSegment();
-			footerSegment.setPrefHeight(25);
-			mainBox.getChildren().add(footerSegment);
-			box.getChildren().add(mainBox);
+		// juzz check for null in case.
+		if (r != null) {
+			if (DisplayBoardConstants.chart.name().equals(r.getType())) {
+				String fileName = r.getPath();
+				String filePath = FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + fileName + FilesUtil.SLASH + "index.html";
+				String headerTxt = r.getDisplayTxt();
+				// by default header is applicable for a org chart.
+				// initialize the chart web engine
+				ChartWebEngine chartWebEngine = new ChartWebEngine().initialize();
+				// set the primary stage object to webview for popup displays
+				chartWebEngine.setParenStage(stage);
+				HBox box = new HBox();
+				VBox mainBox = new VBox(5);
+				mainBox.getChildren().add(DashboardUtil.HeaderSegment(box, headerTxt));
+				mainBox.getChildren().add(chartWebEngine.getWebView());
+				HBox footerSegment = DashboardUtil.FooterSegment();
+				footerSegment.setPrefHeight(25);
+				mainBox.getChildren().add(footerSegment);
+				box.getChildren().add(mainBox);
 
-			Scene scene = new Scene(box, WIDTH, HEIGHT);
-			stage.setScene(scene);
-			// stage.setFullScreen(true);
+				Scene scene = new Scene(box, WIDTH, HEIGHT);
+				stage.setScene(scene);
+				stage.setFullScreen(true);
 
-			URL url = null;
-			try {
-				url = new File(filePath).toURI().toURL();
-			} catch (MalformedURLException e1) {
-				log.error(Marker.ANY_MARKER, "executeTask", e1);
-			}
-			// start putting the chart now
-			chartWebEngine.displayData(url.toExternalForm());
-
-			stage.toFront();
-
-		} else if (DisplayBoardConstants.dashboard.name().equals(r.getType())) {
-			// as it has a single file we need to stop the timer here and start a new one
-			// for this.
-
-			// first display off the first slide and then start with the timer rules..
-			// hell of themmmmmm
-
-			// Be Null Safe as Always.
-			PerfomanceBoardBoundary p = Optional.ofNullable(perfomanceBoardBoundaries.get(0)).orElse(null);
-			if (p != null) {
-				HBox box = null;
+				URL url = null;
 				try {
-					box = new DashboardUI(p).dashBoardMainBox();
-					Scene scene = new Scene(box, WIDTH, HEIGHT);
-					stage.setScene(scene);
-					stage.toFront();
-					// stage.setFullScreen(true);
-				} catch (Exception e1) {
+					url = new File(filePath).toURI().toURL();
+				} catch (MalformedURLException e1) {
 					log.error(Marker.ANY_MARKER, "executeTask", e1);
 				}
+				// start putting the chart now
+				chartWebEngine.displayData(url.toExternalForm());
 
-			}
+				stage.toFront();
 
-			timeline.pause();// pause the main timer.
-			// as it dashboard run put it to false
-			isNormalOnesRunning = false;
-			isDashBoardRunning = true;
-			dashBoardTimeLine = new Timeline(new KeyFrame(Duration.millis(9999), event -> {
-				try {
-					executeDashboardTask(event);
-				} catch (Exception e1) {
-					log.error(Marker.ANY_MARKER, "executeTask", e1);
+			} else if (DisplayBoardConstants.dashboard.name().equals(r.getType())) {
+				// as it has a single file we need to stop the timer here and start a new one
+				// for this.
+
+				// first display off the first slide and then start with the timer rules..
+				// hell of themmmmmm
+
+				// Be Null Safe as Always.
+				PerfomanceBoardBoundary p = Optional.ofNullable(perfomanceBoardBoundaries.get(0)).orElse(null);
+				if (p != null) {
+					HBox box = null;
+					try {
+						box = new DashboardUI(p).dashBoardMainBox();
+						Scene scene = new Scene(box, WIDTH, HEIGHT);
+						stage.setScene(scene);
+						stage.toFront();
+						stage.setFullScreen(true);
+					} catch (Exception e1) {
+						log.error( "executeTask", e1);
+					}
+
 				}
-			}));
 
-			dashBoardTimeLine.setCycleCount(Animation.INDEFINITE);
-			dashBoardTimeLine.play();
-		} else if (DisplayBoardConstants.image.name().equals(r.getType())) {
-			HBox box = new DisplayImage(r.getPath(), r.isHeaderApplicable(), r.getDisplayTxt());
-			Scene scene = new Scene(box, WIDTH, HEIGHT);
-			stage.setScene(scene);
-			stage.toFront();
-			// stage.setFullScreen(true);
-		} else if (DisplayBoardConstants.customer.name().equals(r.getType())) {
-			// not yet implemented.
+				timeline.pause();// pause the main timer.
+				// as it dashboard run put it to false
+				isNormalOnesRunning = false;
+				isDashBoardRunning = true;
+				dashBoardTimeLine = new Timeline(new KeyFrame(Duration.millis(9999), event -> {
+					try {
+						executeDashboardTask(event);
+					} catch (Exception e1) {
+						log.error( "executeTask", e1);
+					}
+				}));
+
+				dashBoardTimeLine.setCycleCount(Animation.INDEFINITE);
+				dashBoardTimeLine.play();
+			} else if (DisplayBoardConstants.image.name().equals(r.getType())) {
+				HBox box = new DisplayImage(r.getPath(), r.isHeaderApplicable(), r.getDisplayTxt());
+				Scene scene = new Scene(box, WIDTH, HEIGHT);
+				stage.setScene(scene);
+				stage.toFront();
+				stage.setFullScreen(true);
+			} else if (DisplayBoardConstants.customer.name().equals(r.getType())) {
+				// not yet implemented.
+			}
 		}
 
 	}
@@ -368,7 +371,7 @@ public class ApplicationMain extends Application {
 				Scene scene = new Scene(box, WIDTH, HEIGHT);
 				stage.setScene(scene);
 				stage.toFront();
-				// stage.setFullScreen(true);
+				stage.setFullScreen(true);
 			}
 		}
 	}
@@ -438,7 +441,7 @@ public class ApplicationMain extends Application {
 			try {
 				executeDashboardTask(null);
 			} catch (Exception e) {
-				log.error(Marker.ANY_MARKER, "loadPrevious", e);
+				log.error( "loadPrevious", e);
 			}
 		}
 

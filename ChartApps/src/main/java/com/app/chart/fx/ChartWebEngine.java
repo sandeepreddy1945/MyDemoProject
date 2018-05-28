@@ -129,7 +129,7 @@ public class ChartWebEngine {
 			try {
 				onHyperLinkClicked(event);
 			} catch (IOException e) {
-				log.error(Marker.ANY_MARKER, "addWebHyperLinkListeners", e);
+				log.error( "addWebHyperLinkListeners", e);
 			}
 			return true;
 		};
@@ -197,7 +197,7 @@ public class ChartWebEngine {
 			// this retunrs the details contained in the props file
 			properties.load(FileUtils.openInputStream(new File(FilesUtil.MANAGER_PROPS_PATH)));
 		} catch (IOException e) {
-			log.error(Marker.ANY_MARKER, "firstContentUIPath", e);
+			log.error( "firstContentUIPath", e);
 		}
 		// take the first entry for display
 		String fileName = properties.keySet().stream().toArray(String[]::new)[0];
@@ -206,7 +206,7 @@ public class ChartWebEngine {
 		try {
 			path = new File(filePath).toURI().toURL().toExternalForm();
 		} catch (MalformedURLException e) {
-			log.error(Marker.ANY_MARKER, "firstContentUIPath", e);
+			log.error( "firstContentUIPath", e);
 		}
 		return path;
 

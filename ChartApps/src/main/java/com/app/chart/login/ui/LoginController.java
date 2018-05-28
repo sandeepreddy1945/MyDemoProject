@@ -38,7 +38,7 @@ public class LoginController implements Initializable {
 		} else {
 			username.getStyleClass().add("wrong-credentials");
 			password.getStyleClass().add("wrong-credentials");
-			log.error(Marker.ANY_MARKER, "handleLoginButtonAction Method : Wrong Credentials Entered ", username,
+			log.error( "handleLoginButtonAction Method : Wrong Credentials Entered ", username,
 					password);
 		}
 	}

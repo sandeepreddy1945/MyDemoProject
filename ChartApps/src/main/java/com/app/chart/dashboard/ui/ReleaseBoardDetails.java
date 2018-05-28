@@ -260,7 +260,7 @@ public class ReleaseBoardDetails {
 					// String sunBurstData =
 					// mapper.writerWithDefaultPrettyPrinter().writeValueAsString(b);
 					String sunBurstData = mapper.writeValueAsString(b);
-					log.info("setOnAction", sunBurstData);
+					log.info("setOnAction : \n " + sunBurstData);
 					/*
 					 * mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 					 * mapper.reader().forType(SunburstBoundary.class).readValue(sunBurstData);
@@ -279,10 +279,10 @@ public class ReleaseBoardDetails {
 							sunBurstData, Charset.defaultCharset(), true);
 				} catch (JsonProcessingException e1) {
 
-					log.error(Marker.ANY_MARKER, "Save Process", e1);
+					log.error( "Save Process", e1);
 				} catch (IOException e1) {
 
-					log.error(Marker.ANY_MARKER, "Save Process", e1);
+					log.error( "Save Process", e1);
 				}
 			});
 		});

@@ -157,7 +157,7 @@ public class PerfomanceBoardDetails extends HBox {
 			}
 		} catch (IOException e) {
 
-			log.error(Marker.ANY_MARKER, "readDataFromFile", e);
+			log.error( "readDataFromFile", e);
 		}
 
 	}
@@ -904,7 +904,7 @@ public class PerfomanceBoardDetails extends HBox {
 									+ System.currentTimeMillis() + ".json"),
 							contentData, Charset.defaultCharset(), false);
 				} catch (Exception ex) {
-					log.error(Marker.ANY_MARKER, "deleteManagerAction", e);
+					log.error( "deleteManagerAction", e);
 				}
 
 				// remove the detail from main boundary.
@@ -991,7 +991,7 @@ public class PerfomanceBoardDetails extends HBox {
 			// For now skipping the pretty view to conserve diskspace.
 			String contentData = mapper
 					/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(perfomanceBoardDetails);
-			log.info("saveAllTheDetails", contentData);
+			log.info("saveAllTheDetails :  \n  " + contentData);
 
 			// never append the file always overwrite it as we are stroing all the details
 			// in one single file.
@@ -1013,7 +1013,7 @@ public class PerfomanceBoardDetails extends HBox {
 			 * Arrays.stream(list).forEach(System.out::println);
 			 */
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER, "saveAllTheDetails", e1);
+			log.error( "saveAllTheDetails", e1);
 		}
 	}
 

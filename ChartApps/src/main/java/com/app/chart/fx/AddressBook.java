@@ -594,7 +594,7 @@ public class AddressBook {
 				});
 			}
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER, "onTeamComboChanged", e1);
+			log.error( "onTeamComboChanged", e1);
 		}
 	}
 
@@ -680,7 +680,7 @@ public class AddressBook {
 					teamCombo.getItems().add(addManagerField.getText());
 					addManagerField.clear();
 				} catch (IOException e1) {
-					log.error(Marker.ANY_MARKER, "onAddChartAction", e1);
+					log.error( "onAddChartAction", e1);
 				}
 			}
 
@@ -727,7 +727,7 @@ public class AddressBook {
 							os.flush();
 							os.close();
 						} catch (Exception ex) {
-							log.error(Marker.ANY_MARKER, "onSaveActionPerfomed", ex);
+							log.error( "onSaveActionPerfomed", ex);
 						}
 
 						props.put(teamCombo.getSelectionModel().getSelectedItem(), chartNameTF.getText());
@@ -785,11 +785,11 @@ public class AddressBook {
 							+ FilesUtil.SLASH + APP_JSON),
 					objectMapper/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(chartBoardBoundary),
 					Charset.defaultCharset(), false);
-			log.info("saveAllDetailsToFile",
-					objectMapper/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(chartBoardBoundary));
+			log.info( "saveAllDetailsToFile : \n "
+					+ objectMapper/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(chartBoardBoundary));
 			// prepare the js file required for the app to function
 		} catch (IOException e1) {
-			log.error(Marker.ANY_MARKER, "saveAllDetailsToFile", e1);
+			log.error( "saveAllDetailsToFile", e1);
 		}
 	}
 

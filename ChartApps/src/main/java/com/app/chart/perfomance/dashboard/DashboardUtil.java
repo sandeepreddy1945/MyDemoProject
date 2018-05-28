@@ -82,7 +82,7 @@ public class DashboardUtil {
 			DashboardSidePane dashboardSidePane = new DashboardSidePane(dashboardHeader.getImageView1(), hbox);
 
 		} catch (Exception ex) {
-			log.error(Marker.ANY_MARKER, "HeaderSegment", ex);
+			log.error( "HeaderSegment", ex);
 		}
 		return dashboardHeader;
 	}

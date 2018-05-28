@@ -4,6 +4,8 @@
 package com.app.run.main;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.slf4j.Marker;
 
@@ -12,12 +14,14 @@ import com.app.chart.animation.ScrollTextDataUI;
 import com.app.chart.dashboard.ui.PerfomanceBoardDetails;
 import com.app.chart.diagnose.DiagnoseIssues;
 import com.app.chart.fx.AddressBook;
+import com.app.chart.fx.FilesUtil;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.run.ui.AppSequencerUI;
 
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,6 +33,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -46,6 +51,9 @@ public class AppMain extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
+		log.info("Initializing the file contents required for the App to run!!!");
+		FilesUtil.initializeFileSettings();
+
 		this.stage = stage;
 		// stage.setMaximized(true);
 		stage.setTitle("MPS Org View Editing Options");
@@ -70,7 +78,7 @@ public class AppMain extends Application {
 			try {
 				scene = new Scene(new AddressBook().fetchMainDisplayBox(), WIDTH, HEIGHT);
 			} catch (IOException e1) {
-				log.error(Marker.ANY_MARKER, "contructUIPane", e1);
+				log.error( "contructUIPane", e1);
 			}
 			stage.setScene(scene);
 			stage.toFront();
@@ -137,6 +145,13 @@ public class AppMain extends Application {
 			stage.setMaximized(true);
 		});
 
+		// add Zoom handlers to the UI
+		// currently not working some disruptions.
+		/*
+		 * addZoomHandlers(scrollTxt, addressBookTile, perfomanceBoardEditor,
+		 * projectStatus, disgnosticsTool, runUIEditort);
+		 */
+
 		gridPane.add(addressBookTile, 0, 0);
 		gridPane.add(perfomanceBoardEditor, 1, 0);
 		gridPane.add(projectStatus, 2, 0);
@@ -181,6 +196,41 @@ public class AppMain extends Application {
 				.description(description).descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
 		return textTile;
+	}
+
+	/**
+	 * Need to check on this currently some buggy code just flatters off the screen.
+	 * 
+	 * @param tiles
+	 */
+	private void addZoomHandlers(Tile... tiles) {
+		addZoomHandlers(Arrays.asList(tiles));
+	}
+
+	private void addZoomHandlers(List<Tile> tiles) {
+		ScaleTransition st = new ScaleTransition(Duration.millis(999));
+		// initialize zoom settings.
+		st.setCycleCount(1);
+		st.setAutoReverse(false);
+		tiles.stream().forEach(t -> {
+			t.setOnMouseEntered(e -> {
+				st.setNode(t);
+				st.setFromX(.8);
+				st.setFromY(.8);
+				st.setToX(1.1);
+				st.setToY(1.1);
+				st.playFromStart();
+			});
+
+			t.setOnMouseExited(e -> {
+				st.setNode(t);
+				st.setFromX(1.1);
+				st.setFromY(1.1);
+				st.setToX(1.0);
+				st.setToY(1.0);
+				st.playFromStart();
+			});
+		});
 	}
 
 	/**

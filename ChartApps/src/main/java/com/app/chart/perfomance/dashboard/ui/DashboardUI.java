@@ -372,9 +372,9 @@ public class DashboardUI extends Application {
 
 				dashboardImageViewer = new DashboardImageViewer(logo1, logo2, teamMembers);
 			} catch (URISyntaxException e) {
-				log.error(Marker.ANY_MARKER, "initializeTopImages", e);
+				log.error( "initializeTopImages", e);
 			} catch (IOException e) {
-				log.error(Marker.ANY_MARKER, "initializeTopImages", e);
+				log.error( "initializeTopImages", e);
 			}
 
 		}
@@ -532,7 +532,7 @@ public class DashboardUI extends Application {
 			logo1 = new File(url1.toURI().getPath());
 			image = new Image(FileUtils.openInputStream(logo1));
 		} catch (Exception e) {
-			log.error(Marker.ANY_MARKER, "initializeManagerPicture", e);
+			log.error( "initializeManagerPicture", e);
 			image = new Image(getClass().getClassLoader().getResourceAsStream("com/app/chart/images/default.png"));
 		}
 
@@ -628,7 +628,7 @@ public class DashboardUI extends Application {
 						mapper.getTypeFactory().constructCollectionType(List.class, ScrollTexts.class));
 				// tableView.fireEvent(null);
 			} catch (IOException e) {
-				log.error(Marker.ANY_MARKER, "loadListFromFile", e);
+				log.error( "loadListFromFile", e);
 			}
 		}
 
