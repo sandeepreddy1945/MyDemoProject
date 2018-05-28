@@ -213,7 +213,7 @@ public class ApplicationMain extends Application {
 		// juzz display a blank page at the start.
 		 scene = new Scene(new HBox(), WIDTH, HEIGHT);
 		// start the timer once the UI is initiated.
-		timeline = new Timeline(new KeyFrame(Duration.seconds(60), this::executeTask));
+		timeline = new Timeline(new KeyFrame(Duration.seconds(45), this::executeTask));
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -335,7 +335,7 @@ public class ApplicationMain extends Application {
 				// as it dashboard run put it to false
 				isNormalOnesRunning = false;
 				isDashBoardRunning = true;
-				dashBoardTimeLine = new Timeline(new KeyFrame(Duration.minutes(2), event -> {
+				dashBoardTimeLine = new Timeline(new KeyFrame(Duration.minutes(1.2), event -> {
 					try {
 						executeDashboardTask(event);
 					} catch (Exception e1) {
