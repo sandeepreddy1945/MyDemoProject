@@ -21,8 +21,8 @@ var Fireworks = function(){
 			return false;
 		};
 		
-		self.canvas.width = self.cw = $(window).width() - 40;
-		self.canvas.height = self.ch = $(window).height() - 40;	
+		self.canvas.width = self.cw = $(window).width() ;
+		self.canvas.height = self.ch = $(window).height() - 50;	
 		
 		self.particles = [];	
 		self.partCount = 30;
