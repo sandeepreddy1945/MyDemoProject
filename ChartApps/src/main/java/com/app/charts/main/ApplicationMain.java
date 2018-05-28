@@ -92,6 +92,7 @@ public class ApplicationMain extends Application {
 	private ChartGroupView chartGroupView;
 
 	private JettyServerMain serverMain;
+	private Scene scene;
 
 	// TODO Some how push everything to cache so that app can be made more clean.
 
@@ -210,9 +211,9 @@ public class ApplicationMain extends Application {
 		});
 
 		// juzz display a blank page at the start.
-		Scene scene = new Scene(new HBox(), WIDTH, HEIGHT);
+		 scene = new Scene(new HBox(), WIDTH, HEIGHT);
 		// start the timer once the UI is initiated.
-		timeline = new Timeline(new KeyFrame(Duration.millis(999), this::executeTask));
+		timeline = new Timeline(new KeyFrame(Duration.seconds(60), this::executeTask));
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -252,10 +253,10 @@ public class ApplicationMain extends Application {
 		// to avoid potential Illegal State Exceptions as this might be set to another
 		// node.
 		initializeGroupViewLook();
-		Scene scene = new Scene(chartGroupView, WIDTH, HEIGHT);
-		stage.setScene(scene);
+		
+		scene.setRoot(chartGroupView);
 		stage.setFullScreen(true);
-		stage.toFront();
+		
 
 	}
 
@@ -292,9 +293,10 @@ public class ApplicationMain extends Application {
 				footerSegment.setPrefHeight(25);
 				mainBox.getChildren().add(footerSegment);
 				box.getChildren().add(mainBox);
-
-				Scene scene = new Scene(box, WIDTH, HEIGHT);
-				stage.setScene(scene);
+				
+				//set thes scene to rrot scenece
+				scene.setRoot(box);
+				// juzz to ensure it alwyas on full screen
 				stage.setFullScreen(true);
 
 				URL url = null;
@@ -306,7 +308,6 @@ public class ApplicationMain extends Application {
 				// start putting the chart now
 				chartWebEngine.displayData(url.toExternalForm());
 
-				stage.toFront();
 
 			} else if (DisplayBoardConstants.dashboard.name().equals(r.getType())) {
 				// as it has a single file we need to stop the timer here and start a new one
@@ -320,11 +321,10 @@ public class ApplicationMain extends Application {
 				if (p != null) {
 					HBox box = null;
 					try {
-						box = new DashboardUI(p).dashBoardMainBox();
-						Scene scene = new Scene(box, WIDTH, HEIGHT);
-						stage.setScene(scene);
-						stage.toFront();
+						box = new DashboardUI(p).dashBoardMainBox();				
+						scene.setRoot(box);
 						stage.setFullScreen(true);
+						
 					} catch (Exception e1) {
 						log.error("executeTask", e1);
 					}
@@ -335,7 +335,7 @@ public class ApplicationMain extends Application {
 				// as it dashboard run put it to false
 				isNormalOnesRunning = false;
 				isDashBoardRunning = true;
-				dashBoardTimeLine = new Timeline(new KeyFrame(Duration.millis(9999), event -> {
+				dashBoardTimeLine = new Timeline(new KeyFrame(Duration.minutes(2), event -> {
 					try {
 						executeDashboardTask(event);
 					} catch (Exception e1) {
@@ -343,14 +343,11 @@ public class ApplicationMain extends Application {
 					}
 				}));
 
-				dashBoardTimeLine.setCycleCount(Animation.INDEFINITE);
+				dashBoardTimeLine.setCycleCount(perfomanceBoardBoundaries.size());
 				dashBoardTimeLine.play();
 			} else if (DisplayBoardConstants.image.name().equals(r.getType())) {
-				HBox box = new DisplayImage(r.getPath(), r.isHeaderApplicable(), r.getDisplayTxt());
-				Scene scene = new Scene(box, WIDTH, HEIGHT);
-				stage.setScene(scene);
-				stage.toFront();
-				stage.setFullScreen(true);
+				HBox box = new DisplayImage(r.getPath(), r.isHeaderApplicable(), r.getDisplayTxt());		
+				scene.setRoot(box);		
 			} else if (DisplayBoardConstants.customer.name().equals(r.getType())) {
 				// not yet implemented.
 			}
@@ -370,10 +367,8 @@ public class ApplicationMain extends Application {
 			// Be Null Safe as Always.
 			PerfomanceBoardBoundary p = fetchNextValueFromPerfomanceList();
 			if (p != null) {
-				HBox box = new DashboardUI(p).dashBoardMainBox();
-				Scene scene = new Scene(box, WIDTH, HEIGHT);
-				stage.setScene(scene);
-				stage.toFront();
+				HBox box = new DashboardUI(p).dashBoardMainBox();			
+				scene.setRoot(box);
 				stage.setFullScreen(true);
 			}
 		}
