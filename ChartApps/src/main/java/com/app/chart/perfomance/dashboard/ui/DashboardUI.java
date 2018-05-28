@@ -620,7 +620,7 @@ public class DashboardUI extends Application {
 		List<ScrollTexts> scrollTexts = new ArrayList<>();
 		if (new File(FilesUtil.DASHBOARD_PROJECT_SCROLL_TEXT_FILE).exists()) {
 			try {
-				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE),
+				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_SCROLL_TEXT_FILE),
 						Charset.defaultCharset());
 				final ObjectMapper mapper = new ObjectMapper();
 				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);

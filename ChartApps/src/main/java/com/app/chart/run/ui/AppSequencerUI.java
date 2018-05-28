@@ -568,12 +568,11 @@ public class AppSequencerUI extends HBox {
 				searchOptionMembers.add(
 						constructSearchOptionTabBoundary(type, propsPath, String.valueOf(key), String.valueOf(value)));
 
-				// call the dialog with table view.
-				displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
-
 				// disable the pathTf as well so no manual edits are done.
 				pathTF.setDisable(true);
 			});
+			// call the dialog with table view.
+			displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
 		} else if (typeSelected.equals(DisplayBoardConstants.image.name())) {
 			// just display all the entries in the image folder that are available
 			String type = DisplayBoardConstants.chart.name();

@@ -227,7 +227,7 @@ public class ApplicationMain extends Application {
 		try {
 			loadNext();
 		} catch (Exception e) {
-			log.error( "stepForward", e);
+			log.error("stepForward", e);
 		}
 
 	}
@@ -265,6 +265,9 @@ public class ApplicationMain extends Application {
 		chartCacheManager.getCacheManager().shutdown();
 		// stop the server
 		serverMain.stopServer();
+
+		// exit all the components.
+		System.exit(0);
 	}
 
 	public void executeTask(ActionEvent e) {
@@ -323,7 +326,7 @@ public class ApplicationMain extends Application {
 						stage.toFront();
 						stage.setFullScreen(true);
 					} catch (Exception e1) {
-						log.error( "executeTask", e1);
+						log.error("executeTask", e1);
 					}
 
 				}
@@ -336,7 +339,7 @@ public class ApplicationMain extends Application {
 					try {
 						executeDashboardTask(event);
 					} catch (Exception e1) {
-						log.error( "executeTask", e1);
+						log.error("executeTask", e1);
 					}
 				}));
 
@@ -441,7 +444,7 @@ public class ApplicationMain extends Application {
 			try {
 				executeDashboardTask(null);
 			} catch (Exception e) {
-				log.error( "loadPrevious", e);
+				log.error("loadPrevious", e);
 			}
 		}
 

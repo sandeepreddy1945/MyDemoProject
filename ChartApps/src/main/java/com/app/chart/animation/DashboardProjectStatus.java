@@ -93,17 +93,20 @@ public class DashboardProjectStatus extends HBox {
 			try {
 				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE),
 						Charset.defaultCharset());
-				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-				projectStatusBoundaries = mapper.readValue(jsonData,
-						mapper.getTypeFactory().constructCollectionType(List.class, ProjectStatusBoundary.class));
-				
-				projectStatusBoundaries.stream().forEach(p -> {
-					members.add(constructStatusTableBoundary(p));
-				});
-				//tableView.fireEvent(null);
+				if (jsonData != null && jsonData.length() > 0) {
+					mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+					projectStatusBoundaries = mapper.readValue(jsonData,
+							mapper.getTypeFactory().constructCollectionType(List.class, ProjectStatusBoundary.class));
+
+					projectStatusBoundaries.stream().forEach(p -> {
+						members.add(constructStatusTableBoundary(p));
+					});
+				}
+				// tableView.fireEvent(null);
 			} catch (IOException e) {
-				log.error( "loadListFromFile", e);
+				log.error("loadListFromFile", e);
 			}
+
 		}
 
 	}
@@ -145,9 +148,9 @@ public class DashboardProjectStatus extends HBox {
 			displayDialogBox(tableView.getSelectionModel().getSelectedItem().getValue(), true);
 		}
 	}
-	
+
 	private void deletRowAction(ActionEvent e) {
-		if(tableView.getSelectionModel().getSelectedItem() != null) {
+		if (tableView.getSelectionModel().getSelectedItem() != null) {
 			members.remove(tableView.getSelectionModel().getSelectedItem().getValue());
 		}
 	}
@@ -162,11 +165,11 @@ public class DashboardProjectStatus extends HBox {
 
 			jsonData = mapper.writeValueAsString(projectStatusBoundaries);
 			// just for storage purpose.
-			log.info("saveAction :  \n" +  jsonData);
+			log.info("saveAction :  \n" + jsonData);
 			FileUtils.writeStringToFile(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE), jsonData,
 					Charset.defaultCharset(), false);
 		} catch (IOException e1) {
-			log.error( "saveAction", e1);
+			log.error("saveAction", e1);
 		}
 
 	}
