@@ -488,7 +488,7 @@ public class OrgTreeView<T> extends Application {
 			log.info(String.format(BuildJavaScript.jsConfigTemplate, "chart_config", configOrderBuilder.toString()));
 
 			log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-			log.info(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList));
+			log.info(mapper/*.writerWithDefaultPrettyPrinter()*/.writeValueAsString(previewList));
 
 			// write the things back to files
 			synchronized (sb) {
@@ -504,7 +504,7 @@ public class OrgTreeView<T> extends Application {
 								Charset.defaultCharset(), false);
 
 				FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.PREVIEW_JSON),
-						mapper.writerWithDefaultPrettyPrinter().writeValueAsString(previewList),
+						mapper/*.writerWithDefaultPrettyPrinter()*/.writeValueAsString(previewList),
 						Charset.defaultCharset(), false);
 			}
 
