@@ -3,8 +3,6 @@ package com.app.chart.login.ui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.slf4j.Marker;
-
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 

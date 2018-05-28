@@ -17,7 +17,6 @@ import javax.swing.event.HyperlinkEvent;
 import org.apache.commons.io.FileUtils;
 import org.codefx.libfx.control.webview.WebViewHyperlinkListener;
 import org.codefx.libfx.control.webview.WebViews;
-import org.slf4j.Marker;
 
 import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 import com.jfoenix.animation.alert.JFXAlertAnimation;

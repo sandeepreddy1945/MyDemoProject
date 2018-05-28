@@ -16,10 +16,8 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Marker;
 
 import com.app.chart.animation.AutoScrollProjectStatus;
-import com.app.chart.animation.ScrollTextDataUI.ScrollTxtTableBoundary;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CurrentSprintBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
@@ -40,8 +38,8 @@ import com.app.chart.perfomance.dashboard.DashboardTeamMemberScoreViewer;
 import com.app.chart.perfomance.dashboard.DashboardTeamProgressViewer;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.sidebar.DashboardSidePane;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.hansolo.tilesfx.Tile;
@@ -52,8 +50,6 @@ import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;

@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Marker;
-
 import com.app.chart.animation.DashboardProjectStatus;
 import com.app.chart.animation.ScrollTextDataUI;
 import com.app.chart.dashboard.ui.PerfomanceBoardDetails;
