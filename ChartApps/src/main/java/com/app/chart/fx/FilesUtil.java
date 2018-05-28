@@ -43,6 +43,12 @@ public class FilesUtil {
 	public static final String DASHBOARD_PROJECT_STATUS_FILE = DASHBOARD_CONTENT_PATH + SLASH + "projectstatus.json";
 	public static final String DASHBOARD_PROJECT_SCROLL_TEXT_FILE = DASHBOARD_CONTENT_PATH + SLASH + "scrolltxt.json";
 
+	// customer folder details
+	public static final String DASHBOARD_PROJECT_CUSTOMER_FOLDER = MAIN_APP_PATH + SLASH + "customer";
+	public static final String DASHBOARD_PROJECT_CUSTOMER_CSS_FOLDER = DASHBOARD_PROJECT_CUSTOMER_FOLDER + SLASH
+			+ "css";
+	public static final String DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER = DASHBOARD_PROJECT_CUSTOMER_FOLDER + SLASH + "js";
+
 	/**
 	 * 
 	 * @param props
@@ -65,7 +71,8 @@ public class FilesUtil {
 	 */
 	public static void initializeFileSettings() throws IOException {
 		checkAndCreateDir(MAIN_APP_PATH, IMAGES_DIR_PATH, HTML_DIR_PATH, PROPS_DIR_PATH, JSON_MSGS_PATH, JS_DIR_PATH,
-				CSS_DIR_PATH, DASHBOARD_CONTENT_PATH, DASHBOARD_PROPS_PATH_BCK, DASHBOARD_CONTENT_PATH_BCK);
+				CSS_DIR_PATH, DASHBOARD_CONTENT_PATH, DASHBOARD_PROPS_PATH_BCK, DASHBOARD_CONTENT_PATH_BCK,
+				DASHBOARD_PROJECT_CUSTOMER_FOLDER);
 
 		copyJsAndCssFilesToFolders();
 
@@ -147,6 +154,18 @@ public class FilesUtil {
 		// requirement for this
 		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "custom-colored.css");
 		fileCopierForJSAndCss(CSS_DIR_PATH, "css", "Treant.css");
+
+		// filecopier for customer files
+
+		// js files
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "datgui.min.js");
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "index.js");
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "jquery.min.js");
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "pixfree.min.js");
+
+		// customer css files
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_CSS_FOLDER, "css", "reset.min.css");
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_CSS_FOLDER, "css", "style.css");
 	}
 
 	private static void fileCopierForJSAndCss(String dir, String fileType, String fileName) throws IOException {
@@ -154,6 +173,12 @@ public class FilesUtil {
 		FileUtils.copyToFile(
 				FilesUtil.class.getClassLoader().getResourceAsStream("com/app/chart/" + fileType + SLASH + fileName),
 				new File(dir + SLASH + fileName));
+	}
+
+	private static void fileCopierForCustomerJSAndCss(String dir, String fileType, String fileName) throws IOException {
+		checkAndCreateFile(dir + SLASH + fileName);
+		FileUtils.copyToFile(FilesUtil.class.getClassLoader().getResourceAsStream(
+				"com/app/chart/customer/" + fileType + SLASH + fileName), new File(dir + SLASH + fileName));
 	}
 
 }
