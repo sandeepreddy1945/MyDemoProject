@@ -21,6 +21,7 @@ import com.app.chart.model.ChartBoardBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.RunJsonBoundary;
+import com.app.chart.run.ui.DisplayBoardConstants;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -145,7 +146,7 @@ public class DiagnoseIssues extends HBox {
 			}
 		} catch (IOException e) {
 			isPerfomanceListTampered = true;
-			log.error( "loadPerfomanceDetailsFromFile", e);
+			log.error("loadPerfomanceDetailsFromFile", e);
 		}
 
 	}
@@ -206,7 +207,7 @@ public class DiagnoseIssues extends HBox {
 					ChartBoardBoundary chartBoardBoundary = mapper.readValue(jsonStr, ChartBoardBoundary.class);
 					chartBoardBoundaries.add(chartBoardBoundary);
 				} catch (IOException e) {
-					log.error( "diagnoseAllTheIssuesPresent", e);
+					log.error("diagnoseAllTheIssuesPresent", e);
 				}
 			});
 
@@ -307,9 +308,12 @@ public class DiagnoseIssues extends HBox {
 		runJsonBoundaries.stream().forEach(p -> {
 			Path path = Paths.get(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + p.getPath());
 			if (!Files.exists(path)) {
-				members.add(constructTableMemberBoundary(p.getPath(), "Image -> " + p.getPath() + "  " + "Missing!!",
-						"Image Doesnot Exist In Req Folder",
-						"Copy The PNG Image to folder: " + FilesUtil.IMAGES_DIR_PATH));
+				// applicable only for images and not the dashboard and chart names.
+				if (DisplayBoardConstants.image.name().equals(p.getType())) {
+					members.add(constructTableMemberBoundary(p.getPath(),
+							"Image -> " + p.getPath() + "  " + "Missing!!", "Image Doesnot Exist In Req Folder",
+							"Copy The PNG Image to folder: " + FilesUtil.IMAGES_DIR_PATH));
+				}
 			}
 		});
 
@@ -336,7 +340,7 @@ public class DiagnoseIssues extends HBox {
 			});
 		});
 
-		log.error( "All Errors Found in Diagnose Issues", members);
+		log.error("All Errors Found in Diagnose Issues", members);
 
 		// fire table with changes.
 		tableView.fireEvent(e);
