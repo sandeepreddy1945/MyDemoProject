@@ -33,11 +33,14 @@ a:hover {
 
 #canvas-container {
 	background: #000
-		url(https://jackrugile.com/lab/fireworks-v2/images/bg.jpg);
+		url(../images/images_file_name_url);
 	height: 100%;
 	position: absolute;
 	width: 100%;
 	z-index: 2;
+	background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 canvas {
@@ -103,13 +106,13 @@ canvas:active {
 
 	<!-- <div id="gui"></div>	 -->
 	<div id="canvas-container">
-	<marquee> <h1 style="color: white;">This text will scroll from right to left </h1></marquee>
-		<div id="mountains2">
+	<marquee> <h1 style="color: white; font-size: 46px;">customer_description_txt</h1></marquee>
+		<!-- <div id="mountains2">
 			<div></div>
 		</div>
 		<div id="mountains1"></div>
 
-		<div id="skyline"></div>
+		<div id="skyline"></div> -->
 	</div>
 	<script src="../js/jquery.min.js"></script>
 	<script src="../js/datgui.min.js"></script>

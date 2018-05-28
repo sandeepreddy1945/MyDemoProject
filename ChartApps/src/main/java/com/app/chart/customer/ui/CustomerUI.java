@@ -68,6 +68,9 @@ public class CustomerUI extends HBox {
 
 	private static final String EMPTY_STR = "";
 
+	private static final String customer_description_txt = "customer_description_txt";
+	private static final String images_file_name_url = "images_file_name_url";
+
 	public CustomerUI() {
 		super(5);
 
@@ -171,7 +174,7 @@ public class CustomerUI extends HBox {
 		mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 		try {
 			String jsonData = mapper.writeValueAsString(customerFileList);
-			log.info("saveTemplate : \n " +  jsonData);
+			log.info("saveTemplate : \n " + jsonData);
 			FileUtils.write(new File(FilesUtil.DASHBOARD_PROJECT_CUSTOMER_DATA_FILE), jsonData,
 					Charset.defaultCharset(), false);
 
@@ -185,7 +188,10 @@ public class CustomerUI extends HBox {
 							getClass().getClassLoader().getResourceAsStream("com/app/chart/customer/html/index.html"),
 							tempFile);
 					String fileContent = FileUtils.readFileToString(tempFile, Charset.defaultCharset());
-					String formattedStr = String.format(fileContent, "..//images//"+ c.getFileName(), c.getScrollTxt());
+					String formattedStr = fileContent.replace(images_file_name_url, c.getFileName())
+							.replace(customer_description_txt, c.getScrollTxt());// String.format(fileContent,
+																					// "..//images//"+ c.getFileName(),
+																					// c.getScrollTxt());
 					tempFile.delete();
 
 					// save the formatted string to html file
