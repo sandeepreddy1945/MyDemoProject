@@ -465,7 +465,7 @@ public class PerfomanceBoardDetails extends HBox {
 		layout.setMinSize(500, 200);
 
 		HBox box = new HBox(10);
-		JFXNumberField portalId = new JFXNumberField();
+		JFXTextField portalId = new JFXTextField();
 		portalId.setPromptText("Enter Portal Id");
 		JFXTextField managerName = new JFXTextField();
 		managerName.setPromptText("Enter Name");
@@ -508,7 +508,7 @@ public class PerfomanceBoardDetails extends HBox {
 
 	}
 
-	private void onDialogOkAction(String teamName, JFXAlert<String> alert, JFXNumberField portalId,
+	private void onDialogOkAction(String teamName, JFXAlert<String> alert, JFXTextField portalId,
 			JFXTextField managerName, JFXTextField designation) {
 		if (datePickerFX.getValue() == null) {
 			popOutAlert("Please Select a Valid Date from the Calendar to Continue ..", "Perfomance Board");
@@ -519,7 +519,7 @@ public class PerfomanceBoardDetails extends HBox {
 				&& teamName.length() > 0) {
 			// build manager object
 			// for now the team folder name will the teamName given replaced without spaces.
-			ManagerDetailBoundary detailBoundary = new ManagerDetailBoundary(Integer.valueOf(portalId.getText()),
+			ManagerDetailBoundary detailBoundary = new ManagerDetailBoundary(portalId.getText(),
 					managerName.getText(), designation.getText(), teamName.replaceAll(" ", ""), new ArrayList<>());
 			// main list checkng starts here.. check if the folder already exists.
 			Optional<String> isFolderExists = perfomanceBoardDetails.stream()
@@ -939,7 +939,7 @@ public class PerfomanceBoardDetails extends HBox {
 			Optional<PerfomanceBoardBoundary> opbb = perfomanceBoardDetails.parallelStream()
 					.filter(p -> p.getManagerDetailBoundary().getFolderName().equals(m.getFolderName())).findFirst();
 			// edit the details
-			m.setPortalId(Integer.valueOf(portalId.getText()));
+			m.setPortalId(portalId.getText());
 			m.setName(managerName.getText());
 			m.setDesignation(designation.getText());
 			// rechange the header name and folder name.

@@ -33,7 +33,7 @@ public class ManagerDetailBoundary implements Serializable{
 	 */
 	private static final long serialVersionUID = 2626656708493273347L;
 	@JsonProperty("portalId")
-	private int portalId;
+	private String portalId;
 	@JsonProperty("name")
 	private String name;
 	@JsonProperty("designation")
