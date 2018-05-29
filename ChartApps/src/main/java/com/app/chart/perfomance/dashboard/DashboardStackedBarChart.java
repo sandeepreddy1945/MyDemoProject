@@ -144,9 +144,9 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 	protected void presentedSeriesData(XYChart.Series<String, Number> series1, XYChart.Series<String, Number> series2,
 			XYChart.Series<String, Number> series3, int i, String name) {
 
-		series1.getData().add(new XYChart.Data<String, Number>(name, 0));
-		series2.getData().add(new XYChart.Data<String, Number>(name, 0));
-		series3.getData().add(new XYChart.Data<String, Number>(name, 0));
+		series1.getData().add(new XYChart.Data<String, Number>(name.substring(0, name.indexOf(" ")), 0));
+		series2.getData().add(new XYChart.Data<String, Number>(name.substring(0, name.indexOf(" ")), 0));
+		series3.getData().add(new XYChart.Data<String, Number>(name.substring(0, name.indexOf(" ")), 0));
 	}
 
 	/**
