@@ -309,13 +309,13 @@ public class DiagnoseIssues extends HBox {
 		// now with the run json list
 		runJsonBoundaries.stream().forEach(p -> {
 			Path path = Paths.get(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + p.getPath());
-			if (!Files.exists(path)) {
+			if (!Files.exists(path) && DisplayBoardConstants.image.name().equals(p.getType())) {
 				// applicable only for images and not the dashboard and chart names.
-				if (DisplayBoardConstants.image.name().equals(p.getType())) {
-					members.add(constructTableMemberBoundary(p.getPath(),
-							"Image -> " + p.getPath() + "  " + "Missing!!", "Image Doesnot Exist In Req Folder",
-							"Copy The PNG Image to folder: " + FilesUtil.IMAGES_DIR_PATH));
-				}
+
+				members.add(constructTableMemberBoundary(p.getPath(), "Image -> " + p.getPath() + "  " + "Missing!!",
+						"Image Doesnot Exist In Req Folder",
+						"Copy The PNG Image to folder: " + FilesUtil.IMAGES_DIR_PATH));
+
 			}
 		});
 

@@ -10,7 +10,6 @@ import java.util.List;
 import com.app.chart.model.TeamMember;
 
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
