@@ -204,8 +204,10 @@ public class DiagnoseIssues extends HBox {
 					String jsonStr = FileUtils.readFileToString(new File(
 							FilesUtil.MAIN_APP_PATH + FilesUtil.SLASH + o.toString() + FilesUtil.SLASH + APP_JSON),
 							Charset.defaultCharset());
-					ChartBoardBoundary chartBoardBoundary = mapper.readValue(jsonStr, ChartBoardBoundary.class);
-					chartBoardBoundaries.add(chartBoardBoundary);
+					if (jsonStr != null && jsonStr.length() > 0) {
+						ChartBoardBoundary chartBoardBoundary = mapper.readValue(jsonStr, ChartBoardBoundary.class);
+						chartBoardBoundaries.add(chartBoardBoundary);
+					}
 				} catch (IOException e) {
 					log.error("diagnoseAllTheIssuesPresent", e);
 				}

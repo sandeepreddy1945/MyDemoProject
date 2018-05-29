@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Marker;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.ProjectStatusBoundary;
@@ -70,12 +69,14 @@ public class AutoScrollProjectStatus extends HBox {
 			try {
 				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE),
 						Charset.defaultCharset());
-				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-				projectStatusBoundaries = mapper.readValue(jsonData,
-						mapper.getTypeFactory().constructCollectionType(List.class, ProjectStatusBoundary.class));
+				if (jsonData != null && jsonData.length() > 0) {
+					mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+					projectStatusBoundaries = mapper.readValue(jsonData,
+							mapper.getTypeFactory().constructCollectionType(List.class, ProjectStatusBoundary.class));
 
-				Collections.reverse(projectStatusBoundaries);
-				// tableView.fireEvent(null);
+					Collections.reverse(projectStatusBoundaries);
+					// tableView.fireEvent(null);
+				}
 			} catch (IOException e) {
 				log.error("loadListFromFile", e);
 			}
@@ -102,7 +103,7 @@ public class AutoScrollProjectStatus extends HBox {
 				label.setMinWidth(210);
 				label.setRotate(270);
 				TranslateTransition translateTransition = new TranslateTransition(Duration.millis(9999), label);
-				translateTransition.setFromY(-height );
+				translateTransition.setFromY(-height);
 				translateTransition.setToY(place);
 				place = place + 90;
 				translateTransition.setCycleCount(1);

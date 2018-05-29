@@ -634,11 +634,13 @@ public class DashboardUI extends Application {
 			try {
 				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_SCROLL_TEXT_FILE),
 						Charset.defaultCharset());
-				final ObjectMapper mapper = new ObjectMapper();
-				mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-				scrollTexts = mapper.readValue(jsonData,
-						mapper.getTypeFactory().constructCollectionType(List.class, ScrollTexts.class));
-				// tableView.fireEvent(null);
+				if (jsonData != null && jsonData.length() > 0) {
+					final ObjectMapper mapper = new ObjectMapper();
+					mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+					scrollTexts = mapper.readValue(jsonData,
+							mapper.getTypeFactory().constructCollectionType(List.class, ScrollTexts.class));
+					// tableView.fireEvent(null);
+				}
 			} catch (IOException e) {
 				log.error("loadListFromFile", e);
 			}
