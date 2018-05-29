@@ -34,6 +34,9 @@ public class FilesUtil {
 			+ SLASH + "css";
 	public static final String RUN_PROPS_PATH = PROPS_DIR_PATH + SLASH + "run.json";
 	public static final String MANAGER_PROPS_PATH = PROPS_DIR_PATH + SLASH + "manager.properties";
+	/**
+	 * Currently this is not used Insted DASHBOARD_CONTENT_DATA_FILE is used.
+	 */
 	public static final String DASHBOARD_PROPS_PATH = PROPS_DIR_PATH + SLASH + "dashboard.json";
 	public static final String DASHBOARD_CONTENT_PATH = MAIN_APP_PATH + SLASH + "dashboard";
 	public static final String DASHBOARD_CONTENT_DATA_FILE = "dashboardContent.json";

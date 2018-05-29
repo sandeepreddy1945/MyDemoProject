@@ -144,7 +144,6 @@ public class PerfomanceBoardDetails extends HBox {
 
 				List<PerfomanceBoardBoundary> dataList = mapper.readValue(fileData,
 						mapper.getTypeFactory().constructCollectionType(List.class, PerfomanceBoardBoundary.class));
-				dataList.forEach(System.out::println);
 
 				// set the list with details
 				this.jsonDataContent = fileData;
