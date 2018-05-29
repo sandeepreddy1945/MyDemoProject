@@ -90,7 +90,7 @@ public class ScrollTextDataUI extends HBox {
 	private void loadListFromFile() {
 		if (new File(FilesUtil.DASHBOARD_PROJECT_SCROLL_TEXT_FILE).exists()) {
 			try {
-				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_STATUS_FILE),
+				String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_SCROLL_TEXT_FILE),
 						Charset.defaultCharset());
 				if (jsonData != null && jsonData.length() > 0) {
 					mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
