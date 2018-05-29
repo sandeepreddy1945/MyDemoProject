@@ -63,11 +63,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Sandeep
  *
  */
+@Slf4j
 public class AppSequencerUI extends HBox {
 
 	private List<RunJSonTableBoundary> memberLinkedList = new ArrayList<>();
@@ -127,7 +129,7 @@ public class AppSequencerUI extends HBox {
 				// tableView.fireEvent(null);
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			log.error("buildRunJsonListFromFile", ex);
 		}
 	}
 
@@ -362,7 +364,7 @@ public class AppSequencerUI extends HBox {
 				if (optionsBox.getSelectionModel().getSelectedItem() != null)
 					buildSearchOptionDialog(optionsBox.getSelectionModel().getSelectedItem(), pathTF, headerTxtTF);
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				log.error("displayEditEntryDialog", e1);
 			}
 		});
 
@@ -404,11 +406,11 @@ public class AppSequencerUI extends HBox {
 				// now convert the list to json and store.
 				String jsonValue = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(runJsonBoundaries);
 				String fileStorePath = FilesUtil.RUN_PROPS_PATH;
-				System.out.println(jsonValue);
+				log.info("saveDetailsAction : " + jsonValue);
 				// write the value to the file.
 				FileUtils.write(new File(fileStorePath), jsonValue, Charset.defaultCharset());
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				log.error("saveDetailsAction", ex);
 			}
 		}
 	}
@@ -534,7 +536,7 @@ public class AppSequencerUI extends HBox {
 				if (optionsBox.getSelectionModel().getSelectedItem() != null)
 					buildSearchOptionDialog(optionsBox.getSelectionModel().getSelectedItem(), pathTF, headerTxtTF);
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				log.error("displayAddEntryBox", e1);
 			}
 		});
 
@@ -621,8 +623,8 @@ public class AppSequencerUI extends HBox {
 
 			if (customerFileList != null) {
 				customerFileList.stream().forEach(c -> {
-					searchOptionMembers.add(constructSearchOptionTabBoundary(type, c.getFileName(), c.getFolderName(),
-							"To Be Added"));
+					searchOptionMembers.add(
+							constructSearchOptionTabBoundary(type, c.getFileName(), c.getFolderName(), "To Be Added"));
 				});
 
 				if (searchOptionMembers != null) {
