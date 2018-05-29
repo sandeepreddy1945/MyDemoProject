@@ -3,7 +3,17 @@
   <head>
     <meta charset="UTF-8">
     <title>Animation</title>
-    <link rel="stylesheet" type="text/css" href="celebrate.css">
+    <link rel="stylesheet" type="text/css" href="../css/celebrate.css">
+    
+    <style type="text/css">
+    canvas {
+    	background: black;
+  		background: linear-gradient(to bottom, black, rgba(0,0,99,0) 400%);
+  		background-position: center;
+    	background-repeat: no-repeat;
+   		background-size: cover
+	}
+    </style>
   </head>
   <body>
     <div id="viewport" style="width: 640px; height: 480px;">
@@ -11,13 +21,13 @@
       <!-- Based on public domain image
            https://pixabay.com/en/aeroplane-aircraft-airplane-flight-161999/ -->
       <div class="marquee">
-        <img src="flight1.gif" width="180" height="73">
+        <img src="flight.png" width="83" height="43">
         <div id="banner">Using an incompatible browser? No celebration for you.</div>
       </div>
     </div>
    <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script> -->
-    <script type="text/javascript" src="jquery.min.js"></script>
-    <script type="text/javascript" src="celebrate.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/celebrate.js"></script>
     <script type="text/javascript">
         $(function() {
             fillBanner('#banner');

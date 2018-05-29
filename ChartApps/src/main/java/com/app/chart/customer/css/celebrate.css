@@ -1,7 +1,4 @@
-canvas {
-    background: black;
-   background: linear-gradient(to bottom, black, rgba(0,0,99,0) 400%);
-}
+
 div.marquee {
     white-space: nowrap;
     position: absolute;
