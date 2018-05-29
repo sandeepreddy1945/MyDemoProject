@@ -239,7 +239,7 @@ public class AppSequencerUI extends HBox {
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.setOverlayClose(false);
 		JFXDialogLayout layout = new JFXDialogLayout();
-		layout.setHeading(new Text("Add Perfomance Meter Stats"));
+		layout.setHeading(new Text("Add Performance Meter Stats"));
 		layout.setMinSize(1200, 200);
 
 		HBox box = new HBox(10);
@@ -430,7 +430,7 @@ public class AppSequencerUI extends HBox {
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.setOverlayClose(false);
 		JFXDialogLayout layout = new JFXDialogLayout();
-		layout.setHeading(new Text("Add Perfomance Meter Stats"));
+		layout.setHeading(new Text("Add Performance Meter Stats"));
 		layout.setMinSize(1200, 200);
 
 		HBox box = new HBox(10);

@@ -24,7 +24,7 @@ public class DashboardTimeLineStackBarChart extends DashboardStackedBarChart {
 	}
 
 	public DashboardTimeLineStackBarChart(List<TeamMember> teamMembers, String title) {
-		this(teamMembers, "Month Wise Perfomance", "Scores Achieved", title);
+		this(teamMembers, "Month Wise Performance", "Scores Achieved", title);
 	}
 
 	public DashboardTimeLineStackBarChart(List<TeamMember> teamMembers, String categoryAxisName, String numberAxisName,

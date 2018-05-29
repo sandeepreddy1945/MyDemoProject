@@ -23,7 +23,7 @@ import javafx.scene.layout.StackPane;
  */
 public class DashboardStackedBarChart extends DashboardAbstract {
 
-	protected static final String MONTHLY_PERFOMANCE = "Monthly Perfomance";
+	protected static final String MONTHLY_PERFOMANCE = "Monthly Performance";
 	protected CategoryAxis categoryAxis;
 	protected NumberAxis numberAxis;
 	protected StackedBarChart<String, Number> barChart = null;

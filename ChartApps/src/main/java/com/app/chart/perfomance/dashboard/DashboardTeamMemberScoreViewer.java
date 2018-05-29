@@ -21,7 +21,7 @@ import javafx.scene.control.Pagination;
 public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 	private Pagination pagination;
-	private static final int ITEMS_PER_PAGE = 4;
+	private static final int ITEMS_PER_PAGE = 5;
 	private int pageCount;
 	private int animationPageIndex = 0;
 	private long lastTimerCall;
@@ -64,7 +64,8 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 			leaderboardChartItems.add(new BarChartItem(name, score, getRandomTileColor()));
 		}
 
-		Tile leaderBoardTile = generateBarChartTile(350, 450,
+		// set names to main tile.
+		Tile leaderBoardTile = generateBarChartTile(350, 450, "", "",
 				leaderboardChartItems.stream().toArray(BarChartItem[]::new));
 		tileToAnimate = leaderBoardTile;
 
@@ -111,7 +112,7 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 
 		// add the appgination to UI using Tile Config
 		// TODO change the naming here if wanted
-		getChildren().add(generateCustomTile(pagination, "", 370, 470, ""));
+		getChildren().add(generateCustomTile(pagination, "Leader Board", 370, 470, "Average Performance"));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
@@ -147,7 +148,7 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 		animationTimer.start();
 
 	}
-	
+
 	/**
 	 * Retrieves the Animation Timer to Stop it in the Main App . Critical Fix
 	 * required to fix the Timer issues running in the background.

@@ -42,7 +42,7 @@ public class DashboardTeamProgressViewer extends HBox {
 		StackPane pane = new StackPane(gauge);
 
 		Tile tile = TileBuilder.create().skinType(eu.hansolo.tilesfx.Tile.SkinType.CUSTOM).prefSize(300, 250)
-				.title("Team Perfomance").
+				.title("Team Performance").
 				// TODO think of a name for this text .
 				text("").graphic(pane).roundedCorners(true).build();
 
@@ -142,7 +142,7 @@ public class DashboardTeamProgressViewer extends HBox {
 			rpmGauge = GaugeBuilder.create().borderPaint(Color.WHITE).foregroundBaseColor(Color.WHITE)
 					.prefSize(400, 250).startAngle(290).angleRange(220).minValue(0).maxValue(1000).valueVisible(true)
 					.minorTickMarksVisible(false).majorTickMarkType(TickMarkType.BOX)
-					.mediumTickMarkType(TickMarkType.BOX).title("Perfomance").needleShape(NeedleShape.ROUND)
+					.mediumTickMarkType(TickMarkType.BOX).title("Performance").needleShape(NeedleShape.ROUND)
 					.needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38)).knobColor(Gauge.DARK_COLOR)
 					.customTickLabelsEnabled(true).customTickLabelFontSize(40)
 					.customTickLabels("0", "", "200", "", "400", "", "600", "", "800", "", "1000").animated(true)

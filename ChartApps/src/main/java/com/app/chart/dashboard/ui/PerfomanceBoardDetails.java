@@ -272,11 +272,11 @@ public class PerfomanceBoardDetails extends HBox {
 			}
 		});
 
-		JFXButton teamPerfomanceMeter = new JFXButton("Team Perfomance Meter");
+		JFXButton teamPerfomanceMeter = new JFXButton("Team Performance Meter");
 		teamPerfomanceMeter.setOnAction(e -> {
 			if (managerCBX.getSelectionModel().getSelectedItem() == null) {
 				popOutAlert("Not a Valid Team Name Selected To Add The Graph . \n "
-						+ "Select a Valid Team Name and then proceed.", "Perfomance Chart");
+						+ "Select a Valid Team Name and then proceed.", "Performance Chart");
 			} else {
 				displayAddPerfomanceMeter(managerCBX.getSelectionModel().getSelectedItem().getFolderName());
 			}
@@ -292,7 +292,7 @@ public class PerfomanceBoardDetails extends HBox {
 		currentSprintACBtn.setOnAction(e -> {
 			if (managerCBX.getSelectionModel().getSelectedItem() == null) {
 				popOutAlert("Not a Valid Team Name Selected To Add The Graph . \n "
-						+ "Select a Valid Team Name and then proceed.", "Perfomance Chart");
+						+ "Select a Valid Team Name and then proceed.", "Performance Chart");
 			} else {
 				displayAddSprintData(managerCBX.getSelectionModel().getSelectedItem().getFolderName());
 			}
@@ -389,7 +389,7 @@ public class PerfomanceBoardDetails extends HBox {
 		alert.initModality(Modality.APPLICATION_MODAL);
 		alert.setOverlayClose(false);
 		JFXDialogLayout layout = new JFXDialogLayout();
-		layout.setHeading(new Text("Add Perfomance Meter Stats"));
+		layout.setHeading(new Text("Add Performance Meter Stats"));
 		layout.setMinSize(500, 200);
 
 		HBox box = new HBox(10);
@@ -511,7 +511,7 @@ public class PerfomanceBoardDetails extends HBox {
 	private void onDialogOkAction(String teamName, JFXAlert<String> alert, JFXTextField portalId,
 			JFXTextField managerName, JFXTextField designation) {
 		if (datePickerFX.getValue() == null) {
-			popOutAlert("Please Select a Valid Date from the Calendar to Continue ..", "Perfomance Board");
+			popOutAlert("Please Select a Valid Date from the Calendar to Continue ..", "Performance Board");
 			return;
 		}
 
@@ -527,7 +527,7 @@ public class PerfomanceBoardDetails extends HBox {
 					.findFirst();
 
 			if (isFolderExists.isPresent()) {
-				popOutAlert("The Perfomance Board You are trying to Add already Exists. \n "
+				popOutAlert("The Performance Board You are trying to Add already Exists. \n "
 						+ "Please select the Option from Team List To Continue..", "Perofomance Board");
 			} else {
 				// add to main list as it is a new entry.
@@ -767,7 +767,7 @@ public class PerfomanceBoardDetails extends HBox {
 				}
 			} else {
 				popOutAlert("Not a Valid Team Selected for Preview .Please select a Valid Team To Display",
-						"Perfomance Charts");
+						"Performance Charts");
 			}
 
 		});
@@ -1112,7 +1112,7 @@ public class PerfomanceBoardDetails extends HBox {
 				popOutAlert(
 						"The Details for this folder doesn't exist . \n "
 								+ "Please add the details and save them to display the details overview.",
-						"MPS Perfomance Board");
+						"MPS Performance Board");
 			}
 		}
 	}

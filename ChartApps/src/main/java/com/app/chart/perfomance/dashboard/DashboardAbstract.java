@@ -14,7 +14,6 @@ import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
 import eu.hansolo.tilesfx.skins.BarChartItem;
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -225,7 +224,7 @@ public abstract class DashboardAbstract extends HBox {
 	 * @return
 	 */
 	public Tile generateCustomTile(javafx.scene.chart.Chart chart, String title, double width, double height) {
-		Tile tile = generateCustomTile(chart, title, width, height, "Team Perfomance");
+		Tile tile = generateCustomTile(chart, title, width, height, "Team Performance");
 		return tile;
 	}
 

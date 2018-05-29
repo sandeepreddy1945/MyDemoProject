@@ -254,9 +254,9 @@ public class DiagnoseIssues extends HBox {
 		}
 
 		if (isPerfomanceListTampered) {
-			members.add(constructTableMemberBoundary("Perfomance List", "Peformance Data List File is tampered.",
-					"The Perfomance List Data has been modified manually.	",
-					"Either re-add the perfomance chart and save else verify logs."));
+			members.add(constructTableMemberBoundary("Performance List", "Peformance Data List File is tampered.",
+					"The Performance List Data has been modified manually.	",
+					"Either re-add the performance chart and save else verify logs."));
 		}
 
 		if (isRunOrderTampered) {
