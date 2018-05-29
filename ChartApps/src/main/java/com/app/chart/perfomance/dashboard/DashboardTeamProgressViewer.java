@@ -85,6 +85,19 @@ public class DashboardTeamProgressViewer extends HBox {
 		animationTimer.start();
 	}
 
+	/**
+	 * Retrieves the Animation Timer to Stop it in the Main App . Critical Fix
+	 * required to fix the Timer issues running in the background.
+	 * 
+	 * In this class already a call is done to stop the timer. So need not stop it
+	 * again explictly. JUzz for safety check here.
+	 * 
+	 * @return
+	 */
+	public AnimationTimer fetchAnimationTimer() {
+		return animationTimer;
+	}
+
 	public class MultiGauge extends Region {
 		private static final double PREFERRED_WIDTH = 320;
 		private static final double PREFERRED_HEIGHT = 250;
@@ -132,7 +145,8 @@ public class DashboardTeamProgressViewer extends HBox {
 					.mediumTickMarkType(TickMarkType.BOX).title("Perfomance").needleShape(NeedleShape.ROUND)
 					.needleSize(NeedleSize.THICK).needleColor(Color.rgb(234, 67, 38)).knobColor(Gauge.DARK_COLOR)
 					.customTickLabelsEnabled(true).customTickLabelFontSize(40)
-					.customTickLabels("0", "", "200", "", "400", "", "600", "", "800", "", "1000").animated(true).build();
+					.customTickLabels("0", "", "200", "", "400", "", "600", "", "800", "", "1000").animated(true)
+					.build();
 
 			currentProgress = GaugeBuilder.create().skinType(SkinType.HORIZONTAL).prefSize(170, 170)
 					.foregroundBaseColor(Color.WHITE).title("CURRENT").valueVisible(false).angleRange(90).maxValue(600)

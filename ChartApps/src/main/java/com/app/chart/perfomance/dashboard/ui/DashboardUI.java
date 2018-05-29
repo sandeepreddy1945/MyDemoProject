@@ -45,6 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
+import javafx.animation.AnimationTimer;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
@@ -108,6 +109,9 @@ public class DashboardUI extends Application {
 	private DashboardSunburnChart sunburnChart;
 	private final PerfomanceMeterBoundary perfomanceMeterBoundary;
 	private final CurrentSprintBoundary currentSprintBoundary;
+
+	// Culprit fix on the timers that are happening.
+	List<AnimationTimer> animationTimers = new ArrayList<>();
 
 	/**
 	 * @param teamMembers
@@ -368,9 +372,9 @@ public class DashboardUI extends Application {
 
 				dashboardImageViewer = new DashboardImageViewer(logo1, logo2, teamMembers);
 			} catch (URISyntaxException e) {
-				log.error( "initializeTopImages", e);
+				log.error("initializeTopImages", e);
 			} catch (IOException e) {
-				log.error( "initializeTopImages", e);
+				log.error("initializeTopImages", e);
 			}
 
 		}
@@ -392,6 +396,9 @@ public class DashboardUI extends Application {
 		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
 		 */
 		DashboardTeamMemberScoreViewer scoreViewer = new DashboardTeamMemberScoreViewer(/* list */teamMembers);
+		// add the main animation timer to stop it at the end.
+		animationTimers.add(scoreViewer.fetchMainAnimationTimer());
+		animationTimers.add(scoreViewer.fetchAnimationTimer());
 		return scoreViewer;
 
 	}
@@ -410,6 +417,7 @@ public class DashboardUI extends Application {
 		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
 		 */
 		DashboardPieChart pieChart = new DashboardPieChart(/* list */teamMembers);
+		animationTimers.add(pieChart.fetchMainAnimationTimer());
 		return pieChart;
 	}
 
@@ -427,6 +435,8 @@ public class DashboardUI extends Application {
 		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
 		 */
 		DashboardBarChart barChart = new DashboardBarChart(/* list */ teamMembers);
+		animationTimers.add(barChart.fetchMainAnimationTimer());
+		animationTimers.add(barChart.fetchAnimationTimer());
 		return barChart;
 
 	}
@@ -448,6 +458,8 @@ public class DashboardUI extends Application {
 			// by default set the values to 0
 			progressViewer = new DashboardTeamProgressViewer(0, 0, 0);
 		}
+		animationTimers.add(progressViewer.fetchAnimationTimer());
+		animationTimers.add(progressViewer.fetchAnimationTimer());
 		return progressViewer;
 	}
 
@@ -465,6 +477,8 @@ public class DashboardUI extends Application {
 		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
 		 */
 		DashboardStackedBarChart stackedBarChart = new DashboardStackedBarChart(/* list */teamMembers);
+		animationTimers.add(stackedBarChart.fetchMainAnimationTimer());
+		animationTimers.add(stackedBarChart.fetchAnimationTimer());
 		return stackedBarChart;
 	}
 
@@ -482,6 +496,8 @@ public class DashboardUI extends Application {
 		 * DashboardUtil.TeamMemberSorter.getInstance()); Collections.reverse(list);
 		 */
 		DashboardIndividualStatsViewer statsViewer = new DashboardIndividualStatsViewer(/* list */teamMembers);
+		animationTimers.add(statsViewer.fetchMainAnimationTimer());
+		animationTimers.add(statsViewer.fetchAnimationTimer());
 		return statsViewer;
 	}
 
@@ -501,7 +517,7 @@ public class DashboardUI extends Application {
 		} else {
 			dashboardTeamBarChart = new DashboardTeamBarChart(0, 0, 0);
 		}
-
+		animationTimers.add(dashboardTeamBarChart.fetchAnimationTimer());
 		return dashboardTeamBarChart;
 	}
 
@@ -528,7 +544,7 @@ public class DashboardUI extends Application {
 			logo1 = new File(url1.toURI().getPath());
 			image = new Image(FileUtils.openInputStream(logo1));
 		} catch (Exception e) {
-			log.error( "initializeManagerPicture", e);
+			log.error("initializeManagerPicture", e);
 			image = new Image(getClass().getClassLoader().getResourceAsStream("com/app/chart/images/default.png"));
 		}
 
@@ -624,7 +640,7 @@ public class DashboardUI extends Application {
 						mapper.getTypeFactory().constructCollectionType(List.class, ScrollTexts.class));
 				// tableView.fireEvent(null);
 			} catch (IOException e) {
-				log.error( "loadListFromFile", e);
+				log.error("loadListFromFile", e);
 			}
 		}
 
@@ -646,6 +662,14 @@ public class DashboardUI extends Application {
 		st.setCycleCount(Timeline.INDEFINITE);
 		st.play();
 		return box;
+	}
+
+	public void stopAnimationTimers() {
+		animationTimers.stream().forEach(a -> {
+			// just stop all the animation timers.
+			if (a != null)
+				a.stop();
+		});
 	}
 
 	// TODO to remove this variables later

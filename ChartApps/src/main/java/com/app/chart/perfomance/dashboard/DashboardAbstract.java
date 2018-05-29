@@ -32,6 +32,8 @@ public abstract class DashboardAbstract extends HBox {
 	protected final List<TeamMember> teamMembers;
 	private File[] files;
 
+	private volatile boolean isAnimationTimerRunning;
+
 	/**
 	 * Default Constructor.
 	 */
@@ -67,21 +69,49 @@ public abstract class DashboardAbstract extends HBox {
 	private void initTimer() {
 		lastTimerCall = System.nanoTime();
 		// run as a thread safe one.
-		Platform.runLater(() -> {
-			animationTimer = new AnimationTimer() {
 
-				@Override
-				public void handle(long now) {
-					if (now > lastTimerCall + 8_500_000_000L) {
-						// call the animation timer here in for all the instances applicable.
-						startTimer(now);
-						lastTimerCall = now;
-					}
+		animationTimer = new AnimationTimer() {
+
+			@Override
+			public void start() {
+				super.start();
+				isAnimationTimerRunning = true;
+			}
+
+			@Override
+			public void stop() {
+				super.stop();
+				isAnimationTimerRunning = false;
+			}
+
+			@Override
+			public void handle(long now) {
+				if (now > lastTimerCall + 8_500_000_000L) {
+					// call the animation timer here in for all the instances applicable.
+					startTimer(now);
+					lastTimerCall = now;
 				}
-			};
-			animationTimer.start();
-		});
+			}
+		};
+		animationTimer.start();
 
+	}
+
+	/**
+	 * Retrieves the Animation Timer to Stop it in the Main App . Critical Fix
+	 * required to fix the Timer issues running in the background.
+	 * 
+	 * Culprit that runs always ..Ensure to to stop this at the end o fthe class.
+	 * All the other times stop by them selves.
+	 * 
+	 * @return
+	 */
+	public AnimationTimer fetchMainAnimationTimer() {
+		return animationTimer;
+	}
+
+	public boolean isAnimationTimerRunnning() {
+		return isAnimationTimerRunning;
 	}
 
 	public void sortTeamMembers() {

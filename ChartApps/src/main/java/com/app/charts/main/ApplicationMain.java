@@ -96,6 +96,8 @@ public class ApplicationMain extends Application {
 
 	private boolean isTimeLinePaused = false;
 
+	private DashboardUI previousDashBoardUI = null;
+
 	// TODO Some how push everything to cache so that app can be made more clean.
 
 	@Override
@@ -219,7 +221,7 @@ public class ApplicationMain extends Application {
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
-		timeline.play();
+		timeline.playFromStart();
 		// add the pause listener only to main time line frame.
 		// care full to use this with caution as play while dashboard loading might be
 		// dangerous resulting in parallel execution .
@@ -338,7 +340,9 @@ public class ApplicationMain extends Application {
 				if (p != null) {
 					HBox box = null;
 					try {
-						box = new DashboardUI(p).dashBoardMainBox();
+						DashboardUI d = new DashboardUI(p);
+						previousDashBoardUI = d;
+						box = d.dashBoardMainBox();
 						scene.setRoot(box);
 						stage.setFullScreen(true);
 
@@ -380,23 +384,44 @@ public class ApplicationMain extends Application {
 			// as last one is reached put the flags back
 			isNormalOnesRunning = true;
 			isDashBoardRunning = false;
+			// if nly one dashboard is present this is required.
+			if (previousDashBoardUI != null) {
+				previousDashBoardUI.stopAnimationTimers();
+				previousDashBoardUI = null;
+			}
 		} else {
 			// Be Null Safe as Always.
 			PerfomanceBoardBoundary p = fetchNextValueFromPerfomanceList();
 			if (p != null) {
-				HBox box = new DashboardUI(p).dashBoardMainBox();
+				DashboardUI d = new DashboardUI(p);
+				previousDashBoardUI = d;
+				HBox box = d.dashBoardMainBox();
 				scene.setRoot(box);
 				stage.setFullScreen(true);
 			}
 		}
 	}
 
+	/**
+	 * Critical Fix implemented. to stop the main animation timer from
+	 * dashboardabstract once the animation is done.
+	 * 
+	 * @return
+	 */
 	private PerfomanceBoardBoundary fetchNextValueFromPerfomanceList() {
 		if (dashBoardCount == perfomanceBoardBoundaries.size() - 1) {
 			// PerfomanceBoardBoundary pbb = perfomanceBoardBoundaries.get(dashBoardCount);
+			if (previousDashBoardUI != null) {
+				previousDashBoardUI.stopAnimationTimers();
+				previousDashBoardUI = null;
+			}
 			dashBoardCount++;
 			return null; // as max count is reached.
 		} else {
+			if (previousDashBoardUI != null) {
+				previousDashBoardUI.stopAnimationTimers();
+				previousDashBoardUI = null;
+			}
 			dashBoardCount++;
 			return perfomanceBoardBoundaries.get(dashBoardCount);
 		}

@@ -147,5 +147,15 @@ public class DashboardTeamMemberScoreViewer extends DashboardAbstract {
 		animationTimer.start();
 
 	}
+	
+	/**
+	 * Retrieves the Animation Timer to Stop it in the Main App . Critical Fix
+	 * required to fix the Timer issues running in the background.
+	 * 
+	 * @return
+	 */
+	public AnimationTimer fetchAnimationTimer() {
+		return animationTimer;
+	}
 
 }

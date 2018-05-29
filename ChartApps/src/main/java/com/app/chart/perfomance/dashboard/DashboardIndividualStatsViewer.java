@@ -104,7 +104,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 		// member details .
 		Tile memberTextTile = TileBuilder.create().skinType(SkinType.TEXT).prefSize(230, 200).title(member.getName())
 				.text("Team Member")
-				.description("Portal Id: "+ member.getPortalId() + "\n" + member.getName() + "\n" + member.getDescription())
+				.description(
+						"Portal Id: " + member.getPortalId() + "\n" + member.getName() + "\n" + member.getDescription())
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
 		// member perfomance score tile
@@ -161,9 +162,9 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 		flipTile = TileBuilder.create().skinType(SkinType.FLIP).prefSize(200, 200).characters(Helper.TIME_00_TO_59)
 				.flipTimeInMS(500).flipText(" ").title("Timer ").build();
-		
-		Tile memberImageDP = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(200, 200).title("")
-				.text("").graphic(memberImage).roundedCorners(true).build();
+
+		Tile memberImageDP = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(200, 200).title("").text("")
+				.graphic(memberImage).roundedCorners(true).build();
 
 		// stop and start the animation timer once the page is reloaded.
 		// This consevers the threads as well.
@@ -201,13 +202,13 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 					.toURL();
 			imgFile = new File(url1.toURI().getPath());
 		} catch (Exception e1) {
-			log.error( "fetchMemberImage", e1);
+			log.error("fetchMemberImage", e1);
 			// image not found assign default image.
 			try {
-				imgFile = new File(
-						getClass().getClassLoader().getResource("com/app/chart/images/default.png").toURI().toURL().getPath());
+				imgFile = new File(getClass().getClassLoader().getResource("com/app/chart/images/default.png").toURI()
+						.toURL().getPath());
 			} catch (Exception e) {
-				log.error( "fetchMemberImage", e1);
+				log.error("fetchMemberImage", e1);
 			}
 		}
 		ImageView imageView = new ImageView();
@@ -259,6 +260,16 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 		animationTimer.start();
 
+	}
+
+	/**
+	 * Retrieves the Animation Timer to Stop it in the Main App . Critical Fix
+	 * required to fix the Timer issues running in the background.
+	 * 
+	 * @return
+	 */
+	public AnimationTimer fetchAnimationTimer() {
+		return animationTimer;
 	}
 
 }
