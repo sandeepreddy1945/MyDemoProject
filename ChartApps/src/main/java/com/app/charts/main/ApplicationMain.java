@@ -370,7 +370,43 @@ public class ApplicationMain extends Application {
 				HBox box = new DisplayImage(r.getPath(), r.isHeaderApplicable(), r.getDisplayTxt());
 				scene.setRoot(box);
 			} else if (DisplayBoardConstants.customer.name().equals(r.getType())) {
-				// not yet implemented.
+
+				String folderName = r.getPath();
+				String filePath = FilesUtil.DASHBOARD_PROJECT_CUSTOMER_FOLDER + FilesUtil.SLASH + folderName
+						+ FilesUtil.SLASH + "index.html";
+				String headerTxt = r.getDisplayTxt();
+				// by default header is applicable for a org chart.
+				// initialize the chart web engine
+				ChartWebEngine chartWebEngine = new ChartWebEngine().initialize();
+				// set the primary stage object to webview for popup displays
+				chartWebEngine.setParenStage(stage);
+				HBox box = new HBox();
+				VBox mainBox = new VBox(5);
+				if (r.isHeaderApplicable()) {
+					mainBox.getChildren().add(DashboardUtil.HeaderSegment(box, headerTxt));
+				}
+				mainBox.getChildren().add(chartWebEngine.getWebView());
+				if (r.isHeaderApplicable()) {
+					HBox footerSegment = DashboardUtil.FooterSegment();
+					footerSegment.setPrefHeight(25);
+				//	mainBox.getChildren().add(footerSegment);
+				}
+				box.getChildren().add(mainBox);
+
+				// set thes scene to rrot scenece
+				scene.setRoot(box);
+				// juzz to ensure it alwyas on full screen
+				stage.setFullScreen(true);
+
+				URL url = null;
+				try {
+					url = new File(filePath).toURI().toURL();
+				} catch (MalformedURLException e1) {
+					log.error(Marker.ANY_MARKER, "executeTask", e1);
+				}
+				// start putting the chart now
+				chartWebEngine.displayData(url.toExternalForm());
+
 			}
 		}
 

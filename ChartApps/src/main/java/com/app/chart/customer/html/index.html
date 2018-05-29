@@ -7,8 +7,7 @@
     
     <style type="text/css">
     canvas {
-    	background: black;
-  		background: linear-gradient(to bottom, black, rgba(0,0,99,0) 400%);
+    	background: black url(../images/images_file_name_url);
   		background-position: center;
     	background-repeat: no-repeat;
    		background-size: cover
@@ -21,7 +20,7 @@
       <!-- Based on public domain image
            https://pixabay.com/en/aeroplane-aircraft-airplane-flight-161999/ -->
       <div class="marquee">
-        <img src="flight.png" width="83" height="43">
+        <img src="../images/flight.png" width="83" height="43">
         <div id="banner">Using an incompatible browser? No celebration for you.</div>
       </div>
     </div>
@@ -32,8 +31,13 @@
         $(function() {
             fillBanner('#banner');
             var anim = animate('#sky');
-            setTimeout(function() { anim.stop(); }, 600000);
+            setTimeout(function() { anim.stop(); }, 6000000);
         });
+        
+        function fillBanner(selector) {
+            $(selector).text(atob('customer_description_txt'));
+        }
+
     </script>
   </body>
 </html>

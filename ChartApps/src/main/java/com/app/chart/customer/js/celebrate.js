@@ -42,10 +42,6 @@ function animate(selector) {
     return animation;
 }
 
-function fillBanner(selector) {
-    $(selector).text(atob('V2VsY29tZSBCaW5ueSBKb2huIFRvIE5UVCBEQVRB'));
-}
-
 //////////////////////////////////////////////////////////////////////
 
 function Animation($canvas, objects, factory) {

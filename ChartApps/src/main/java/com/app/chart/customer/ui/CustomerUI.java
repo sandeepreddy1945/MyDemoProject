@@ -6,18 +6,24 @@ package com.app.chart.customer.ui;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import com.app.chart.fx.ChartWebEngine;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.CustomerFileBoundary;
+import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTreeTableColumn;
 import com.jfoenix.controls.JFXTreeTableView;
@@ -34,13 +40,19 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableColumn.CellEditEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,6 +66,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class CustomerUI extends HBox {
+
+	/**
+	 * Visual Bounds of the Screen.
+	 */
+	public static Rectangle2D visualBounds = Screen.getPrimary().getVisualBounds();
+	public static double WIDTH = visualBounds.getWidth() - 100;
+	public static double HEIGHT = visualBounds.getHeight() - 100;
 
 	private ObservableList<CustomerUITableBoundary> members = FXCollections
 			.observableArrayList(/* constructTestBoundary() */);
@@ -149,6 +168,8 @@ public class CustomerUI extends HBox {
 				FilesUtil.checkAndCreateDir(FilesUtil.DASHBOARD_PROJECT_CUSTOMER_FOLDER + FilesUtil.SLASH
 						+ fileName.substring(0, fileName.lastIndexOf(".")));
 
+				// copy the flight images to the sub folder.
+
 				// empty string for now. User will edit it directly in the table ..
 				members.add(
 						constructTableBoundary(fileName, fileName.substring(0, fileName.lastIndexOf(".")), EMPTY_STR));
@@ -188,10 +209,12 @@ public class CustomerUI extends HBox {
 							getClass().getClassLoader().getResourceAsStream("com/app/chart/customer/html/index.html"),
 							tempFile);
 					String fileContent = FileUtils.readFileToString(tempFile, Charset.defaultCharset());
-					String formattedStr = fileContent.replace(images_file_name_url, c.getFileName())
-							.replace(customer_description_txt, c.getScrollTxt());// String.format(fileContent,
-																					// "..//images//"+ c.getFileName(),
-																					// c.getScrollTxt());
+
+					// encode the required detail message to prevent it from getting mishandled.
+					String formattedStr = fileContent.replace(images_file_name_url, c.getFileName()).replace(
+							customer_description_txt, Base64.getEncoder().encodeToString(c.getScrollTxt().getBytes()));// String.format(fileContent,
+					// "..//images//"+ c.getFileName(),
+					// c.getScrollTxt());
 					tempFile.delete();
 
 					// save the formatted string to html file
@@ -225,7 +248,76 @@ public class CustomerUI extends HBox {
 	}
 
 	private void previewTemplate(ActionEvent e) {
+		if (tableView.getSelectionModel().getSelectedItem() != null) {
+			// perform an auto save.
+			saveTemplate(e);
+			String fileUrl;
+			try {
+				String fileFloder = tableView.getSelectionModel().getSelectedItem().getValue().folderName.get();
+				fileUrl = new File(FilesUtil.DASHBOARD_PROJECT_CUSTOMER_FOLDER + FilesUtil.SLASH + fileFloder
+						+ FilesUtil.SLASH + "index.html").toURI().toURL().toExternalForm();
+				buildPreviewDialog(fileUrl);
+			} catch (MalformedURLException e1) {
+				log.error("saveTemplate", e1);
+			}
 
+		}
+	}
+
+	private void buildPreviewDialog(String fileUrl) {
+		JFXAlert<String> alert = new JFXAlert<>();
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setOverlayClose(false);
+		JFXDialogLayout layout = new JFXDialogLayout();
+		layout.setHeading(new Text("Preview Customer Slide"));
+		layout.setMinSize(WIDTH, HEIGHT - 400);
+
+		VBox mainBox = new VBox(5);
+
+		// initialize the chart webengine
+		ChartWebEngine chartWebEngine = new ChartWebEngine().initialize();
+		// set the primary stage object to webview for popup displays
+		chartWebEngine.setParenStage((Stage) this.getScene().getWindow());
+		chartWebEngine.getWebView().setPrefSize(DashboardUI.WIDTH, DashboardUI.HEIGHT - 60);
+		chartWebEngine.getWebView().setMinSize(DashboardUI.WIDTH - 160, DashboardUI.HEIGHT - 110);
+		chartWebEngine.getWebView().setTranslateZ(10);
+		mainBox.getChildren().add(chartWebEngine.getWebView());
+
+		layout.setBody(mainBox);
+
+		chartWebEngine.displayData(fileUrl);
+
+		JFXButton okBtn = new JFXButton("OK");
+		okBtn.getStyleClass().add("dialog-accept");
+
+		okBtn.setOnAction(e -> {
+			// currently no work except this.
+			alert.hideWithAnimation();
+		});
+
+		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+				+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+				+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+		JFXButton cancelBtn = new JFXButton("Cancel");
+		cancelBtn.setOnAction(e -> {
+			alert.hideWithAnimation();
+		});
+		// add enter button listener on the button
+		okBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+
+		cancelBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+		layout.setActions(okBtn, cancelBtn);
+		alert.setContent(layout);
+		alert.show();
 	}
 
 	private HBox buildTableView() {

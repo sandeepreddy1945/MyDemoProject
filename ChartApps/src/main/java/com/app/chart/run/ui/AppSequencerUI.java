@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 
 import com.app.chart.fx.FilesUtil;
+import com.app.chart.model.CustomerFileBoundary;
 import com.app.chart.model.RunJsonBoundary;
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -575,7 +576,7 @@ public class AppSequencerUI extends HBox {
 			displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
 		} else if (typeSelected.equals(DisplayBoardConstants.image.name())) {
 			// just display all the entries in the image folder that are available
-			String type = DisplayBoardConstants.chart.name();
+			String type = DisplayBoardConstants.image.name();
 			String propsPath = FilesUtil.IMAGES_DIR_PATH;
 			// String[] imageFormats = { "JPEG", "PNG", "BMP", "WBMP", "GIF" };
 			// a predicate with suppoted image formats for filtering.
@@ -595,16 +596,43 @@ public class AppSequencerUI extends HBox {
 							.add(constructSearchOptionTabBoundary(type, propsPath, f.getName(), "To Be Added"));
 				});
 
-				// call the dialog with table view.
-				displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
+				if (searchOptionMembers != null) {
+					// call the dialog with table view.
+					displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
 
-				// don't give the user an option to edit name here .
-				pathTF.setDisable(true);
+					// don't give the user an option to edit name here .
+					pathTF.setDisable(true);
+				}
 			}
 		} else if (typeSelected.equals(DisplayBoardConstants.customer.name())) {
 			// this is yet to be implemented ..Coding in Process.
-			popOutAlert("Improvement In Progress .For Now this Feature is Not Available", "MPS Charts",
-					AlertType.INFORMATION);
+			/*
+			 * popOutAlert("Improvement In Progress .For Now this Feature is Not Available",
+			 * "MPS Charts", AlertType.INFORMATION);
+			 */
+			String type = DisplayBoardConstants.customer.name();
+			String jsonData = FileUtils.readFileToString(new File(FilesUtil.DASHBOARD_PROJECT_CUSTOMER_DATA_FILE),
+					Charset.defaultCharset());
+			List<CustomerFileBoundary> customerFileList = null;
+			if (jsonData != null && jsonData.length() > 0) {
+				customerFileList = mapper.readValue(jsonData,
+						mapper.getTypeFactory().constructCollectionType(List.class, CustomerFileBoundary.class));
+			}
+
+			if (customerFileList != null) {
+				customerFileList.stream().forEach(c -> {
+					searchOptionMembers.add(constructSearchOptionTabBoundary(type, c.getFileName(), c.getFolderName(),
+							"To Be Added"));
+				});
+
+				if (searchOptionMembers != null) {
+					// call the dialog with table view.
+					displaySearchOptionTableDialog(buildSearchOptionTableView(searchOptionMembers), pathTF, headerTF);
+
+					// don't give the user an option to edit name here .
+					pathTF.setDisable(true);
+				}
+			}
 		}
 
 	}

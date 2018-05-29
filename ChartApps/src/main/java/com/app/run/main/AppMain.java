@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.app.chart.animation.DashboardProjectStatus;
 import com.app.chart.animation.ScrollTextDataUI;
+import com.app.chart.customer.ui.CustomerUI;
 import com.app.chart.dashboard.ui.PerfomanceBoardDetails;
 import com.app.chart.diagnose.DiagnoseIssues;
 import com.app.chart.fx.AddressBook;
@@ -56,7 +57,7 @@ public class AppMain extends Application {
 		// stage.setMaximized(true);
 		stage.setTitle("MPS Org View Editing Options");
 
-		mainScene = new Scene(contructUIPane(), 900, 600);
+		mainScene = new Scene(contructUIPane(), 900, 800);
 		stage.setScene(mainScene);
 		stage.show();
 
@@ -142,6 +143,16 @@ public class AppMain extends Application {
 			stage.toFront();
 			stage.setMaximized(true);
 		});
+		
+		Tile customerAddittion = buildTextTileFromData("Customer Slide Editor",
+				"UI To Edit and Create Customer Visit Slides", "UI to Build and Customer Slide");
+
+		customerAddittion.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+			Scene scene = new Scene(new CustomerUI(), WIDTH, HEIGHT);
+			stage.setScene(scene);
+			stage.toFront();
+			stage.setMaximized(true);
+		});
 
 		// add Zoom handlers to the UI
 		// currently not working some disruptions.
@@ -156,6 +167,7 @@ public class AppMain extends Application {
 		gridPane.add(runUIEditort, 0, 1);
 		gridPane.add(disgnosticsTool, 1, 1);
 		gridPane.add(scrollTxt, 2, 1);
+		gridPane.add(customerAddittion, 0, 2);
 
 		gridPane.setVgap(20);
 		gridPane.setHgap(20);

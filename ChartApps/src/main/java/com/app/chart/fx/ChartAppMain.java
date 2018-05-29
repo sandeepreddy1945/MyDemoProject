@@ -3,6 +3,8 @@
  */
 package com.app.chart.fx;
 
+import java.io.File;
+
 import com.app.chart.perfomance.dashboard.DashboardUtil;
 import com.app.chart.perfomance.dashboard.ui.DashboardUI;
 
@@ -63,7 +65,8 @@ public class ChartAppMain extends Application {
 		primaryStage.show();
 
 		// display the screen after data shows up
-		chartWebEngine.displayData();
+		File chartFile = new File("D:\\Study\\crackerEffects\\example\\app.html");
+		chartWebEngine.displayData(chartFile.toURI().toURL().toExternalForm());
 
 		// start the timer
 		// chartWebEngine.getAnimationTimer().start();

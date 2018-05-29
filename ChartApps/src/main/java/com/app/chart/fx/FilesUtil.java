@@ -169,6 +169,10 @@ public class FilesUtil {
 
 		// customer css files
 		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_CSS_FOLDER, "css", "celebrate.css");
+
+		// copy flight image to folder.
+		copyFiletoDir(DASHBOARD_PROJECT_CUSTOMER_IMAGES_FOLDER, "flight.png");
+		copyFiletoDir(DASHBOARD_PROJECT_CUSTOMER_IMAGES_FOLDER, "flight1.gif");
 	}
 
 	private static void fileCopierForJSAndCss(String dir, String fileType, String fileName) throws IOException {
@@ -182,6 +186,12 @@ public class FilesUtil {
 		checkAndCreateFile(dir + SLASH + fileName);
 		FileUtils.copyToFile(FilesUtil.class.getClassLoader().getResourceAsStream(
 				"com/app/chart/customer/" + fileType + SLASH + fileName), new File(dir + SLASH + fileName));
+	}
+
+	private static void copyFiletoDir(String dashboardProjectCustomerImagesFolder, String fileName) throws IOException {
+		FileUtils.copyToFile(
+				FilesUtil.class.getClassLoader().getResourceAsStream("com/app/chart/customer/html/" + fileName),
+				new File(dashboardProjectCustomerImagesFolder + SLASH + fileName));
 	}
 
 }
