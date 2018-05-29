@@ -17,6 +17,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.PieChart.Data;
@@ -125,10 +126,11 @@ public class DashboardPieChart extends DashboardAbstract {
 	public void initUI() {
 		ObservableList<Data> pieChartData = FXCollections.observableArrayList(createPieChartData());
 		chart = new PieChart(pieChartData);
-		chart.setTitle("Pie Chart");
+		// chart.setTitle("Pie Chart"); // no title title already on
 		chart.setClockwise(true);
-		chart.setLabelLineLength(20);
-		chart.setLabelsVisible(true);
+		// chart.setLabelLineLength(20);
+		// chart.setLabelsVisible(true);
+		chart.setLegendSide(Side.RIGHT);
 		chart.getStylesheets().add(getClass().getResource("teammeberstylesheet.css").toExternalForm());
 
 		Tile tile = generateCustomTile(chart, "Quarterly Trend Analysis", 450, 470);
