@@ -164,14 +164,11 @@ public class FilesUtil {
 		// filecopier for customer files
 
 		// js files
-		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "datgui.min.js");
-		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "index.js");
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "celebrate.js");
 		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "jquery.min.js");
-		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_JS_FOLDER, "js", "pixfree.min.js");
 
 		// customer css files
-		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_CSS_FOLDER, "css", "reset.min.css");
-		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_CSS_FOLDER, "css", "style.css");
+		fileCopierForCustomerJSAndCss(DASHBOARD_PROJECT_CUSTOMER_CSS_FOLDER, "css", "celebrate.css");
 	}
 
 	private static void fileCopierForJSAndCss(String dir, String fileType, String fileName) throws IOException {
