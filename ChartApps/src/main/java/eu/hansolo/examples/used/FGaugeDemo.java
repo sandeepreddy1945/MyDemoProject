@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.hansolo;
+package eu.hansolo.examples.used;
 
 import eu.hansolo.medusa.FGauge;
 import eu.hansolo.medusa.FGaugeBuilder;

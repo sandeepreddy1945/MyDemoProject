@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.hansolo.templates.skin;
+package eu.hansolo.examples.used.templates.skin;
 
 import eu.hansolo.medusa.Clock;
 import javafx.geometry.Insets;

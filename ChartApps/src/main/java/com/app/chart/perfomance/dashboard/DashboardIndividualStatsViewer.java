@@ -16,7 +16,7 @@ import org.apache.commons.io.FileUtils;
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.TeamMember;
 
-import eu.hansolo.FunLevelGauge;
+import eu.hansolo.examples.used.FunLevelGauge;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;

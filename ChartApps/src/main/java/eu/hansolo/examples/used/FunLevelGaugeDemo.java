@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.hansolo;
+package eu.hansolo.examples.used;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
