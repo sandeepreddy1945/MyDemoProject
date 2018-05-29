@@ -157,6 +157,9 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 	 *      causing disturbance in displaying labels .<br>
 	 *      So first set the label names and then set the values to them during
 	 *      animation.
+	 * 
+	 *      Put the name index to only first space .So that we dont have extra
+	 *      descriptions put to chart which make it smaller in size.
 	 * @param series1
 	 * @param series2
 	 * @param series3
@@ -190,7 +193,8 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		// getStylesheets().add(STYLESHEET_PATH);
 
 		// add the appgination to UI
-		getChildren().add(generateCustomTile(pagination, "Employee- Quarterly Index Trend", 450, 500, "Individual Stats"));
+		getChildren()
+				.add(generateCustomTile(pagination, "Employee- Quarterly Index Trend", 450, 500, "Individual Stats"));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());
@@ -222,7 +226,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 
 		animationTimer.start();
 	}
-	
+
 	/**
 	 * Retrieves the Animation Timer to Stop it in the Main App . Critical Fix
 	 * required to fix the Timer issues running in the background.
