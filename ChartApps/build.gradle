@@ -80,6 +80,8 @@ dependencies {
 	//compile 'org.slf4j:slf4j-api:1.7.25'
 	//compile 'org.slf4j:slf4j-simple:1.7.25' // uncomment for NOOP Implementation of Logger
 	compile 'org.slf4j:slf4j-log4j12:1.7.25'
+	//run time zip utils
+	compile 'org.apache.commons:commons-compress:1.16.1'
 	//for log4j dependency
 	//compile 'log4j:log4j:1.2.17'
 	compile 'net.logstash.log4j:jsonevent-layout:1.7'

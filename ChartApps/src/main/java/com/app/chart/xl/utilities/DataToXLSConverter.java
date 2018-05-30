@@ -33,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataToXLSConverter {
 
-	private String MAIN_PATH = "C://MPSCHARTS";
-	private String ROOT_FOLDER = "C://MPSCHARTS//xls";
-	private String PERFORMANCE_FOLDER = ROOT_FOLDER + FilesUtil.SLASH + "performance";
-	private String PERFORMANCE_FILE = PERFORMANCE_FOLDER + FilesUtil.SLASH + "TeamsPerformanceData.xlsx";
+	public static String MAIN_PATH = "C://MPSCHARTS";
+	public static String ROOT_FOLDER = "C://MPSCHARTS//xls";
+	public String PERFORMANCE_FOLDER = ROOT_FOLDER + FilesUtil.SLASH + "performance";
+	public String PERFORMANCE_FILE = PERFORMANCE_FOLDER + FilesUtil.SLASH + "TeamsPerformanceData.xlsx";
 
 	private static final String[] PERFOMANCE_SHEET_HEADER = { "PORTAL ID", "FULL NAME", "DESIGNATION", "MONTH 1 SCORE",
 			"MONTH 2 SCORE", "MONTH 3 SCORE", "VALUE ADD SCORE", "QUALITY SCORE", "ON TIME SCORE", "INITIAL MONTH",
