@@ -397,7 +397,7 @@ public class OrgTreeView<T> extends Application {
 					new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.TEMP_HTML),
 					Charset.defaultCharset());
 		} catch (IOException e1) {
-			log.error( "refreshWebView", e1);
+			log.error("refreshWebView", e1);
 		}
 		if (fileContent.length() > 0) {
 
@@ -487,7 +487,7 @@ public class OrgTreeView<T> extends Application {
 			log.info(String.format(BuildJavaScript.jsConfigTemplate, "chart_config", configOrderBuilder.toString()));
 
 			log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-			log.info(mapper/*.writerWithDefaultPrettyPrinter()*/.writeValueAsString(previewList));
+			log.info(mapper/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(previewList));
 
 			// write the things back to files
 			synchronized (sb) {
@@ -503,12 +503,12 @@ public class OrgTreeView<T> extends Application {
 								Charset.defaultCharset(), false);
 
 				FileUtils.write(new File(appDir.getAbsolutePath() + FilesUtil.SLASH + AddressBook.PREVIEW_JSON),
-						mapper/*.writerWithDefaultPrettyPrinter()*/.writeValueAsString(previewList),
+						mapper/* .writerWithDefaultPrettyPrinter() */.writeValueAsString(previewList),
 						Charset.defaultCharset(), false);
 			}
 
 		} catch (IOException e1) {
-			log.error( "doSaveAction", e1);
+			log.error("doSaveAction", e1);
 		}
 	}
 
@@ -525,8 +525,8 @@ public class OrgTreeView<T> extends Application {
 
 		for (TreeItem<EmployeeDetails> tid : ti) {
 			// set the parent portal id as the parent of the child
-			tid.getValue()
-					.setParent(tid.getParent().getValue().getName() + "_" + tid.getParent().getValue().getPortalId());
+			tid.getValue().setParent(tid.getParent().getValue().getName().replaceAll(" ", "") + "_"
+					+ tid.getParent().getValue().getPortalId());
 			if (tid.getChildren().size() >= 3) {
 				if (tid.getValue().isPseudo()) {
 					sb.append(bjs.buildPseudoJsString(tid.getValue(), stepCount++));
