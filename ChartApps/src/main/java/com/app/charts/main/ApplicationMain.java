@@ -78,7 +78,8 @@ public class ApplicationMain extends Application {
 	// Fetch the Run JSON Boundary to fetch the sequence of running and headers.
 
 	private ObjectMapper mapper = new ObjectMapper();
-	ChartCacheManager chartCacheManager = null;
+	// no cache as it not implemented properly and is of no use for now.
+	/* ChartCacheManager chartCacheManager = null; */
 	List<RunJsonBoundary> runJsonBoundaries = new ArrayList<>();
 	private Stage stage;
 
@@ -91,7 +92,8 @@ public class ApplicationMain extends Application {
 	private boolean isNormalOnesRunning = true;
 	private ChartGroupView chartGroupView;
 
-	private JettyServerMain serverMain;
+	// for now donot use the server as it occupying so much heap when idle.
+	/* private JettyServerMain serverMain; */
 	private Scene scene;
 
 	private boolean isTimeLinePaused = false;
@@ -106,12 +108,12 @@ public class ApplicationMain extends Application {
 
 		// initialize the cache
 		// this initilizes the cache manager and puts a cache entry.
-		chartCacheManager = ChartCacheManager.getInstance();
+	/*	chartCacheManager = ChartCacheManager.getInstance();*/
 
 		// fetch the runjson list in order to evaluate the order of running the items
 		// and then cache it.
 		buildRunJsonListFromFile();
-		chartCacheManager.getMpsChartCache().put(new Element(RUNJSONCACHE, this.runJsonBoundaries));
+		/*chartCacheManager.getMpsChartCache().put(new Element(RUNJSONCACHE, this.runJsonBoundaries));*/
 
 		// read the dashboardlist and put it to cache.
 		buildPerfomanceBoardBoundary();
@@ -121,8 +123,8 @@ public class ApplicationMain extends Application {
 		// initializeGroupViewLook();
 
 		// start the jetty server
-		serverMain = new JettyServerMain();
-		serverMain.startServer();
+		/*serverMain = new JettyServerMain();
+		serverMain.startServer();*/
 	}
 
 	/**
@@ -147,7 +149,7 @@ public class ApplicationMain extends Application {
 		if (jsonStr != null && jsonStr.length() > 0) {
 			perfomanceBoardBoundaries = mapper.readValue(jsonStr,
 					mapper.getTypeFactory().constructCollectionType(List.class, PerfomanceBoardBoundary.class));
-			chartCacheManager.getMpsChartCache().put(new Element(PERFOMANCEBOARDLIST, perfomanceBoardBoundaries));
+			/*chartCacheManager.getMpsChartCache().put(new Element(PERFOMANCEBOARDLIST, perfomanceBoardBoundaries));*/
 		}
 	}
 
@@ -283,9 +285,9 @@ public class ApplicationMain extends Application {
 	@Override
 	public void stop() throws Exception {
 		// shut down the cache manager once the application is closed.
-		chartCacheManager.getCacheManager().shutdown();
+		/*chartCacheManager.getCacheManager().shutdown();*/
 		// stop the server
-		serverMain.stopServer();
+		/*serverMain.stopServer();*/
 
 		// exit all the components.
 		System.exit(0);
@@ -389,7 +391,7 @@ public class ApplicationMain extends Application {
 				if (r.isHeaderApplicable()) {
 					HBox footerSegment = DashboardUtil.FooterSegment();
 					footerSegment.setPrefHeight(25);
-				//	mainBox.getChildren().add(footerSegment);
+					// mainBox.getChildren().add(footerSegment);
 				}
 				box.getChildren().add(mainBox);
 

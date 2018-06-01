@@ -128,7 +128,7 @@ public class ChartWebEngine {
 			try {
 				onHyperLinkClicked(event);
 			} catch (IOException e) {
-				log.error( "addWebHyperLinkListeners", e);
+				log.error("addWebHyperLinkListeners", e);
 			}
 			return true;
 		};
@@ -136,15 +136,24 @@ public class ChartWebEngine {
 		WebViews.addHyperlinkListener(webView, eventPrintingListener, HyperlinkEvent.EventType.ACTIVATED);
 	}
 
+	/**
+	 * For now no server call as it not completely implemented and is of not proper
+	 * use. Main reason to remove heap space conversation.
+	 * 
+	 * @param event
+	 * @throws IOException
+	 */
 	private void onHyperLinkClicked(HyperlinkEvent event) throws IOException {
-		URL url = event.getURL();
-		URLConnection connection = url.openConnection();
-		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		String inputLine;
+		/*
+		 * URL url = event.getURL(); URLConnection connection = url.openConnection();
+		 * BufferedReader in = new BufferedReader(new
+		 * InputStreamReader(connection.getInputStream())); String inputLine;
+		 * StringBuilder builder = new StringBuilder(); while ((inputLine =
+		 * in.readLine()) != null) builder.append(inputLine); in.close();
+		 */
+
 		StringBuilder builder = new StringBuilder();
-		while ((inputLine = in.readLine()) != null)
-			builder.append(inputLine);
-		in.close();
+		builder.append("For Now Its Now Yet Completely Implemented. Development Work Still In Progress");
 
 		JFXAlert<String> alert = new JFXAlert<>();
 		alert.initOwner(stage);
@@ -196,7 +205,7 @@ public class ChartWebEngine {
 			// this retunrs the details contained in the props file
 			properties.load(FileUtils.openInputStream(new File(FilesUtil.MANAGER_PROPS_PATH)));
 		} catch (IOException e) {
-			log.error( "firstContentUIPath", e);
+			log.error("firstContentUIPath", e);
 		}
 		// take the first entry for display
 		String fileName = properties.keySet().stream().toArray(String[]::new)[0];
@@ -205,7 +214,7 @@ public class ChartWebEngine {
 		try {
 			path = new File(filePath).toURI().toURL().toExternalForm();
 		} catch (MalformedURLException e) {
-			log.error( "firstContentUIPath", e);
+			log.error("firstContentUIPath", e);
 		}
 		return path;
 
