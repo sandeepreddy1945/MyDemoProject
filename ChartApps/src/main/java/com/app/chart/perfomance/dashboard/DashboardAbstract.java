@@ -246,6 +246,7 @@ public abstract class DashboardAbstract extends HBox {
 	}
 
 	/**
+	 * For Now this tile doesnot give a text field visible .
 	 * 
 	 * @param node
 	 * @param title
@@ -255,9 +256,24 @@ public abstract class DashboardAbstract extends HBox {
 	 * @return
 	 */
 	public Tile generateCustomTile(Node node, String title, double width, double height, String btmText) {
-		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).
-		// TODO think of a name for this text .
-				text(btmText).graphic(node).roundedCorners(true).build();
+		Tile tile = generateCustomTile(node, title, width, height, btmText, false);
+		return tile;
+	}
+
+	/**
+	 * 
+	 * @param node
+	 * @param title
+	 * @param width
+	 * @param height
+	 * @param btmText
+	 * @param isTextVisible
+	 * @return
+	 */
+	public Tile generateCustomTile(Node node, String title, double width, double height, String btmText,
+			boolean isTextVisible) {
+		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title)
+				.textVisible(isTextVisible).text(btmText).graphic(node).roundedCorners(true).build();
 		return tile;
 	}
 }
