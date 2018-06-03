@@ -109,7 +109,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
 		// member perfomance score tile
-		Label label = new Label("Employee Performance");
+		Label label = new Label("Avg. Employee Points");
 		label.setFont(Font.font("Verdana", 20));
 		label.setTextFill(Color.WHITESMOKE);
 		// TODO to apply css to the label for text.
