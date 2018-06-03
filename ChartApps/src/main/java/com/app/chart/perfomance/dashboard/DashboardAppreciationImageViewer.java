@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -15,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import com.app.chart.model.TeamMember;
 
 import javafx.scene.control.Pagination;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -33,17 +35,22 @@ public class DashboardAppreciationImageViewer extends DashboardAbstract {
 	private List<File> imageFileList = new ArrayList<>();
 	private int animationPageIndex;
 
-	public DashboardAppreciationImageViewer(List<TeamMember> teamMembers) {
-		super(teamMembers);
+	public DashboardAppreciationImageViewer(List<TeamMember> teamMembers, List<File> imageFileList) {
+		super(teamMembers, imageFileList.stream().toArray(File[]::new));
+	}
+
+	public DashboardAppreciationImageViewer(List<TeamMember> teamMembers, File... imageFileList) {
+		super(teamMembers, imageFileList);
 	}
 
 	@Override
 	public void initUI() {
-
+		// not in constructor as it has no initialization in the constructor.
+		this.imageFileList = Arrays.asList(files);
 		if (imageFileList.size() > 0) {
 			// set the terms for pagination
 			pagination = new Pagination();
-			double pageSizes = (double) imageFileList.size() - 1 / (double) ITEMS_PER_PAGE;
+			double pageSizes = (double) imageFileList.size() / (double) ITEMS_PER_PAGE;
 			pageCount = new BigDecimal(pageSizes).setScale(0, RoundingMode.UP).intValue();
 			pagination = new Pagination(pageCount, 0);
 			pagination.setPageFactory((Integer pageIndex) -> createPage(pageIndex));
@@ -67,8 +74,13 @@ public class DashboardAppreciationImageViewer extends DashboardAbstract {
 		ImageView imageView = null;
 		StackPane pane = new StackPane();
 		try {
-			imageView = new ImageView(new Image(FileUtils.openInputStream(imageFileList.get(pageIndex))));
+			imageView = new ImageView(new Image(FileUtils.openInputStream(Arrays.asList(files).get(pageIndex))));
+			imageView.setPreserveRatio(false);
+			imageView.setFitWidth(430);
+			imageView.setFitHeight(310);
+			pane.setMaxHeight(320);
 			pane.getChildren().add(imageView);
+			
 		} catch (IOException e) {
 			log.error("createPage", e);
 		}

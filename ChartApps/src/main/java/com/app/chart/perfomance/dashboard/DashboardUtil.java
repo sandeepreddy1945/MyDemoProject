@@ -45,6 +45,8 @@ public class DashboardUtil {
 			new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY));
 	public static final Background LIGHT_BLUE_BACKGROUND = new Background(
 			new BackgroundFill(Color.web("#ccd9ff"), CornerRadii.EMPTY, Insets.EMPTY));
+	public static final Background WHITE_BACKGROUND = new Background(
+			new BackgroundFill(Color.web("#ffffff"), CornerRadii.EMPTY, Insets.EMPTY));
 	public static final String EM1 = "1em";
 	public static final String ERROR = "error";
 	public static final int TILE_WIDTH = 250;

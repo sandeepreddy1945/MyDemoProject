@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 
 import com.app.chart.animation.AutoScrollProjectStatus;
 import com.app.chart.fx.FilesUtil;
+import com.app.chart.model.AppreciationImageBoundary;
 import com.app.chart.model.CurrentSprintBoundary;
 import com.app.chart.model.ManagerDetailBoundary;
 import com.app.chart.model.PerfomanceBoardBoundary;
@@ -26,6 +27,7 @@ import com.app.chart.model.PerfomanceMeterBoundary;
 import com.app.chart.model.ScrollTexts;
 import com.app.chart.model.SunburstBoundary;
 import com.app.chart.model.TeamMember;
+import com.app.chart.perfomance.dashboard.DashboardAppreciationImageViewer;
 import com.app.chart.perfomance.dashboard.DashboardBarChart;
 import com.app.chart.perfomance.dashboard.DashboardHeader;
 import com.app.chart.perfomance.dashboard.DashboardImageViewer;
@@ -109,6 +111,7 @@ public class DashboardUI extends Application {
 	private DashboardSunburnChart sunburnChart;
 	private final PerfomanceMeterBoundary perfomanceMeterBoundary;
 	private final CurrentSprintBoundary currentSprintBoundary;
+	private final List<AppreciationImageBoundary> appreciationImageBoundaries;
 
 	// Culprit fix on the timers that are happening.
 	List<AnimationTimer> animationTimers = new ArrayList<>();
@@ -126,6 +129,7 @@ public class DashboardUI extends Application {
 		this.sunburstBoundary = null;
 		this.perfomanceMeterBoundary = null;
 		this.currentSprintBoundary = null;
+		this.appreciationImageBoundaries = null;
 		// init the UI using the init method.
 		init();
 	}
@@ -141,7 +145,8 @@ public class DashboardUI extends Application {
 	 */
 	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary,
 			SunburstBoundary sunburstBoundary, PerfomanceMeterBoundary perfomanceMeterBoundary,
-			CurrentSprintBoundary currentSprintBoundary, Dialog dialog) throws Exception {
+			CurrentSprintBoundary currentSprintBoundary, List<AppreciationImageBoundary> appreciationImageBoundaries,
+			Dialog dialog) throws Exception {
 		// compare the elements using the sort available.
 		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
 		// sort it by descending order now.
@@ -152,6 +157,7 @@ public class DashboardUI extends Application {
 		this.sunburstBoundary = sunburstBoundary;
 		this.perfomanceMeterBoundary = perfomanceMeterBoundary;
 		this.currentSprintBoundary = currentSprintBoundary;
+		this.appreciationImageBoundaries = appreciationImageBoundaries;
 		// init the UI using the init method.
 		init();
 
@@ -188,7 +194,8 @@ public class DashboardUI extends Application {
 	 */
 	public DashboardUI(List<TeamMember> teamMembers, String headerTxt, ManagerDetailBoundary managerDetailBoundary,
 			SunburstBoundary sunburstBoundary, PerfomanceMeterBoundary perfomanceMeterBoundary,
-			CurrentSprintBoundary currentSprintBoundary) throws Exception {
+			CurrentSprintBoundary currentSprintBoundary, List<AppreciationImageBoundary> appreciationImageBoundaries)
+			throws Exception {
 		// compare the elements using the sort available.
 		Collections.sort(teamMembers, DashboardUtil.TeamMemberSorter.getInstance());
 		// sort it by descending order now.
@@ -199,6 +206,7 @@ public class DashboardUI extends Application {
 		this.sunburstBoundary = sunburstBoundary;
 		this.perfomanceMeterBoundary = perfomanceMeterBoundary;
 		this.currentSprintBoundary = currentSprintBoundary;
+		this.appreciationImageBoundaries = appreciationImageBoundaries;
 		// init the UI using the init method.
 		init();
 		hbox.setBackground(DashboardUtil.BLACK_BACKGROUND);
@@ -215,7 +223,7 @@ public class DashboardUI extends Application {
 	public DashboardUI(PerfomanceBoardBoundary boardBoundary) throws Exception {
 		this(boardBoundary.getTeamMembers(), boardBoundary.getHeaderTxt(), boardBoundary.getManagerDetailBoundary(),
 				boardBoundary.getSunburstBoundary(), boardBoundary.getPerfomanceMeterBoundary(),
-				boardBoundary.getCurrentSprintBoundary());
+				boardBoundary.getCurrentSprintBoundary(), boardBoundary.getAppreciationImageBoundaries());
 	}
 
 	/**
@@ -271,6 +279,7 @@ public class DashboardUI extends Application {
 		HBox sunbutnChart = initializeSunburnChart();
 
 		HBox pieChart = initializePieChart();
+		HBox appreciationImagesBox = initializeAppreciationImages();
 		HBox progressViewer = initializeTeamProgressViewer();
 		HBox stackBarChart = initializeStackBarChart();
 
@@ -281,9 +290,11 @@ public class DashboardUI extends Application {
 		// TODO to decide on which chart to use.
 		// display on sunburst when dispayable //else display barchart instead of it.
 		if (sunburnChart.isSunburstChartDisplayable()) {
-			thirdLayer.getChildren().addAll(/* barChart */ sunbutnChart, pieChart, stackBarChart);
+			thirdLayer.getChildren().addAll(/* barChart */ sunbutnChart,
+					appreciationImagesBox == null ? pieChart : appreciationImagesBox, stackBarChart);
 		} else {
-			thirdLayer.getChildren().addAll(barChart /* sunbutnChart */, pieChart, stackBarChart);
+			thirdLayer.getChildren().addAll(barChart /* sunbutnChart */,
+					appreciationImagesBox == null ? pieChart : appreciationImagesBox, stackBarChart);
 		}
 
 		HBox fourthLayer = initializeIndividualStatsViewer();
@@ -557,6 +568,29 @@ public class DashboardUI extends Application {
 				.text(this.managerDetailBoundary.getName()).graphic(imageView).roundedCorners(true).build();
 
 		return tile;
+	}
+
+	/**
+	 * Initilzes the Apprections images from the image list added to the perfomance
+	 * board. If these images exist then the pie board is skipped and this is built
+	 * instead of piechart board.
+	 * 
+	 * @return
+	 */
+	private HBox initializeAppreciationImages() {
+		if (appreciationImageBoundaries != null) {
+
+			List<File> imageFileList = new ArrayList<>();
+			appreciationImageBoundaries.stream().forEach(f -> {
+				File newFile = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + f.getPath());
+				imageFileList.add(newFile);
+			});
+			DashboardAppreciationImageViewer daiv = new DashboardAppreciationImageViewer(teamMembers, imageFileList);
+			HBox box = daiv;
+			animationTimers.add(daiv.fetchMainAnimationTimer());
+			return box;
+		}
+		return null;
 	}
 
 	private VBox initializeProjectStatus() {

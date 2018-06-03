@@ -15,6 +15,7 @@ import com.app.chart.model.TeamMember;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -73,6 +74,13 @@ public class DashboardImageViewer extends HBox {
 
 		img1.setPreserveRatio(false);
 		img2.setPreserveRatio(false);
+
+		// No Glow Effect let the image be as it is.
+		/*
+		 * Glow glow = new Glow(); glow.setLevel(0.4);
+		 * 
+		 * img1.setEffect(glow); img2.setEffect(glow);
+		 */
 
 		// set the image paths
 		img1.setImage(new Image(FileUtils.openInputStream(img1Path)));

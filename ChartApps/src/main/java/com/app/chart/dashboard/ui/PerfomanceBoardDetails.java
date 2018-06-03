@@ -155,7 +155,7 @@ public class PerfomanceBoardDetails extends HBox {
 			}
 		} catch (IOException e) {
 
-			log.error( "readDataFromFile", e);
+			log.error("readDataFromFile", e);
 		}
 
 	}
@@ -218,7 +218,7 @@ public class PerfomanceBoardDetails extends HBox {
 	}
 
 	private HBox constructTopBox() {
-		HBox box = new HBox(20);
+		HBox box = new HBox(10);
 		boardHeader = new JFXTextField();
 		boardHeader.setPromptText("Enter the Team Name");
 		boardHeader.setMinSize(300, 10);
@@ -298,14 +298,64 @@ public class PerfomanceBoardDetails extends HBox {
 		});
 		addManager.setAlignment(Pos.CENTER_RIGHT);
 
+		JFXButton addAppreciationImage = new JFXButton("Add Appreciation Images");
+		addAppreciationImage.setOnAction(this::addAppreciationImageAction);
+
 		box.getChildren().addAll(boardHeader, managerCBX, datePickerFX, addManager, addSunburstChart,
-				teamPerfomanceMeter, currentSprintACBtn);
+				addAppreciationImage, teamPerfomanceMeter, currentSprintACBtn);
 
 		box.setMinSize(WIDTH, 90);
 		box.setPrefSize(WIDTH, 110);
 		box.setPadding(new Insets(15));
 
 		return box;
+	}
+
+	private void addAppreciationImageAction(ActionEvent e1) {
+		JFXAlert<String> alert = new JFXAlert<>();
+		alert.initModality(Modality.APPLICATION_MODAL);
+		alert.setOverlayClose(false);
+		JFXDialogLayout layout = new JFXDialogLayout();
+		layout.setHeading(new Text("Add Appreciation Images"));
+		layout.setMinSize(600, 600);
+		layout.setBackground(DashboardUtil.WHITE_BACKGROUND);
+
+		if (managerCBX.getSelectionModel().getSelectedItem() != null) {
+			Optional<PerfomanceBoardBoundary> details = perfomanceBoardDetails.parallelStream().filter(
+					p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+					.findFirst();
+			if (details.isPresent()) {
+				layout.setBody(
+						new AppreciationImageViewer(details.get().getAppreciationImageBoundaries(), details.get()));
+			}
+
+		} else {
+			Text text = new Text("Select a Dashboard from the Combo box to display the list.");
+			text.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+			layout.setBody(text);
+		}
+		layout.setStyle("-fx-background-color: white;\r\n" + "    -fx-background-radius: 5.0;\r\n"
+				+ "    -fx-background-insets: 0.0 5.0 0.0 5.0;\r\n" + "    -fx-padding: 10;\r\n"
+				+ "    -fx-hgap: 10;\r\n" + "    -fx-vgap: 10;" + " -fx-border-color: #2e8b57;\r\n"
+				+ "    -fx-border-width: 2px;\r\n" + "    -fx-padding: 10;\r\n" + "    -fx-spacing: 8;");
+
+		// add enter button listener on the button
+
+		JFXButton okBtn = new JFXButton("Close Dialog");
+		okBtn.getStyleClass().add("dialog-accept");
+
+		okBtn.setOnAction(e -> {
+			alert.hideWithAnimation();
+		});
+		okBtn.setOnKeyPressed(e -> {
+			if (e.getCode().ordinal() == KeyCode.ENTER.ordinal()) {
+				okBtn.fire();
+			}
+		});
+
+		layout.setActions(okBtn);
+		alert.setContent(layout);
+		alert.show();
 	}
 
 	private void displayAddSprintData(String teamName) {
@@ -371,13 +421,15 @@ public class PerfomanceBoardDetails extends HBox {
 			sprintBoundary.setCurrentSprintPoints(Double.valueOf(currentPoints.getText()));
 			sprintBoundary.setBacklogSprintPoints(Double.valueOf(backlogPoints.getText()));
 
-			Optional<PerfomanceBoardBoundary> details = perfomanceBoardDetails.parallelStream().filter(
-					p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
-					.findFirst();
-			if (details.isPresent()) {
-				details.get().setCurrentSprintBoundary(sprintBoundary);
+			if (managerCBX.getSelectionModel().getSelectedItem() != null) {
+				Optional<PerfomanceBoardBoundary> details = perfomanceBoardDetails.parallelStream().filter(
+						p -> p.getFolderName().equals(managerCBX.getSelectionModel().getSelectedItem().getFolderName()))
+						.findFirst();
+				if (details.isPresent()) {
+					details.get().setCurrentSprintBoundary(sprintBoundary);
+				}
+				alert.hideWithAnimation();
 			}
-			alert.hideWithAnimation();
 		}
 
 	}
@@ -518,8 +570,8 @@ public class PerfomanceBoardDetails extends HBox {
 				&& teamName.length() > 0) {
 			// build manager object
 			// for now the team folder name will the teamName given replaced without spaces.
-			ManagerDetailBoundary detailBoundary = new ManagerDetailBoundary(portalId.getText(),
-					managerName.getText(), designation.getText(), teamName.replaceAll(" ", ""), new ArrayList<>());
+			ManagerDetailBoundary detailBoundary = new ManagerDetailBoundary(portalId.getText(), managerName.getText(),
+					designation.getText(), teamName.replaceAll(" ", ""), new ArrayList<>());
 			// main list checkng starts here.. check if the folder already exists.
 			Optional<String> isFolderExists = perfomanceBoardDetails.stream()
 					.map(PerfomanceBoardBoundary::getFolderName).filter(f -> f.equals(teamName.replaceAll(" ", "")))
@@ -758,7 +810,7 @@ public class PerfomanceBoardDetails extends HBox {
 				try {
 					DashboardUI dashboardUI = new DashboardUI(p.getTeamMembers(), p.getHeaderTxt(),
 							p.getManagerDetailBoundary(), p.getSunburstBoundary(), p.getPerfomanceMeterBoundary(),
-							p.getCurrentSprintBoundary(), dashboardUIPreview);
+							p.getCurrentSprintBoundary(), p.getAppreciationImageBoundaries(), dashboardUIPreview);
 					// dashboardUIPreview.show();
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -902,7 +954,7 @@ public class PerfomanceBoardDetails extends HBox {
 									+ System.currentTimeMillis() + ".json"),
 							contentData, Charset.defaultCharset(), false);
 				} catch (Exception ex) {
-					log.error( "deleteManagerAction", e);
+					log.error("deleteManagerAction", e);
 				}
 
 				// remove the detail from main boundary.
@@ -1011,7 +1063,7 @@ public class PerfomanceBoardDetails extends HBox {
 			 * Arrays.stream(list).forEach(System.out::println);
 			 */
 		} catch (IOException e1) {
-			log.error( "saveAllTheDetails", e1);
+			log.error("saveAllTheDetails", e1);
 		}
 	}
 

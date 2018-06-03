@@ -29,7 +29,7 @@ public abstract class DashboardAbstract extends HBox {
 	private AnimationTimer animationTimer;
 	private long lastTimerCall;
 	protected final List<TeamMember> teamMembers;
-	private File[] files;
+	protected File[] files;
 
 	private volatile boolean isAnimationTimerRunning;
 
