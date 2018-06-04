@@ -16,7 +16,8 @@ import org.apache.commons.io.FileUtils;
 import com.app.chart.model.TeamMember;
 
 import javafx.scene.control.Pagination;
-import javafx.scene.effect.Glow;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
@@ -74,12 +75,17 @@ public class DashboardAppreciationImageViewer extends DashboardAbstract {
 		ImageView imageView = null;
 		StackPane pane = new StackPane();
 		try {
-			imageView = new ImageView(new Image(FileUtils.openInputStream(Arrays.asList(files).get(pageIndex))));
-			imageView.setPreserveRatio(false);
-			imageView.setFitWidth(430);
-			imageView.setFitHeight(310);
+			Image image = new Image(FileUtils.openInputStream(Arrays.asList(files).get(pageIndex)));
+			imageView = new ImageView(image);
+			imageView.setPreserveRatio(true);
+			//imageView.setFitWidth(430);
+			//imageView.setFitHeight(310);
+			ScrollPane scrollPane = new ScrollPane(imageView);
+			scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+			scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+			scrollPane.setMaxSize(430, 310);
 			pane.setMaxHeight(320);
-			pane.getChildren().add(imageView);
+			pane.getChildren().add(scrollPane);
 			
 		} catch (IOException e) {
 			log.error("createPage", e);

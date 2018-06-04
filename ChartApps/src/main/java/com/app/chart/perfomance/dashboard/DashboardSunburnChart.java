@@ -66,7 +66,7 @@ public class DashboardSunburnChart extends HBox {
 	 * @return
 	 */
 	public Tile generateCustomTile(Node node, String title, double width, double height, String btmText) {
-		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).
+		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).textVisible(false).
 		// TODO think of a name for this text .
 				text(btmText).graphic(node).roundedCorners(true).build();
 		return tile;

@@ -578,7 +578,7 @@ public class DashboardUI extends Application {
 	 * @return
 	 */
 	private HBox initializeAppreciationImages() {
-		if (appreciationImageBoundaries != null) {
+		if (appreciationImageBoundaries != null && appreciationImageBoundaries.size() > 0) {
 
 			List<File> imageFileList = new ArrayList<>();
 			appreciationImageBoundaries.stream().forEach(f -> {
