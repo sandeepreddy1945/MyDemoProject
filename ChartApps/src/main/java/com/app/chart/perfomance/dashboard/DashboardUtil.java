@@ -87,13 +87,17 @@ public class DashboardUtil {
 		return dashboardHeader;
 	}
 
+	/**
+	 * Copyright Symbo  : © Whole and Sole Proprietary of NTT DATA GDS PVT LTD.
+	 * @return
+	 */
 	public static HBox FooterSegment() {
-		Text creditsText = new Text("© Sandeep Reddy Battula");
+		Text creditsText = new Text("Authour: Sandeep Reddy Battula");
 		creditsText.setTextAlignment(TextAlignment.RIGHT);
 		creditsText.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
 		creditsText.setFill(Paint.valueOf("#ffffff"));
 
-		Text copyRights = new Text("Copy Rights Reserved.");
+		Text copyRights = new Text(" © 2018 NTT DATA, Inc . All Rights Reserved.");
 		copyRights.setTextAlignment(TextAlignment.LEFT);
 		copyRights.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
 		copyRights.setFill(Paint.valueOf("#ffffff"));
