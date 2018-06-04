@@ -77,7 +77,7 @@ public class DashboardAppreciationImageViewer extends DashboardAbstract {
 		try {
 			Image image = new Image(FileUtils.openInputStream(Arrays.asList(files).get(pageIndex)));
 			imageView = new ImageView(image);
-			imageView.setPreserveRatio(true);
+			imageView.setPreserveRatio(false);
 			//imageView.setFitWidth(430);
 			//imageView.setFitHeight(310);
 			ScrollPane scrollPane = new ScrollPane(imageView);
