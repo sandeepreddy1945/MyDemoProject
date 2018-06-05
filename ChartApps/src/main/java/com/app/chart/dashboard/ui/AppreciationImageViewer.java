@@ -98,6 +98,7 @@ public class AppreciationImageViewer extends HBox {
 	private void prealoadDataToTable() {
 		if (pbb != null && appreciationImageBoundaryList != null) {
 			// covert and add this to table boundary
+			// add table base indicating the image is appreciation or not.
 			appreciationImageBoundaryList.stream().forEach(r -> {
 				members.add(
 						// the is header applicable col is null always.
@@ -444,8 +445,8 @@ public class AppreciationImageViewer extends HBox {
 			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.image.name())) {
 				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
 				// this is made mandatory for now.
-				headerCBX.getSelectionModel().select("N");
-				headerCBX.setDisable(true);
+				headerCBX.getSelectionModel().select("Y");
+				headerCBX.setDisable(false);
 				headerTxtTF.setDisable(false);
 				pathTF.clear();
 				pathTF.setDisable(false);
