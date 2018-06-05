@@ -23,6 +23,8 @@ import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -31,8 +33,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,31 +91,20 @@ public class AutoScrollProjectStatus extends HBox {
 	}
 
 	private void initUI() {
-		place = 100;
+		place = 20;
 		if (projectStatusBoundaries != null && projectStatusBoundaries.size() > 0) {
 			VBox stackPane = new VBox(5);
-			// add some gap to pane
-			// stackPane.setRotate(270);
-			// stackPane.setMaxHeight(150);
-
 			projectStatusBoundaries.stream().forEach(s -> {
-				Label label = new Label(s.getTeamName());
-				stackPane.getChildren().add(label);
-				label.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-				label.setWrapText(s.getTeamName().length() > 14 ? Boolean.TRUE : Boolean.FALSE);
-				label.setTextFill(Color.WHITE);
-				label.setBackground(determineBackGround(s.getStatusColor()));
-				label.setPadding(new Insets(label.isWrapText() ? 40 : 50, 30, label.isWrapText() ? 40 : 50, 30));
-				label.setMinWidth(210);
-				label.setRotate(270);
-				TranslateTransition translateTransition = new TranslateTransition(Duration.millis(9999), label);
+
+				stackPane.getChildren().add(buildEllipsePane(s.getTeamName(), s.getStatusColor()));
+				TranslateTransition translateTransition = new TranslateTransition(Duration.millis(9999), stackPane);
 				translateTransition.setFromY(-height);
 				translateTransition.setToY(place);
 				place = place + 90;
 				translateTransition.setCycleCount(1);
 				translateTransition.setAutoReverse(false);
 				translateTransition.play();
-				translateTransition.setDelay(Duration.millis(999));
+				//translateTransition.setDelay(Duration.millis(999));
 				sequentialTransition.getChildren().add(translateTransition);
 
 			});
@@ -120,7 +115,7 @@ public class AutoScrollProjectStatus extends HBox {
 			stackPane.setAlignment(Pos.CENTER);
 
 			StackPane stackPane2 = new StackPane(stackPane);
-			// stackPane2.setAlignment(Pos.BASELINE_LEFT);
+			stackPane2.setAlignment(Pos.BASELINE_LEFT);
 
 			setMinWidth(150);
 			setMaxWidth(150);
@@ -137,6 +132,69 @@ public class AutoScrollProjectStatus extends HBox {
 
 		return new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
 
+	}
+
+	private Color determineStatusColor(String name) {
+		Color color = name.equalsIgnoreCase("GREEN") ? Color.GREEN
+				: name.equalsIgnoreCase("ORANGE") ? Color.ORANGE
+						: name.equalsIgnoreCase("RED") ? Color.RED : Color.GREEN;
+		return color;
+	}
+
+	private StackPane buildEllipsePane(String mpsText, String color) {
+		Text text = createText(mpsText);
+		text.setRotate(270);
+		Circle circle = encircle(text, color);
+		// Ellipse ellipse = enEllipse(text);
+		StackPane layout = new StackPane();
+		layout.getChildren().addAll(/* circle */circle, text);
+		layout.setPadding(new Insets(20));
+
+		return layout;
+	}
+
+	private Circle encircle(Text text, String color) {
+
+		Circle circle = new Circle();
+		circle.setFill(determineStatusColor(color));
+		final double PADDING = 10;
+		circle.setRadius(getWidth(text) / 2 + PADDING + 10);
+
+		return circle;
+	}
+
+	private Text createText(String string) {
+		Text text = new Text(string);
+		text.setBoundsType(TextBoundsType.VISUAL);
+		text.setWrappingWidth(150);
+		text.setStyle("-fx-font-family: \"Times New Roman\";" + "-fx-font-style: italic;" + "-fx-font-size: 24px;");
+
+		return text;
+	}
+
+	private Ellipse enEllipse(Text text, String color) {
+		Ellipse ellipse = new Ellipse();
+		ellipse.setFill(determineStatusColor(color));
+		final double PADDING = 10;
+		ellipse.setRadiusX(getHeight(text) / 2 + PADDING + 10);
+		ellipse.setRadiusY(getWidth(text) / 2 + PADDING + 20);
+
+		return ellipse;
+
+	}
+
+	private double getWidth(Text text) {
+		new Scene(new Group(text));
+		text.applyCss();
+
+		return text.getLayoutBounds().getWidth();
+	}
+
+	private double getHeight(Text text) {
+		new Scene(new Group(text));
+		text.applyCss();
+
+		return text.getLayoutBounds().getHeight();
 	}
 
 }

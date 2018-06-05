@@ -52,7 +52,7 @@ public class DashboardSunburnChart extends HBox {
 
 		StackPane pane = new StackPane(sunburstTile);
 
-		getChildren().add(generateCustomTile(pane, "Release Highlights", 450, 500, "Releases & Features"));
+		getChildren().add(generateCustomTile(pane, "Release History", 450, 500, "Releases & Features"));
 
 	}
 

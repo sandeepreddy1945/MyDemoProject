@@ -105,9 +105,9 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 		barChart.setCategoryGap(20);
 
 		// set the names for the series of the intrevals
-		series1.setName(teamMembers.get(0).getIntreval1());
-		series2.setName(teamMembers.get(0).getIntreval2());
-		series3.setName(teamMembers.get(0).getIntreval3());
+		series1.setName("Value Add");
+		series2.setName("Quality");
+		series3.setName("On Time");
 
 		barChart.getData().addAll(series1, series2, series3);
 
@@ -195,7 +195,7 @@ public class DashboardStackedBarChart extends DashboardAbstract {
 
 		// add the appgination to UI
 		getChildren()
-				.add(generateCustomTile(pagination, "Employee- Quarterly Index Trend", 450, 500, "Individual Stats"));
+				.add(generateCustomTile(pagination, "Employee- Quarterly Performance", 450, 500, "Individual Stats"));
 
 		// add the black background.
 		setBackground(DashboardUtil.blackBackGround());

@@ -109,7 +109,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
 		// member perfomance score tile
-		Label label = new Label("Avg. Employee Points");
+		Label label = new Label("Quarterly Perfomance %");
 		label.setFont(Font.font("Verdana", 20));
 		label.setTextFill(Color.WHITESMOKE);
 		// TODO to apply css to the label for text.
@@ -122,11 +122,11 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 								 * member.getScore3())) / 300
 								 */0);
 		VBox funBox = new VBox(5);
-		funBox.getChildren().addAll(label, memberFunGuage);
+		funBox.getChildren().addAll(generateCustomTile(memberFunGuage, "Quarterly Perfomance %", 230, 210, ""));
 
 		// member ontime guage tile
-		memberGaugeTile = TileBuilder.create().skinType(SkinType.GAUGE).prefSize(200, 200).title("Quarterly Performance")
-				.unit("P").threshold(150).build();
+		memberGaugeTile = TileBuilder.create().skinType(SkinType.GAUGE).prefSize(200, 200)
+				.title("Quarterly Performance Score").unit("P").threshold(150).build();
 		memberGaugeTile.setMinValue(0);
 		memberGaugeTile.setMaxValue(300);
 		memberGaugeTile.setAnimationDuration(1200);
@@ -173,9 +173,17 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 			animationTimer.start();
 		}
 
+		// Tiles for all the other guages
+		Tile modernG = generateCustomTile(modernGuage,
+				"Points : " +( member.getIntreval1() == null ? "JAN" : member.getIntreval1()), 200, 200, "");
+		Tile secondG = generateCustomTile(secondGuage,
+				"Points : " +( member.getIntreval2() == null ? "FEB" : member.getIntreval2()), 200, 200, "");
+		Tile thirdG = generateCustomTile(thirdGuage,
+				"Points : " +( member.getIntreval3() == null ? "MAR" : member.getIntreval3()), 200, 200, "");
+
 		// add all componets in order
-		indBox.getChildren().addAll(memberImageDP, memberTextTile, funBox, memberGaugeTile, modernGuage, secondGuage,
-				thirdGuage, flipTile);
+		indBox.getChildren().addAll(memberImageDP, memberTextTile, funBox, memberGaugeTile, modernG, secondG, thirdG,
+				flipTile);
 		HBox.setHgrow(indBox, Priority.ALWAYS);
 
 		return indBox;
