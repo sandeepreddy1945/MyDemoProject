@@ -23,7 +23,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonPropertyOrder({ "type", "path", "fileName", "displayTxt" })
+@JsonPropertyOrder({ "type", "path", "fileName", "displayTxt", "isAppreciationImg" })
 @ToString(includeFieldNames = true)
 @JsonInclude(value = Include.NON_NULL)
 @JsonRootName("AppreciationImageBoundary")
@@ -41,5 +41,7 @@ public class AppreciationImageBoundary implements Serializable {
 	private String fileName;
 	@JsonProperty("displayTxt")
 	private String displayTxt;
+	@JsonProperty("isAppreciationImg")
+	private boolean isAppreciationImg;
 
 }

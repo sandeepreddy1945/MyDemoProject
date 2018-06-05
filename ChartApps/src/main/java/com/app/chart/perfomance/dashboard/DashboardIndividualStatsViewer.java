@@ -109,7 +109,7 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 				.descriptionAlignment(Pos.CENTER).textVisible(true).build();
 
 		// member perfomance score tile
-		Label label = new Label("Quarterly Perfomance %");
+		Label label = new Label("Quarterly Perfomance Percentage");
 		label.setFont(Font.font("Verdana", 20));
 		label.setTextFill(Color.WHITESMOKE);
 		// TODO to apply css to the label for text.
@@ -122,7 +122,8 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 								 * member.getScore3())) / 300
 								 */0);
 		VBox funBox = new VBox(5);
-		funBox.getChildren().addAll(generateCustomTile(memberFunGuage, "Quarterly Perfomance %", 230, 210, ""));
+		funBox.getChildren()
+				.addAll(generateCustomTile(memberFunGuage, "Quarterly Perfomance Percentage", 230, 210, ""));
 
 		// member ontime guage tile
 		memberGaugeTile = TileBuilder.create().skinType(SkinType.GAUGE).prefSize(200, 200)
@@ -175,11 +176,11 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 
 		// Tiles for all the other guages
 		Tile modernG = generateCustomTile(modernGuage,
-				"Points : " +( member.getIntreval1() == null ? "JAN" : member.getIntreval1()), 200, 200, "");
+				"Points : " + (member.getIntreval1() == null ? "JAN" : member.getIntreval1()), 200, 200, "");
 		Tile secondG = generateCustomTile(secondGuage,
-				"Points : " +( member.getIntreval2() == null ? "FEB" : member.getIntreval2()), 200, 200, "");
+				"Points : " + (member.getIntreval2() == null ? "FEB" : member.getIntreval2()), 200, 200, "");
 		Tile thirdG = generateCustomTile(thirdGuage,
-				"Points : " +( member.getIntreval3() == null ? "MAR" : member.getIntreval3()), 200, 200, "");
+				"Points : " + (member.getIntreval3() == null ? "MAR" : member.getIntreval3()), 200, 200, "");
 
 		// add all componets in order
 		indBox.getChildren().addAll(memberImageDP, memberTextTile, funBox, memberGaugeTile, modernG, secondG, thirdG,
@@ -248,8 +249,13 @@ public class DashboardIndividualStatsViewer extends DashboardAbstract {
 							flipTile.setFlipText(
 									Helper.TIME_0_TO_5[new Random().nextInt(Helper.TIME_0_TO_5.length - 1)]);
 						TeamMember member = teamMembers.get(page);
-						memberFunGuage.setLevel(
-								Double.valueOf((member.getScore1() + member.getScore2() + member.getScore3())) / 300);
+						// set the data as complete performance as this would show a avg percentage of
+						// all the scores
+						memberFunGuage
+								.setLevel(Double
+										.valueOf((member.getScore1() + member.getScore2() + member.getScore3()
+												+ member.getOnTime() + member.getValueAdd() + member.getQuality()))
+										/ 600);
 						memberGaugeTile.setValue(member.getOnTime() + member.getValueAdd() + member.getQuality());
 
 						// modern guage 1st month

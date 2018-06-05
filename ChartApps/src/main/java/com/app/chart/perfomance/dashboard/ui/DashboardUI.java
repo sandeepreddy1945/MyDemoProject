@@ -585,7 +585,8 @@ public class DashboardUI extends Application {
 				File newFile = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + f.getPath());
 				imageFileList.add(newFile);
 			});
-			DashboardAppreciationImageViewer daiv = new DashboardAppreciationImageViewer(teamMembers, imageFileList);
+			DashboardAppreciationImageViewer daiv = new DashboardAppreciationImageViewer(teamMembers,
+					appreciationImageBoundaries, imageFileList);
 			HBox box = daiv;
 			animationTimers.add(daiv.fetchMainAnimationTimer());
 			return box;

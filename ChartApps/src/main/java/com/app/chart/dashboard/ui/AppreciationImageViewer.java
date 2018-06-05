@@ -101,7 +101,8 @@ public class AppreciationImageViewer extends HBox {
 			appreciationImageBoundaryList.stream().forEach(r -> {
 				members.add(
 						// the is header applicable col is null always.
-						constructTableMemberBoundary(r.getType(), r.getPath(), "N", r.getDisplayTxt()));
+						constructTableMemberBoundary(r.getType(), r.getPath(), booleanToString(r.isAppreciationImg()),
+								r.getDisplayTxt()));
 			});
 		}
 	}
@@ -205,7 +206,7 @@ public class AppreciationImageViewer extends HBox {
 		JFXComboBox<String> headerCBX = new JFXComboBox<>(FXCollections.observableArrayList("Y", "N"));
 
 		optionsBox.setPromptText("Select The Type Here");
-		headerCBX.setPromptText("Is Header Display Req");
+		headerCBX.setPromptText("Is Appreciation Image");
 
 		JFXAlert<String> alert = new JFXAlert<>();
 		alert.initModality(Modality.APPLICATION_MODAL);
@@ -240,7 +241,7 @@ public class AppreciationImageViewer extends HBox {
 		// disable the combo box as we don't want to re-edit it.
 		optionsBox.setDisable(true);
 
-		headerCBX.getSelectionModel().select(boundary.fileName.get());
+		headerCBX.getSelectionModel().select(boundary.isAppreciationImg.get());
 		headerTxtTF.setText(boundary.displayTxt.get());
 		pathTF.setText(boundary.path.get());
 		// disable the path as well if req to edit delete this and add a new entry
@@ -269,8 +270,8 @@ public class AppreciationImageViewer extends HBox {
 				pathTF.setDisable(false);
 			} else if (optionsBox.getSelectionModel().getSelectedItem().equals(DisplayBoardConstants.image.name())) {
 				DashboardUtil.buildRequestValidator(pathTF, headerTxtTF);
-				headerCBX.getSelectionModel().select("N");
-				headerCBX.setDisable(true);
+				headerCBX.getSelectionModel().select("Y");
+				headerCBX.setDisable(false);
 				headerTxtTF.setDisable(true);
 				pathTF.clear();
 				pathTF.setDisable(false);
@@ -788,11 +789,11 @@ public class AppreciationImageViewer extends HBox {
 		});
 
 		JFXTreeTableColumn<RunJSonTableBoundary, String> isHdrApplicable = new JFXTreeTableColumn<>(
-				"Is Header Applicable");
+				"Is Appreciation Image");
 		isHdrApplicable.setPrefWidth(350);
 		isHdrApplicable.setCellValueFactory((TreeTableColumn.CellDataFeatures<RunJSonTableBoundary, String> param) -> {
 			if (isHdrApplicable.validateValue(param)) {
-				return param.getValue().getValue().getFileName();
+				return param.getValue().getValue().getIsAppreciationImg();
 			} else {
 				return isHdrApplicable.getComputedValue(param);
 			}
@@ -823,7 +824,7 @@ public class AppreciationImageViewer extends HBox {
 			tableView.setPredicate(userProp -> {
 				final RunJSonTableBoundary user = userProp.getValue();
 				return user.type.get().toLowerCase().contains(newVal.toLowerCase()) || user.path.get().contains(newVal)
-						|| user.fileName.get().contains(newVal) || user.displayTxt.get().contains(newVal);
+						|| user.isAppreciationImg.get().contains(newVal) || user.displayTxt.get().contains(newVal);
 			});
 		});
 		searchTF.setAlignment(Pos.CENTER_LEFT);
@@ -841,12 +842,12 @@ public class AppreciationImageViewer extends HBox {
 		// instantiate fields
 		m.setType(new SimpleStringProperty());
 		m.setPath(new SimpleStringProperty());
-		m.setFileName(new SimpleStringProperty());
+		m.setIsAppreciationImg(new SimpleStringProperty());
 		m.setDisplayTxt(new SimpleStringProperty());
 
 		m.getType().set(type);
 		m.getPath().set(path);
-		m.getFileName().set(fileName);
+		m.getIsAppreciationImg().set(fileName);
 		m.getDisplayTxt().set(headerTxt);
 
 		return m;
@@ -877,6 +878,7 @@ public class AppreciationImageViewer extends HBox {
 		// Req in here..only path is important.
 		b.setFileName(r.path.get());
 		b.setDisplayTxt(r.displayTxt.get());
+		b.setAppreciationImg(stringToBoolean(r.isAppreciationImg.get()));
 		return b;
 	}
 
@@ -889,7 +891,7 @@ public class AppreciationImageViewer extends HBox {
 
 		StringProperty type;
 		StringProperty path;
-		StringProperty fileName;
+		StringProperty isAppreciationImg;
 		StringProperty displayTxt;
 		// TODO add score getters and calendar events.
 	}

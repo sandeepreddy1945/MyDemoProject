@@ -13,8 +13,10 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import com.app.chart.model.AppreciationImageBoundary;
 import com.app.chart.model.TeamMember;
 
+import eu.hansolo.tilesfx.Tile;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
@@ -30,11 +32,28 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DashboardAppreciationImageViewer extends DashboardAbstract {
 
+	private static final String ACHEIVEMENTS_APPRECIATIONS = "Acheivements & Appreciations";
+	private static final String NTTDATA_UPDATES = "NTT DATA NEWS & UPDATES";
 	private static final double ITEMS_PER_PAGE = 1;
 	private Pagination pagination;
 	private int pageCount;
 	private List<File> imageFileList = new ArrayList<>();
 	private int animationPageIndex;
+	private Tile generateCustomTile;
+	private List<AppreciationImageBoundary> appreciationImageBoundaries = new ArrayList<>();
+
+	/**
+	 * Last one is a dummy parameter.
+	 * 
+	 * @param teamMembers
+	 * @param appreciationImageBoundaries
+	 * @param imageFileList
+	 */
+	public DashboardAppreciationImageViewer(List<TeamMember> teamMembers,
+			List<AppreciationImageBoundary> appreciationImageBoundaries, List<File> imageFileList) {
+		this(teamMembers, imageFileList.stream().toArray(File[]::new));
+		this.appreciationImageBoundaries = appreciationImageBoundaries;
+	}
 
 	public DashboardAppreciationImageViewer(List<TeamMember> teamMembers, List<File> imageFileList) {
 		super(teamMembers, imageFileList.stream().toArray(File[]::new));
@@ -62,8 +81,8 @@ public class DashboardAppreciationImageViewer extends DashboardAbstract {
 
 			// add the appgination to UI using Tile
 			// TODO change the naming here if wanted
-			getChildren()
-					.add(generateCustomTile(pagination, "Acheivements & Appreciations", 450, 500, "Appreciations"));
+			generateCustomTile = generateCustomTile(pagination, ACHEIVEMENTS_APPRECIATIONS, 450, 500, "Appreciations");
+			getChildren().add(generateCustomTile);
 
 			// add the black background.
 			setBackground(DashboardUtil.blackBackGround());
@@ -78,15 +97,20 @@ public class DashboardAppreciationImageViewer extends DashboardAbstract {
 			Image image = new Image(FileUtils.openInputStream(Arrays.asList(files).get(pageIndex)));
 			imageView = new ImageView(image);
 			imageView.setPreserveRatio(false);
-			//imageView.setFitWidth(430);
-			//imageView.setFitHeight(310);
+			// imageView.setFitWidth(430);
+			// imageView.setFitHeight(310);
 			ScrollPane scrollPane = new ScrollPane(imageView);
 			scrollPane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 			scrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 			scrollPane.setMaxSize(430, 310);
 			pane.setMaxHeight(320);
 			pane.getChildren().add(scrollPane);
-			
+
+			// change the name of the tile according to news and appreciation image
+			generateCustomTile.setTitle(appreciationImageBoundaries.get(pageIndex) != null
+					&& appreciationImageBoundaries.get(pageIndex).isAppreciationImg() ? ACHEIVEMENTS_APPRECIATIONS
+							: NTTDATA_UPDATES);
+
 		} catch (IOException e) {
 			log.error("createPage", e);
 		}

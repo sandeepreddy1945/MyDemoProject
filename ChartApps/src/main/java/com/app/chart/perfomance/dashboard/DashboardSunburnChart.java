@@ -52,7 +52,13 @@ public class DashboardSunburnChart extends HBox {
 
 		StackPane pane = new StackPane(sunburstTile);
 
-		getChildren().add(generateCustomTile(pane, "Release History", 450, 500, "Releases & Features"));
+		// customize the name using the rootname
+		// as not all will have the agile stuff so giving an option for header
+		getChildren().add(generateCustomTile(pane,
+				sunburstBoundary.getRootName() != null && sunburstBoundary.getRootName().length() > 0
+						? sunburstBoundary.getRootName()
+						: "Release History",
+				450, 500, "Releases & Features"));
 
 	}
 
@@ -66,8 +72,9 @@ public class DashboardSunburnChart extends HBox {
 	 * @return
 	 */
 	public Tile generateCustomTile(Node node, String title, double width, double height, String btmText) {
-		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title).textVisible(false).
-		// TODO think of a name for this text .
+		Tile tile = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(width, height).title(title)
+				.textVisible(false).
+				// TODO think of a name for this text .
 				text(btmText).graphic(node).roundedCorners(true).build();
 		return tile;
 	}

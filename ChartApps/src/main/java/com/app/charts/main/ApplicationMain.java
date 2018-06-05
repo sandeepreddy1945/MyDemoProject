@@ -15,10 +15,8 @@ import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Marker;
 
-import com.app.chart.cache.ChartCacheManager;
 import com.app.chart.fx.ChartWebEngine;
 import com.app.chart.fx.FilesUtil;
-import com.app.chart.fx.JettyServerMain;
 import com.app.chart.image.display.DisplayImage;
 import com.app.chart.model.PerfomanceBoardBoundary;
 import com.app.chart.model.RunJsonBoundary;
@@ -44,7 +42,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.Element;
 
 /**
  * @author Sandeep Reddy Battula
@@ -219,7 +216,7 @@ public class ApplicationMain extends Application {
 		// juzz display a blank page at the start.
 		scene = new Scene(new HBox(), WIDTH, HEIGHT);
 		// start the timer once the UI is initiated.
-		timeline = new Timeline(new KeyFrame(Duration.seconds(45), this::executeTask));
+		timeline = new Timeline(new KeyFrame(Duration.seconds(35), this::executeTask));
 		stage.setScene(scene);
 		stage.show();
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -358,7 +355,7 @@ public class ApplicationMain extends Application {
 				// as it dashboard run put it to false
 				isNormalOnesRunning = false;
 				isDashBoardRunning = true;
-				dashBoardTimeLine = new Timeline(new KeyFrame(Duration.minutes(1.2), event -> {
+				dashBoardTimeLine = new Timeline(new KeyFrame(Duration.minutes(3), event -> {
 					try {
 						executeDashboardTask(event);
 					} catch (Exception e1) {

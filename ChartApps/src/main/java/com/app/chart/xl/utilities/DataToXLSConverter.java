@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,6 +22,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.app.chart.fx.FilesUtil;
 import com.app.chart.model.PerfomanceBoardBoundary;
+import com.app.chart.model.SunburstBoundary;
+import com.app.chart.model.SunburstBoundary.ReleaseBoundary;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,9 +42,10 @@ public class DataToXLSConverter {
 	public String PERFORMANCE_FOLDER = ROOT_FOLDER + FilesUtil.SLASH + "performance";
 	public String PERFORMANCE_FILE = PERFORMANCE_FOLDER + FilesUtil.SLASH + "TeamsPerformanceData.xlsx";
 
-	private static final String[] PERFOMANCE_SHEET_HEADER = { "PORTAL ID", "FULL NAME", "DESIGNATION", "MONTH 1 SCORE",
-			"MONTH 2 SCORE", "MONTH 3 SCORE", "VALUE ADD SCORE", "QUALITY SCORE", "ON TIME SCORE", "INITIAL MONTH",
-			"TEAM NAME" };
+	private static final String[] PERFOMANCE_MEMBER_SHEET_HEADER = { "PORTAL ID", "FULL NAME", "DESIGNATION",
+			"MONTH 1 SCORE", "MONTH 2 SCORE", "MONTH 3 SCORE", "VALUE ADD SCORE", "QUALITY SCORE", "ON TIME SCORE",
+			"INITIAL MONTH", "TEAM NAME" };
+	private static final String[] PERFORMANCE_RELEASE_HEADER = { "TOTAL POINTS", "ACCEPTED POINTS", "BACKLOG POINTS" };
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -108,7 +113,7 @@ public class DataToXLSConverter {
 
 			XSSFRow firstRow = spreadsheet.createRow(0);
 			// set colums to row
-			Arrays.stream(PERFOMANCE_SHEET_HEADER).forEach(s -> {
+			Arrays.stream(PERFOMANCE_MEMBER_SHEET_HEADER).forEach(s -> {
 				// increment and get so it starts from 1
 				Cell cell = firstRow.createCell(cellCount.incrementAndGet());
 				cell.setCellValue(s);
@@ -136,6 +141,122 @@ public class DataToXLSConverter {
 			});
 
 		});
+
+		// now write the perfomance meter data into it
+		perfomanceBoardDetails.stream().forEach(p -> {
+			// check if overperfomance boundary is non null and then proceed
+			if (p.getPerfomanceMeterBoundary() != null) {
+
+				// create a page in workbook using the managers name given
+				XSSFSheet spreadsheet = workbook
+						.createSheet(p.getManagerDetailBoundary().getName() + " - Overall Perfomance");
+				XSSFRow firstRow = spreadsheet.createRow(0);
+
+				// create first row with header as its increment setter.
+				AtomicInteger cellCount = new AtomicInteger(-1);
+				// set colums to row
+				Arrays.stream(PERFORMANCE_RELEASE_HEADER).forEach(s -> {
+					// increment and get so it starts from 1
+					Cell cell = firstRow.createCell(cellCount.incrementAndGet());
+					cell.setCellValue(s);
+				});
+
+				// re-initialize it to start value
+				cellCount.set(-1);
+				AtomicInteger rowCount = new AtomicInteger(0);
+				XSSFRow row = spreadsheet.createRow(rowCount.incrementAndGet());
+				row.createCell(cellCount.incrementAndGet())
+						.setCellValue(p.getPerfomanceMeterBoundary().getTotalPoints());
+				row.createCell(cellCount.incrementAndGet())
+						.setCellValue(p.getPerfomanceMeterBoundary().getCurrentPoints());
+				row.createCell(cellCount.incrementAndGet())
+						.setCellValue(p.getPerfomanceMeterBoundary().getBacklogPoints());
+
+			}
+		});
+
+		// now write the current sprint data into it
+		perfomanceBoardDetails.stream().forEach(p -> {
+			// check if current spring boundary is non null and then proceed
+
+			if (p.getCurrentSprintBoundary() != null) {
+
+				// create a page in workbook using the managers name given
+				XSSFSheet spreadsheet = workbook
+						.createSheet(p.getManagerDetailBoundary().getName() + " - Current Sprint");
+				XSSFRow firstRow = spreadsheet.createRow(0);
+
+				// create first row with header as its increment setter.
+				AtomicInteger cellCount = new AtomicInteger(-1);
+				// set colums to row
+				Arrays.stream(PERFORMANCE_RELEASE_HEADER).forEach(s -> {
+					// increment and get so it starts from 1
+					Cell cell = firstRow.createCell(cellCount.incrementAndGet());
+					cell.setCellValue(s);
+				});
+
+				// re-initialize it to start value
+				cellCount.set(-1);
+				AtomicInteger rowCount = new AtomicInteger(0);
+				XSSFRow row = spreadsheet.createRow(rowCount.incrementAndGet());
+				row.createCell(cellCount.incrementAndGet())
+						.setCellValue(p.getCurrentSprintBoundary().getTotalSprintPoints());
+				row.createCell(cellCount.incrementAndGet())
+						.setCellValue(p.getCurrentSprintBoundary().getCurrentSprintPoints());
+				row.createCell(cellCount.incrementAndGet())
+						.setCellValue(p.getCurrentSprintBoundary().getBacklogSprintPoints());
+
+			}
+		});
+
+		// now write the release graph details
+		perfomanceBoardDetails.stream().forEach(p -> {
+			if (p.getSunburstBoundary() != null) {
+				SunburstBoundary s = p.getSunburstBoundary();
+				// create a page in workbook using the managers name given
+				XSSFSheet spreadsheet = workbook
+						.createSheet(p.getManagerDetailBoundary().getName() + " - " + s.getRootName());
+				XSSFRow firstRow = spreadsheet.createRow(0);
+
+				// create first row with header as its increment setter.
+				AtomicInteger cellCount = new AtomicInteger(-1);
+
+				// set the serial number as the first cell.
+				Cell frstCell = firstRow.createCell(cellCount.incrementAndGet());
+				frstCell.setCellValue("Release Name");
+				// increment and get so it starts from 1
+				// Cell cell = firstRow.createCell(cellCount.incrementAndGet());
+				// cell.setCellValue("Color Assigned");
+
+				// get the highest column count and add that many colums to header row
+				// a cloned list of subboundaries
+				List<ReleaseBoundary> list = s.getSubBoundaries();
+				Collections.sort(list, ReleaseGraphComparator.getInstance());
+				Collections.reverse(list);
+
+				int highestCount = list.get(0).getAttrBoundaries().size();
+
+				for (int i = 1; i <= highestCount; i++) {
+					Cell cell = firstRow.createCell(cellCount.incrementAndGet());
+					cell.setCellValue("Feature - " + i + " - Score");
+				}
+
+				AtomicInteger rowCount = new AtomicInteger(0);
+
+				s.getSubBoundaries().stream().forEach(sb -> {
+					// re-initialize it to start value
+					cellCount.set(-1);
+					XSSFRow row = spreadsheet.createRow(rowCount.incrementAndGet());
+					row.createCell(cellCount.incrementAndGet()).setCellValue(sb.getFieldName());
+					// row.createCell(cellCount.incrementAndGet()).setCellValue(sb.getColor().fecthColor().);
+					sb.getAttrBoundaries().stream().forEach(sba -> {
+						row.createCell(cellCount.incrementAndGet())
+								.setCellValue(sba.getFieldName() + " - " + sba.getScores());
+					});
+				});
+			}
+		});
+
 		// now write things to file
 		FileOutputStream outputStream;
 		try {
@@ -153,6 +274,26 @@ public class DataToXLSConverter {
 	 */
 	public static void main(String[] args) {
 		new DataToXLSConverter();
+	}
+
+	static class ReleaseGraphComparator implements Comparator<ReleaseBoundary> {
+
+		private static ReleaseGraphComparator _instance = new ReleaseGraphComparator();
+
+		public static ReleaseGraphComparator getInstance() {
+			return _instance;
+		}
+
+		@Override
+		public int compare(ReleaseBoundary o1, ReleaseBoundary o2) {
+			if (o1 != null && o2 != null) {
+				Integer i1 = o1.getAttrBoundaries().size();
+				Integer i2 = o2.getAttrBoundaries().size();
+				return i1.compareTo(i2);
+			}
+			return 0;
+		}
+
 	}
 
 }
