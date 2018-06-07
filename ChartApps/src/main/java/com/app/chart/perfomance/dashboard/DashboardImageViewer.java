@@ -15,7 +15,6 @@ import com.app.chart.model.TeamMember;
 import eu.hansolo.tilesfx.Tile;
 import eu.hansolo.tilesfx.Tile.SkinType;
 import eu.hansolo.tilesfx.TileBuilder;
-import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -33,7 +32,11 @@ public class DashboardImageViewer extends HBox {
 
 	private final List<TeamMember> teamMembers;
 
+	private String name1;
+	private String name2;
+
 	/**
+	 * @deprecated
 	 * 
 	 * @param img1Path
 	 * @param img2Path
@@ -44,6 +47,25 @@ public class DashboardImageViewer extends HBox {
 		this.img1Path = img1Path;
 		this.img2Path = img2Path;
 		this.teamMembers = teamMembers;
+		this.name1 = teamMembers.get(0).getName();
+		this.name2 = teamMembers.get(1).getName();
+		init();
+	}
+
+	/**
+	 * 
+	 * @param img1Path
+	 * @param img2Path
+	 * @throws IOException
+	 */
+	public DashboardImageViewer(File img1Path, File img2Path, List<TeamMember> teamMembers, String name1, String name2)
+			throws IOException {
+		super(5);
+		this.img1Path = img1Path;
+		this.img2Path = img2Path;
+		this.teamMembers = teamMembers;
+		this.name1 = name1;
+		this.name2 = name2;
 		init();
 	}
 
@@ -87,10 +109,10 @@ public class DashboardImageViewer extends HBox {
 		img2.setImage(new Image(FileUtils.openInputStream(img2Path)));
 
 		Tile tile1 = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(200, 250).title("Performer of Quarter")
-				.text(teamMembers.get(0).getName()).graphic(img1).roundedCorners(true).build();
+				.text(name1).graphic(img1).roundedCorners(true).build();
 
 		Tile tile2 = TileBuilder.create().skinType(SkinType.CUSTOM).prefSize(200, 250).title("Performer of Month")
-				.text(teamMembers.get(1).getName()).graphic(img2).roundedCorners(true).build();
+				.text(name2).graphic(img2).roundedCorners(true).build();
 
 		// setBlendMode(BlendMode.COLOR_BURN);
 

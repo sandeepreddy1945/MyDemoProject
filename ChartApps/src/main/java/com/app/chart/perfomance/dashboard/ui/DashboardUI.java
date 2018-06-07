@@ -9,11 +9,15 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 
@@ -364,12 +368,16 @@ public class DashboardUI extends Application {
 			// Kept Juzz for testing.
 			URL url1 = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + teamMembers.get(0).getPortalId() + ".png")
 					.toURI().toURL();
-			URL url2 = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH + teamMembers.get(1).getPortalId() + ".png")
-					.toURI().toURL();
+			// this requires a logic to filter the current month details and then add the
+			// image to it.
+			int performerOfMonthIndex = calculatePerformerOfTheMonth();
+			URL url2 = new File(FilesUtil.IMAGES_DIR_PATH + FilesUtil.SLASH
+					+ teamMembers.get(performerOfMonthIndex).getPortalId() + ".png").toURI().toURL();
 			File logo1 = new File(url1.toURI().getPath());
 			File logo2 = new File(url2.toURI().getPath());
 
-			dashboardImageViewer = new DashboardImageViewer(logo1, logo2, teamMembers);
+			dashboardImageViewer = new DashboardImageViewer(logo1, logo2, teamMembers, teamMembers.get(0).getName(),
+					teamMembers.get(performerOfMonthIndex).getName());
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -391,6 +399,57 @@ public class DashboardUI extends Application {
 		}
 		return dashboardImageViewer;
 
+	}
+
+	/**
+	 * Calculates the performer of the current month . If current month data doesnot
+	 * exits it just returns the first member.
+	 * 
+	 * @return
+	 */
+	private int calculatePerformerOfTheMonth() {
+
+		Month month = LocalDate.now().getMonth();
+		int monthIntervalNum = 0;
+		TeamMember justOneMmber = teamMembers.get(1);
+		if (month.name().equalsIgnoreCase(
+				justOneMmber.getIntreval1().substring(0, justOneMmber.getIntreval1().indexOf("-")).trim())) {
+			monthIntervalNum = 1;
+		} else if (month.name().equalsIgnoreCase(
+				justOneMmber.getIntreval1().substring(0, justOneMmber.getIntreval2().indexOf("-")).trim())) {
+			monthIntervalNum = 2;
+		} else if (month.name().equalsIgnoreCase(
+				justOneMmber.getIntreval1().substring(0, justOneMmber.getIntreval3().indexOf("-")).trim())) {
+			monthIntervalNum = 3;
+		}
+
+		if (monthIntervalNum == 0) {
+			return 1;
+		} else {
+			// fetch the one with highest count in current month.
+			List<TeamMember> teamList = new ArrayList<>();
+			// make a cloned list
+			teamList.addAll(teamMembers);
+			if (monthIntervalNum == 1) {
+				teamList = teamList.stream().sorted((o1, o2) -> {
+					return (Integer.valueOf(o1.getScore1()).compareTo(Integer.valueOf(o2.getScore1())));
+				}).collect(Collectors.toList());
+			} else if (monthIntervalNum == 2) {
+				teamList = teamList.stream().sorted((o1, o2) -> {
+					return (Integer.valueOf(o1.getScore2()).compareTo(Integer.valueOf(o2.getScore2())));
+				}).collect(Collectors.toList());
+			} else if (monthIntervalNum == 3) {
+				teamList = teamList.stream().sorted((o1, o2) -> {
+					return (Integer.valueOf(o1.getScore3()).compareTo(Integer.valueOf(o2.getScore3())));
+				}).collect(Collectors.toList());
+			}
+			Collections.reverse(teamList);
+			TeamMember tm = teamList.get(0);
+			Predicate<TeamMember> pd = e -> e.getPortalId().equalsIgnoreCase(tm.getPortalId());
+
+			TeamMember tms = teamMembers.stream().filter(pd).findFirst().get();
+			return teamMembers.indexOf(tms);
+		}
 	}
 
 	/**

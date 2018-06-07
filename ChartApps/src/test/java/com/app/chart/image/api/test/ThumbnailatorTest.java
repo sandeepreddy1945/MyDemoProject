@@ -1,6 +1,6 @@
 /**
  * 
- */
+ *//*
 package com.app.chart.image.api.test;
 
 import java.awt.Dimension;
@@ -23,29 +23,29 @@ import net.coobird.thumbnailator.name.Rename;
 import net.coobird.thumbnailator.resizers.DefaultResizerFactory;
 import net.coobird.thumbnailator.resizers.Resizer;
 
-/**
+*//**
  * @author Sandeep
  *         https://stackoverflow.com/questions/24745147/java-resize-image-without-losing-quality
  *         //check site for more informaiton on image escaling.
- */
+ *//*
 public class ThumbnailatorTest {
 
-	/**
+	*//**
 	 * 
-	 */
+	 *//*
 	public ThumbnailatorTest() {
 		// TODO Auto-generated constructor stub
 	}
 
-	/**
+	*//**
 	 * @param args
 	 * @throws IOException
-	 */
+	 *//*
 	public static void main(String[] args) throws IOException {
-		/*
+		
 		 * Thumbnails.of(new File("path/to/directory").listFiles()).size(640,
 		 * 480).outputFormat("jpg") .toFiles(Rename.NO_CHANGE);
-		 */
+		 
 		BufferedImage imageToScale = ImageIO
 				.read(FileUtils.openInputStream(new File("C:\\Users\\Sandeep\\Pictures\\appreciation1.png")));
 		Resizer resizer = DefaultResizerFactory.getInstance()
@@ -69,3 +69,4 @@ public class ThumbnailatorTest {
 	}
 
 }
+*/

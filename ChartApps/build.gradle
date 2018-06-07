@@ -90,11 +90,11 @@ dependencies {
 	compile 'net.logstash.log4j:jsonevent-layout:1.7'
 	//image library
 	//compile 'net.imagej:imagej:2.0.0-rc-63'
-	compile 'javax.media:jai-core:1.1.3'
-	compile 'javax.media:jai_codec:1.1.3'
-	compile 'com.github.jai-imageio:jai-imageio-core:1.4.0'
-	compile 'com.mortennobel:java-image-scaling:0.8.6'
-	compile 'net.coobird:thumbnailator:[0.4, 0.5)'
+	//compile 'javax.media:jai-core:1.1.3'
+	//compile 'javax.media:jai_codec:1.1.3'
+	//compile 'com.github.jai-imageio:jai-imageio-core:1.4.0'
+	//compile 'com.mortennobel:java-image-scaling:0.8.6'
+	//compile 'net.coobird:thumbnailator:[0.4, 0.5)'
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     testCompile "org.testfx:testfx-core:4.0.13-alpha"
